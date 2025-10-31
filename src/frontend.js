@@ -43,11 +43,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    document.body.addEventListener('click', (e) => {
-        const trigger = e.target.closest('.wp-inline-context');
-        if (!trigger) return;
+    // Progressive enhancement: ensure keyboard accessibility even if href isn't present in saved HTML
+    // - Only add tabindex when href is missing (to avoid changing tab order unnecessarily)
+    // - Ensure role and aria-expanded have sensible defaults
+    for (const trigger of document.querySelectorAll('.wp-inline-context')) {
+        if (!trigger.hasAttribute('href')) {
+            if (!trigger.hasAttribute('tabindex')) {
+                trigger.setAttribute('tabindex', '0');
+            }
+            if (!trigger.hasAttribute('role')) {
+                trigger.setAttribute('role', 'button');
+            }
+        }
+        if (!trigger.hasAttribute('aria-expanded')) {
+            trigger.setAttribute('aria-expanded', 'false');
+        }
+    }
 
-        e.preventDefault();
+    const toggleNote = (trigger) => {
+        if (!trigger) return;
 
         // If already open, close and clean ARIA state
         const existing = trigger.nextElementSibling;
@@ -60,16 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Close any other open notes and reset state
-        for (const el of document.querySelectorAll('.wp-inline-context-inline')) {
-            el.remove();
-        }
-        for (const el of document.querySelectorAll('.wp-inline-context')) {
-            el.classList.remove(revealedClass);
-            el.setAttribute('aria-expanded', 'false');
-            el.removeAttribute('aria-describedby');
-            el.removeAttribute('aria-controls');
-        }
+        // Do not close other open notes; only toggle the current trigger
 
         // Build the new inline note
         const hiddenContent = trigger.dataset.inlineContext || '';
@@ -97,5 +102,24 @@ document.addEventListener('DOMContentLoaded', () => {
         trigger.setAttribute('aria-expanded', 'true');
         trigger.setAttribute('aria-describedby', noteId);
         trigger.setAttribute('aria-controls', noteId);
+    };
+
+    // Handle click events
+    document.body.addEventListener('click', (e) => {
+        const trigger = e.target.closest('.wp-inline-context');
+        if (!trigger) return;
+        e.preventDefault();
+        toggleNote(trigger);
+    });
+
+    // Handle keyboard events (Enter or Space)
+    document.body.addEventListener('keydown', (e) => {
+        const trigger = e.target.closest('.wp-inline-context');
+        if (!trigger) return;
+        
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleNote(trigger);
+        }
     });
 });

@@ -29,9 +29,10 @@ add_filter('wp_kses_allowed_html', function ($tags, $context) {
         if (!isset($tags['a'])) {
             $tags['a'] = [];
         }
-        if (!isset($tags['a']['data-inline-context'])) {
-            $tags['a']['data-inline-context'] = true;
-        }
+        // Allow our custom attributes for inline context functionality
+        $tags['a']['data-inline-context'] = true;
+        $tags['a']['role'] = true;
+        $tags['a']['aria-expanded'] = true;
     }
     return $tags;
 }, 10, 2);

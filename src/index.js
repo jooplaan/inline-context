@@ -11,6 +11,9 @@ registerFormatType('trybes/inline-context', {
     className: 'wp-inline-context',
     attributes: {
         'data-inline-context': 'data-inline-context',
+        href: 'href',
+        role: 'role',
+        'aria-expanded': 'aria-expanded',
     },
     edit: Edit,
 });

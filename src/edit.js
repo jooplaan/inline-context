@@ -120,6 +120,9 @@ export default function Edit({ isActive, value, onChange }) {
 					type: 'trybes/inline-context',
 				attributes: {
 						'data-inline-context': text,
+					href: '#',
+					role: 'button',
+					'aria-expanded': 'false',
 				},
 			})
 		);
