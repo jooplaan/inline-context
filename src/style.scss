@@ -1,0 +1,52 @@
+// Frontend + editor shared styles for inline context
+
+.wp-inline-context {
+    cursor: pointer;
+    text-decoration: underline dotted;
+    color: var(--wp--preset--color--primary, #0073aa);
+}
+
+.wp-inline-context-inline {
+    display: block;
+    /* Spacing */
+    margin: var(--trybes-inline-note-margin-y, 0.75em) 0;
+    padding: var(--trybes-inline-note-padding-y, 0.75em) var(--trybes-inline-note-padding-x, 1em);
+    /* Surface */
+    background: var(--trybes-inline-note-background, rgba(0, 0, 0, 0.04));
+    border: 1px solid var(--trybes-inline-note-border-color, rgba(0, 0, 0, 0.08));
+    border-left: var(--trybes-inline-note-accent-width, 3px) solid var(--trybes-inline-note-accent-color, var(--wp--preset--color--primary, #0073aa));
+    border-radius: var(--trybes-inline-note-radius, 6px);
+    box-shadow: var(--trybes-inline-note-shadow, 0 1px 2px rgba(0, 0, 0, 0.05));
+    /* Typography */
+    font-size: 0.95em;
+}
+
+/* Avoid double spacing for content inside the note */
+.wp-inline-context-inline > :first-child { margin-top: 0; }
+.wp-inline-context-inline > :last-child { margin-bottom: 0; }
+
+/* Optional link styling inside notes (theme-overridable) */
+.wp-inline-context-inline a {
+    color: var(--trybes-inline-note-link-color, inherit);
+    text-decoration-color: var(--trybes-inline-note-link-underline, currentColor);
+}
+
+.wp-inline-context--open {
+    font-weight: 600;
+}
+
+/* Arrow indicator instead of numbering */
+.wp-inline-context::after {
+    content: '▾'; /* down arrow when hidden */
+    font-size: 0.85em;
+    vertical-align: baseline;
+    margin-left: 0.25em;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Show up arrow when open; prefer ARIA but also support open class */
+.wp-inline-context[aria-expanded="true"]::after,
+.wp-inline-context.wp-inline-context--open::after {
+    content: '▴';
+}
