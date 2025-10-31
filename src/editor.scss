@@ -1,0 +1,103 @@
+.wp-reveal-popover {
+    padding: 12px;
+}
+
+.wp-reveal-linkcontrol {
+    margin-top: 8px;
+}
+
+.reveal-text {
+    background-color: rgba(255, 255, 0, 0.2);
+    cursor: pointer;
+}
+
+.components-popover__content {
+    padding: 12px;
+}
+
+/* React Quill Editor Styles */
+.wp-reveal-quill-editor {
+    width: 400px;
+    max-width: 90vw;
+}
+
+.wp-reveal-quill-label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #1e1e1e;
+    font-size: 13px;
+}
+
+.wp-reveal-quill-help {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #757575;
+    font-style: italic;
+}
+
+/* Button styling within popover */
+.wp-reveal-popover .components-flex {
+    margin-top: 12px;
+}
+
+.wp-reveal-popover .components-button.is-destructive {
+    color: #d63638;
+    border-color: #d63638;
+}
+
+.wp-reveal-popover .components-button.is-destructive:hover {
+    background-color: #d63638;
+    color: white;
+}
+
+/* Quill Editor Overrides for WordPress */
+.wp-reveal-quill-editor .ql-editor {
+    min-height: 80px;
+    max-height: 200px;
+    border: 1px solid #949494;
+    border-radius: 2px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.wp-reveal-quill-editor .ql-toolbar {
+    border: 1px solid #949494;
+    border-bottom: none;
+    border-radius: 2px 2px 0 0;
+    padding: 4px 8px;
+    background: #f6f7f7;
+}
+
+.wp-reveal-quill-editor .ql-container {
+    border-radius: 0 0 2px 2px;
+}
+
+.wp-reveal-quill-editor .ql-editor.ql-blank::before {
+    color: #757575;
+    font-style: italic;
+}
+
+/* WordPress-like button styling for Quill toolbar */
+.wp-reveal-quill-editor .ql-toolbar .ql-formats {
+    margin-right: 8px;
+}
+
+.wp-reveal-quill-editor .ql-toolbar button {
+    width: 28px;
+    height: 28px;
+    border-radius: 2px;
+    margin: 0 1px;
+}
+
+.wp-reveal-quill-editor .ql-toolbar button:hover {
+    background-color: #e0e0e0;
+}
+
+.wp-reveal-quill-editor .ql-toolbar button.ql-active {
+    background-color: #2271b1;
+    color: white;
+}
+
+/* Make the popover look inline/frameless near the selection */
+/* default popover frame (no special overrides) */
