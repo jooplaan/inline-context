@@ -7,7 +7,7 @@
  * - Remove existing inline context
  * - WordPress-friendly styling and keyboard shortcuts
  */
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { RichTextToolbarButton } from '@wordpress/block-editor';
 import { Popover, Button, Flex, FlexItem } from '@wordpress/components';
 import { applyFormat, removeFormat } from '@wordpress/rich-text';
@@ -31,6 +31,13 @@ const QUILL_FORMATS = [
 export default function Edit({ isActive, value, onChange }) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [anchor, setAnchor] = useState();
+	const prevFocusRef = useRef(null);
+	const popoverId = useMemo(() => `inline-context-popover-${Math.random().toString(36).slice(2)}`, []);
+	const labelId = `${popoverId}-label`;
+	const cancelRef = useRef(null);
+	const saveRef = useRef(null);
+	const removeRef = useRef(null);
+	const quillRef = useRef(null);
 
 
 	const activeFormat = value.activeFormats?.find((f) => f.type === 'trybes/inline-context');
@@ -38,6 +45,10 @@ export default function Edit({ isActive, value, onChange }) {
 	const [text, setText] = useState(currentText);
 
 	const toggle = () => {
+		// Remember the element that had focus before opening so we can restore it on close
+		if (!isOpen) {
+			prevFocusRef.current = document.activeElement;
+		}
 		setIsOpen((prev) => {
 			const next = !prev;
 			if (next) {
@@ -95,6 +106,24 @@ export default function Edit({ isActive, value, onChange }) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeFormat?.attributes?.['data-inline-context']]);
 
+	// When opening, place focus inside the Quill editor for immediate typing
+	useEffect(() => {
+		if (!isOpen) return;
+		const t = setTimeout(() => {
+			const inst = quillRef.current;
+			if (inst?.focus) {
+				inst.focus();
+			} else if (inst?.getEditor) {
+				try {
+					inst.getEditor()?.focus?.();
+				} catch (e) {
+					// ignore
+				}
+			}
+		}, 0);
+		return () => clearTimeout(t);
+	}, [isOpen]);
+
 	// Add handy keyboard shortcuts for the popover
 	useEffect(() => {
 		if (!isOpen) return;
@@ -127,11 +156,29 @@ export default function Edit({ isActive, value, onChange }) {
 			})
 		);
 		setIsOpen(false);
+		// Restore focus to the previously focused control for smooth keyboard workflow
+		setTimeout(() => prevFocusRef.current?.focus?.(), 0);
 	};
 
 	const remove = () => {
 		onChange(removeFormat(value, 'trybes/inline-context'));
 		setIsOpen(false);
+		setTimeout(() => prevFocusRef.current?.focus?.(), 0);
+	};
+
+	// Allow Tab to move focus from the Quill editor to the first action button,
+	// and Shift+Tab to return to the toolbar toggle button.
+	const handleEditorKeyDownCapture = (e) => {
+		if (e.key === 'Tab') {
+			e.preventDefault();
+			if (e.shiftKey) {
+				// Back to the toolbar button
+				prevFocusRef.current?.focus?.();
+			} else {
+				// To the first available action (Remove if present, else Cancel, else Save)
+				(removeRef.current || cancelRef.current || saveRef.current)?.focus?.();
+			}
+		}
 	};
 
 	// Handle React Quill editor changes
@@ -146,27 +193,39 @@ export default function Edit({ isActive, value, onChange }) {
 				title={__('Inline Context', 'inline-context')}
 				onClick={toggle}
 				isActive={isActive}
+				aria-expanded={isOpen}
+				aria-controls={isOpen ? popoverId : undefined}
 			/>
 
 			{isOpen && (
 				<Popover
+					id={popoverId}
 					anchor={anchor}
 					position="bottom center"
 					focusOnMount="firstElement"
-					onClose={() => setIsOpen(false)}
+					role="dialog"
+					aria-modal={false}
+					aria-labelledby={labelId}
+					onClose={() => {
+						setIsOpen(false);
+						setTimeout(() => prevFocusRef.current?.focus?.(), 0);
+					}}
 				>
 					<div className="wp-reveal-popover wp-reveal-quill-editor">
-						<div className="wp-reveal-quill-label">
+						<div className="wp-reveal-quill-label" id={labelId}>
 							{__('Inline Context', 'inline-context')}
 						</div>
-						<ReactQuill
-							value={text}
-							onChange={handleQuillChange}
-							modules={QUILL_MODULES}
-							formats={QUILL_FORMATS}
-							placeholder={__('Add inline context…', 'inline-context')}
-							theme="snow"
-						/>
+						<div onKeyDownCapture={handleEditorKeyDownCapture}>
+							<ReactQuill
+								ref={quillRef}
+								value={text}
+								onChange={handleQuillChange}
+								modules={QUILL_MODULES}
+								formats={QUILL_FORMATS}
+								placeholder={__('Add inline context…', 'inline-context')}
+								theme="snow"
+							/>
+						</div>
 						<div className="wp-reveal-quill-help">
 							{__('Use the toolbar above to format your inline context with bold, italic, links, and lists.', 'inline-context')}
 						</div>
@@ -174,8 +233,9 @@ export default function Edit({ isActive, value, onChange }) {
 					<Flex justify="space-between" align="center">
 						<FlexItem>
 							{isActive && (
-								<Button 
-									variant="tertiary" 
+								<Button
+									ref={removeRef}
+									variant="tertiary"
 									isDestructive
 									onClick={remove}
 								>
@@ -185,10 +245,10 @@ export default function Edit({ isActive, value, onChange }) {
 						</FlexItem>
 						<FlexItem>
 							<Flex gap={2}>
-								<Button variant="secondary" onClick={() => setIsOpen(false)}>
+								<Button ref={cancelRef} variant="secondary" onClick={() => setIsOpen(false)}>
 									{__('Cancel', 'inline-context')}
 								</Button>
-								<Button variant="primary" onClick={apply}>
+								<Button ref={saveRef} variant="primary" onClick={apply}>
 									{__('Save', 'inline-context')}
 								</Button>
 							</Flex>
