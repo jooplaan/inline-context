@@ -9,7 +9,7 @@ This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expan
 - **Rich Text Format Registration** (`src/index.js`): Registers `trybes/reveal-text` format type with WordPress
 - **Editor Interface** (`src/edit.js`): React component providing toolbar button and popover editor
 - **Frontend Interaction** (`src/frontend.js`): Vanilla JS click handlers for revealing/hiding content
-- **Dual Asset Loading** (`reveal-text.php`): Separate enqueuing for editor vs frontend assets
+- **Dual Asset Loading** (`inline-context.php`): Separate enqueuing for editor vs frontend assets
 
 ## Development Patterns
 
@@ -59,7 +59,7 @@ Uses `@wordpress/scripts` which provides:
 - `src/frontend.js` - Frontend click handlers (vanilla JS)
 - `src/style.css` - Frontend styles (loaded on both editor/frontend)
 - `src/editor.scss` - Editor-only styles
-- `reveal-text.php` - WordPress plugin bootstrap with asset enqueuing
+- `inline-context.php` - WordPress plugin bootstrap with asset enqueuing
 
 ## WordPress Integration Points
 
