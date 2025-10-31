@@ -4,6 +4,8 @@
     cursor: pointer;
     text-decoration: underline dotted;
     color: var(--wp--preset--color--primary, #0073aa);
+    /* Keep text and trailing chevron together */
+    white-space: nowrap;
 }
 
 /* Focus styles for keyboard navigation */
