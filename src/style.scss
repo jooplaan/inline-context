@@ -19,6 +19,23 @@
     box-shadow: var(--trybes-inline-note-shadow, 0 1px 2px rgba(0, 0, 0, 0.05));
     /* Typography */
     font-size: 0.95em;
+    /* Progressive enhancement: smooth reveal animation */
+    animation: wp-inline-context-reveal 0.3s ease-out;
+    transform-origin: top left;
+}
+
+@keyframes wp-inline-context-reveal {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+        max-height: 0;
+        overflow: hidden;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 500px;
+    }
 }
 
 /* Avoid double spacing for content inside the note */
@@ -35,18 +52,24 @@
     font-weight: 600;
 }
 
-/* Arrow indicator instead of numbering */
+/* SVG chevron icon indicator */
 .wp-inline-context::after {
-    content: '▾'; /* down arrow when hidden */
-    font-size: 0.85em;
-    vertical-align: baseline;
+    content: '';
+    display: inline-block;
+    width: 0.75em;
+    height: 0.75em;
     margin-left: 0.25em;
+    vertical-align: middle;
     text-decoration: none;
-    color: inherit;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: transform 0.4s ease;
 }
 
-/* Show up arrow when open; prefer ARIA but also support open class */
+/* Rotate chevron up when expanded */
 .wp-inline-context[aria-expanded="true"]::after,
 .wp-inline-context.wp-inline-context--open::after {
-    content: '▴';
+    transform: rotate(180deg);
 }

@@ -1,161 +1,113 @@
-# Reveal Text Block - React Quill Integration
+# Inline Context
 
-A WordPress Gutenberg Rich Text Format plugin with React Quill integration for creating inline expandable inline context with rich text content.
+Add small “click to reveal” notes inline with your text. Perfect for short explanations, definitions, and asides that shouldn’t break the reading flow.
 
-## Features
+## What it does
 
-### 🎨 Rich Text Editing
-- **React Quill Editor**: Full-featured WYSIWYG editor in the WordPress block editor
-- **Formatting Options**: Bold, italic, links, ordered/unordered lists
-- **WordPress Integration**: Seamlessly integrated with WordPress block editor toolbar
+- Lets you attach a brief note to any piece of text in the block editor.
+- Readers click the highlighted text to show the note inline, and click again to hide it.
+- Keeps pages clean and easy to scan while still offering helpful context.
 
-### 🔒 Security & Safety
-- **HTML Sanitization**: Safe rendering of rich content on the frontend
-- **XSS Protection**: Removes dangerous scripts and event handlers
-- **Link Security**: Automatic `rel="noopener"` for external links
+## How to use
 
-### 🔄 Backward Compatibility
-- **Legacy Support**: Existing plain text inline context continues to work
-- **Auto-Detection**: Automatically detects Quill vs plain text content
-- **Smooth Migration**: No manual intervention required for existing content
+1. In the editor, select the text you want to explain.
+2. Click the “Inline Context” button in the formatting toolbar.
+3. Type your note and save.
+4. View your page and click the highlighted text to reveal/hide the note.
 
-### ♿ Accessibility
-- **ARIA Attributes**: Proper `aria-expanded`, `aria-describedby`, and `aria-controls`
-- **Semantic HTML**: Uses `role="note"` for inline context content
-- **Keyboard Support**: Full keyboard navigation support
+## Why it’s helpful
 
-## Installation
+- Clean reading experience — extra info appears only when needed
+- Simple controls in the block editor toolbar
+- Theme‑friendly styles (easy to adjust with CSS variables)
+- Accessible by default (proper ARIA attributes)
 
-1. Install dependencies:
-```bash
-npm install
-```
+## Accessibility
 
-2. Build the plugin:
-```bash
-npm run build
-```
+Notes include `aria-expanded`, `aria-controls`, and `aria-describedby` on the trigger and `role="note"` on the revealed content.
 
-3. Activate the plugin in WordPress admin
+## Privacy
 
-## Usage
+This plugin does not collect data, set cookies, or connect to external services.
 
-### In the WordPress Editor
+## Requirements
 
-1. **Select Text**: Highlight the text where you want to add inline context
-2. **Open Editor**: Click the "Inline Context" button in the formatting toolbar
-3. **Rich Editing**: Use the React Quill editor to format your inline context:
-   - **Bold/Italic**: Format text styling
-   - **Links**: Add internal or external links
-   - **Lists**: Create ordered or unordered lists
-4. **Save**: Click "Save" to apply the inline context
-5. **Remove**: For existing inline contexts, click "Remove Inline Context" to delete them
-
-### On the Frontend
-
-- **Click to Reveal**: Click any inline context link to show the rich content
-- **Click to Hide**: Click again to hide the content
-- **Mutual Exclusion**: Opening a new inline context automatically closes others
-
-## Technical Implementation
-
-### Editor Component (`src/edit.js`)
-- React Quill integration with WordPress-friendly configuration
-- Custom toolbar with essential formatting options
-- Popover positioning based on text selection
-- Keyboard shortcuts (Cmd/Ctrl+Enter to save, Escape to cancel)
-
-### Frontend Rendering (`src/frontend.js`)
-- Safe HTML sanitization for React Quill content
-- Backward compatibility with plain text inline context
-- Event delegation for performance
-- Proper ARIA state management
-
-### Styling (`src/editor.scss`)
-- WordPress-consistent design
-- Responsive layout
-- Quill toolbar customization to match WordPress UI
-
-## Configuration
-
-### Quill Modules
-```javascript
-const QUILL_MODULES = {
-  toolbar: [
-    ['bold', 'italic'],
-    ['link'],
-    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-    ['clean']
-  ],
-};
-```
-
-### Allowed Formats
-```javascript
-const QUILL_FORMATS = [
-  'bold', 'italic', 'link', 'list', 'bullet'
-];
-```
-
-## Security Features
-
-### HTML Sanitization
-- Removes `<script>` tags and dangerous content
-- Strips event handlers (`onclick`, `onload`, etc.)
-- Validates link `href` attributes
-- Adds security attributes to external links
-
-### Content Detection
-```javascript
-// Detects Quill content vs plain text
-const isQuillContent = hiddenContent.includes('<p>') || 
-                      hiddenContent.includes('<strong>') || 
-                      hiddenContent.includes('<em>');
-```
-
-## File Structure
-
-```
-reveal-text-block/
-├── src/
-│   ├── index.js          # Plugin registration & imports
-│   ├── edit.js           # React Quill editor component  
-│   ├── frontend.js       # Frontend interaction & sanitization
-│   ├── editor.scss       # Editor-specific styles
-│   └── style.scss        # Frontend styles
-├── build/                # Compiled assets
-├── reveal-text.php       # WordPress plugin bootstrap
-├── demo.html            # Standalone demo
-└── package.json         # Dependencies & scripts
-```
-
-## Dependencies
-
-- **react-quill**: Rich text editor component
-- **dompurify**: HTML sanitization (frontend safety)
-- **@wordpress/scripts**: Build tooling and WordPress integration
+- WordPress 6.0 or newer
+- PHP 7.4 or newer
 
 ## Development
 
-### Start Development Server
-```bash
-npm run start
-```
+### Getting started
 
-### Build for Production  
-```bash
-npm run build
-```
+1. Clone the repository
+2. Install dependencies:
 
-### Demo
-Open `demo.html` in your browser to see the frontend functionality in action.
+   ```bash
+   npm install
+   ```
 
-## Browser Support
+3. Start development mode (watches files and rebuilds on change):
 
-- Modern browsers with ES6+ support
-- WordPress 5.0+ (Gutenberg editor)
-- React 16.8+ (hooks support)
+   ```bash
+   npm run start
+   ```
+
+4. Build for production:
+
+   ```bash
+   npm run build
+   ```
+
+### Available scripts
+
+- `npm run start` — Start development mode with hot reload
+- `npm run build` — Build production assets
+- `npm run lint:js` — Lint JavaScript files
+- `npm run pot` — Generate translation template file
+- `npm run package` — Create a distributable zip (requires build first)
+- `npm run release` — Build and package in one step
+
+### Project structure
+
+- `src/` — Source files (JavaScript, SCSS)
+- `build/` — Compiled assets (committed to repo for WordPress.org)
+- `languages/` — Translation files
+- `inline-context.php` — Main plugin bootstrap file
+- `readme.txt` — WordPress.org readme
+- `scripts/` — Build and packaging scripts
+
+## Releasing a new version
+
+1. Update version numbers in:
+   - `inline-context.php` (plugin header)
+   - `readme.txt` (Stable tag and Changelog)
+   - `package.json` (version field)
+
+2. Build and package:
+
+   ```bash
+   npm run release
+   ```
+
+3. The distributable zip will be at `dist/inline-context.zip`
+
+4. Test the zip by installing it on a test WordPress site
+
+5. Commit changes and tag the release:
+
+   ```bash
+   git add .
+   git commit -m "Release version X.Y.Z"
+   git tag vX.Y.Z
+   git push origin main --tags
+   ```
+
+6. Upload `dist/inline-context.zip` to WordPress.org SVN (or use the zip for manual distribution)
+
+## Support
+
+Please use the support forum on WordPress.org once the plugin is published. We'll do our best to help.
 
 ## License
 
-GPL v2 or later - consistent with WordPress licensing.
+GPL v2 or later.

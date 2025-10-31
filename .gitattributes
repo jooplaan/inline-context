@@ -1,0 +1,17 @@
+# Exclude development-only files when creating archives (git archive)
+/.github export-ignore
+/.vscode export-ignore
+/node_modules export-ignore
+/.gitignore export-ignore
+/.gitattributes export-ignore
+/README.md export-ignore
+/package.json export-ignore
+/package-lock.json export-ignore
+/pnpm-lock.yaml export-ignore
+/yarn.lock export-ignore
+/webpack.config.js export-ignore
+/src export-ignore
+/scripts export-ignore
+/dist export-ignore
+
+# Keep: readme.txt, inline-context.php, build/, languages/

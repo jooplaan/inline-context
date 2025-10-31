@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inline Context - Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2271b1;
+            border-bottom: 2px solid #2271b1;
+            padding-bottom: 10px;
+        }
+        .demo-section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+        .wp-inline-context {
+            cursor: pointer;
+            text-decoration: underline dotted;
+            color: #2271b1;
+            font-weight: 500;
+        }
+        .wp-inline-context::after {
+            content: '';
+            display: inline-block;
+            width: 0.75em;
+            height: 0.75em;
+            margin-left: 0.25em;
+            vertical-align: middle;
+            text-decoration: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: transform 0.4s ease;
+        }
+        .wp-inline-context[aria-expanded="true"]::after,
+        .wp-inline-context.wp-inline-context--open::after {
+            transform: rotate(180deg);
+        }
+        .wp-inline-context--open {
+            font-weight: 600;
+        }
+        .wp-inline-context-inline {
+            display: block;
+            margin: 0.75em 0;
+            padding: 0.75em 1em;
+            background: rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-left: 3px solid #2271b1;
+            border-radius: 6px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            font-size: 0.95em;
+            animation: wp-inline-context-reveal 0.3s ease-out;
+            transform-origin: top left;
+        }
+        @keyframes wp-inline-context-reveal {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+                max-height: 0;
+                overflow: hidden;
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                max-height: 500px;
+            }
+        }
+        .wp-inline-context-inline > :first-child {
+            margin-top: 0;
+        }
+        .wp-inline-context-inline > :last-child {
+            margin-bottom: 0;
+        }
+        .wp-inline-context-inline a {
+            color: inherit;
+            text-decoration-color: currentColor;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Inline Context - Demo</h1>
+    
+    <div class="demo-section">
+        <h2>Example 1: Simple Text Note</h2>
+        <p>
+            This plugin helps you add <a href="#" class="wp-inline-context" data-inline-context="A small explanatory note that appears inline when clicked." role="button" aria-expanded="false">inline context notes</a> to your content without breaking the reading flow.
+        </p>
+    </div>
+
+    <div class="demo-section">
+        <h2>Example 2: Rich Content with HTML</h2>
+        <p>
+            WordPress powers over <a href="#" class="wp-inline-context" data-inline-context="<p>WordPress is used by <strong>43%</strong> of all websites on the internet, according to <em>W3Techs</em> data from 2023.</p>" role="button" aria-expanded="false">40% of the web</a>, making it the most popular content management system.
+        </p>
+    </div>
+
+    <div class="demo-section">
+        <h2>Example 3: Technical Definition</h2>
+        <p>
+            The block editor uses <a href="#" class="wp-inline-context" data-inline-context="<p>React is a JavaScript library for building user interfaces. It allows developers to create reusable UI components and manage complex application state efficiently.</p><p>Learn more at <a href='https://react.dev' rel='noopener noreferrer'>react.dev</a>.</p>" role="button" aria-expanded="false">React</a> for its interface components.
+        </p>
+    </div>
+
+    <div class="demo-section">
+        <h2>Example 4: List Content</h2>
+        <p>
+            Modern web development requires knowledge of <a href="#" class="wp-inline-context" data-inline-context="<p>The three core technologies are:</p><ul><li><strong>HTML</strong> - Structure</li><li><strong>CSS</strong> - Presentation</li><li><strong>JavaScript</strong> - Behavior</li></ul>" role="button" aria-expanded="false">several key technologies</a> to build interactive websites.
+        </p>
+    </div>
+
+    <div class="demo-section">
+        <h2>Features</h2>
+        <ul>
+            <li>Click any highlighted text to reveal its inline context</li>
+            <li>Click again to hide the context</li>
+            <li>Opening a new context automatically closes others</li>
+            <li>Supports rich HTML formatting (bold, italic, links, lists)</li>
+            <li>Accessible with proper ARIA attributes</li>
+            <li>Theme-friendly CSS variables for easy customization</li>
+        </ul>
+    </div>
+
+    <script src="build/frontend.js"></script>
+</body>
+</html>
