@@ -30,6 +30,11 @@
             color: #2271b1;
             font-weight: 500;
         }
+        .wp-inline-context:focus {
+            outline: 2px solid #2271b1;
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
         .wp-inline-context::after {
             content: '';
             display: inline-block;
@@ -127,13 +132,21 @@
     </div>
 
     <div class="demo-section">
+        <h2>Example 5: No href (Progressive Enhancement)</h2>
+        <p>
+            Even when an anchor lacks an <code>href</code>, it is made keyboard-focusable at runtime: <a class="wp-inline-context" data-inline-context="This link intentionally omits href. The script adds tabindex=0 and role=button so you can Tab, then press Enter or Space to toggle.">this inline context</a>.
+        </p>
+    </div>
+
+    <div class="demo-section">
         <h2>Features</h2>
         <ul>
             <li>Click any highlighted text to reveal its inline context</li>
             <li>Click again to hide the context</li>
-            <li>Opening a new context automatically closes others</li>
+            <li>Multiple contexts can stay open at the same time</li>
             <li>Supports rich HTML formatting (bold, italic, links, lists)</li>
             <li>Accessible with proper ARIA attributes</li>
+            <li>Keyboard-friendly: Tab to focus, then Enter or Space to toggle</li>
             <li>Theme-friendly CSS variables for easy customization</li>
         </ul>
     </div>
