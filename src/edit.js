@@ -65,23 +65,25 @@ export default function Edit( { isActive, value, onChange } ) {
 	// Generate a unique ID for the anchor
 	const generateAnchorId = () => {
 		// Create a short, unique identifier
-		const timestamp = Date.now().toString(36);
-		const random = Math.random().toString(36).substring(2, 7);
-		return `context-note-${timestamp}-${random}`;
+		const timestamp = Date.now().toString( 36 );
+		const random = Math.random().toString( 36 ).substring( 2, 7 );
+		return `context-note-${ timestamp }-${ random }`;
 	};
 
 	// Apply the inline context to the current selection
 	const apply = useCallback( () => {
 		// Use existing ID if editing, or generate new one if creating
-		const anchorId = activeFormat?.attributes?.['data-anchor-id'] || generateAnchorId();
-		
+		const anchorId =
+			activeFormat?.attributes?.[ 'data-anchor-id' ] ||
+			generateAnchorId();
+
 		onChange(
 			applyFormat( value, {
 				type: 'trybes/inline-context',
 				attributes: {
 					'data-inline-context': text,
 					'data-anchor-id': anchorId,
-					href: `#${anchorId}`,
+					href: `#${ anchorId }`,
 					role: 'button',
 					'aria-expanded': 'false',
 				},
@@ -185,8 +187,6 @@ export default function Edit( { isActive, value, onChange } ) {
 		document.addEventListener( 'keydown', onKeyDown );
 		return () => document.removeEventListener( 'keydown', onKeyDown );
 	}, [ isOpen, apply ] );
-
-
 
 	// Allow Tab to move focus from the Quill editor to the first action button,
 	// and Shift+Tab to return to the toolbar toggle button.
