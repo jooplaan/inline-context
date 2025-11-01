@@ -67,7 +67,7 @@ This plugin does not collect data, set cookies, or connect to external services.
 - `npm run lint:php:fix` — Auto-fix PHP coding standard violations
 - `npm run lint` — Check both JavaScript and PHP standards
 - `npm run test` — Run all quality checks (currently linting)
-- `npm run pot` — Generate translation template file
+- `npm run pot` — Show instructions for generating translation template file (requires WP-CLI)
 - `npm run package` — Create a distributable zip (runs tests + build automatically)
 - `npm run release` — Build and package in one step (runs tests + build automatically)
 

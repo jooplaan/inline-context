@@ -10,7 +10,7 @@
     "lint:php:fix": "phpcbf --standard=WordPress *.php",
     "lint": "npm run lint:js && npm run lint:php",
     "test": "npm run lint",
-    "pot": "wp-scripts i18n --domain=inline-context --output languages/inline-context.pot 'src/**/*.js'",
+    "pot": "echo 'POT file generation requires WP-CLI. Run: wp i18n make-pot . languages/inline-context.pot --domain=inline-context'",
     "prepackage": "npm run test && npm run build",
     "package": "bash scripts/package.sh",
     "prerelease": "npm run test && npm run build",
