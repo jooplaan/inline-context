@@ -13,5 +13,6 @@
 /src export-ignore
 /scripts export-ignore
 /dist export-ignore
+/demo.html export-ignore
 
-# Keep: readme.txt, inline-context.php, build/, languages/
+# Keep: readme.txt, inline-context.php, build/, languages/, composer.json

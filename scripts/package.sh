@@ -43,7 +43,9 @@ zip -rq "$ZIP_PATH" . \
   -x "__MACOSX/*" \
   -x ".env*" \
   -x ".DS_Store" \
-  -x "demo.html"
+  -x "demo.html" \
+  -x "composer.json" \
+  -x "composer.lock"
 
 # Validate main plugin file exists in the archive context
 if [[ ! -f "inline-context.php" ]]; then
