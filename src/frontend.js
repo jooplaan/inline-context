@@ -90,7 +90,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		// Use the anchor ID to create the note ID
 		const anchorId = trigger.dataset.anchorId;
 		if ( ! anchorId ) {
-			console.warn( 'Inline context trigger missing anchor ID:', trigger );
+			// Skip triggers without anchor IDs (shouldn't happen in v1.0+)
 			return;
 		}
 		const noteId = `note-${ anchorId }`;
@@ -142,13 +142,18 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		if ( ! hash || ! hash.startsWith( '#context-note-' ) ) return;
 
 		const anchorId = hash.substring( 1 ); // Remove the '#'
-		const trigger = document.querySelector( `[data-anchor-id="${ anchorId }"]` );
-		
+		const trigger = document.querySelector(
+			`[data-anchor-id="${ anchorId }"]`
+		);
+
 		if ( trigger ) {
 			toggleNote( trigger );
 			// Scroll to the trigger element for better user experience
 			setTimeout( () => {
-				trigger.scrollIntoView( { behavior: 'smooth', block: 'center' } );
+				trigger.scrollIntoView( {
+					behavior: 'smooth',
+					block: 'center',
+				} );
 			}, 100 );
 		}
 	};

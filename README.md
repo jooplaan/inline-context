@@ -63,9 +63,13 @@ This plugin does not collect data, set cookies, or connect to external services.
 - `npm run start` — Start development mode with hot reload
 - `npm run build` — Build production assets
 - `npm run lint:js` — Lint JavaScript files
+- `npm run lint:php` — Check PHP coding standards
+- `npm run lint:php:fix` — Auto-fix PHP coding standard violations
+- `npm run lint` — Check both JavaScript and PHP standards
+- `npm run test` — Run all quality checks (currently linting)
 - `npm run pot` — Generate translation template file
-- `npm run package` — Create a distributable zip (requires build first)
-- `npm run release` — Build and package in one step
+- `npm run package` — Create a distributable zip (runs tests + build automatically)
+- `npm run release` — Build and package in one step (runs tests + build automatically)
 
 ### Project structure
 
@@ -76,24 +80,51 @@ This plugin does not collect data, set cookies, or connect to external services.
 - `readme.txt` — WordPress.org readme
 - `scripts/` — Build and packaging scripts
 
+## Code Quality
+
+This project enforces WordPress coding standards for both JavaScript and PHP:
+
+- **JavaScript**: Uses `@wordpress/scripts` with ESLint for WordPress coding standards
+- **PHP**: Uses PHP_CodeSniffer with WordPress-Coding-Standards ruleset
+- **Automatic Quality Checks**: All packaging and release commands automatically run linting checks first
+
+### Quality assurance workflow
+
+```bash
+# Check code quality
+npm run test
+
+# Fix auto-fixable issues
+npm run lint:php:fix
+
+# Package only if quality checks pass
+npm run package  # automatically runs: test → build → package
+```
+
 ## Releasing a new version
 
-1. Update version numbers in:
+1. **Ensure code quality**: Run `npm run test` to check all standards are met
+
+2. **Update version numbers** in:
    - `inline-context.php` (plugin header)
    - `readme.txt` (Stable tag and Changelog)
    - `package.json` (version field)
 
-2. Build and package:
+3. **Build and package** (includes automatic quality checks):
 
    ```bash
    npm run release
    ```
 
-3. The distributable zip will be at `dist/inline-context.zip`
+   This automatically runs:
+   - ✅ JavaScript linting (ESLint)
+   - ✅ PHP coding standards (PHPCS)
+   - ✅ Production build
+   - ✅ Zip packaging
 
-4. Test the zip by installing it on a test WordPress site
+4. **Test the package**: The distributable zip will be at `dist/inline-context.zip`
 
-5. Commit changes and tag the release:
+5. **Commit and tag**:
 
    ```bash
    git add .
@@ -102,7 +133,7 @@ This plugin does not collect data, set cookies, or connect to external services.
    git push origin main --tags
    ```
 
-6. Upload `dist/inline-context.zip` to WordPress.org SVN (or use the zip for manual distribution)
+6. **Deploy**: Upload `dist/inline-context.zip` to WordPress.org SVN (or use the zip for manual distribution)
 
 ## Support
 
