@@ -37,23 +37,33 @@ jobs:
           
       - name: Install WordPress Coding Standards
         run: |
-          # Create a temporary composer.json for WPCS installation
-          mkdir -p wpcs-temp && cd wpcs-temp
-          echo '{"require-dev":{"wp-coding-standards/wpcs":"^3.0"}}' > composer.json
-          composer install --no-dev
-          phpcs --config-set installed_paths $(pwd)/vendor/wp-coding-standards/wpcs
+          # Install WPCS using composer global
+          composer global require wp-coding-standards/wpcs:^3.0
+          
+          # Set the installed_paths - composer global installs to ~/.composer/vendor
+          phpcs --config-set installed_paths ~/.composer/vendor/wp-coding-standards/wpcs
+          
+          # Verify installation
+          echo "Checking available standards after installation:"
           phpcs -i
-          cd ..
 
       - name: Lint JS
         run: npm run lint:js --if-present
 
       - name: Lint PHP
         run: |
-          # Verify WordPress standard is available
-          phpcs --standard=WordPress --version
-          # Run the actual linting
-          npm run lint:php
+          # Verify WordPress standard is available before running
+          echo "Available coding standards:"
+          phpcs -i
+          
+          # Check if WordPress standard is available
+          if phpcs -i | grep -q "WordPress"; then
+            echo "WordPress standard found, running linting..."
+            npm run lint:php
+          else
+            echo "ERROR: WordPress standard not found"
+            exit 1
+          fi
 
       - name: Build
         run: npm run build
