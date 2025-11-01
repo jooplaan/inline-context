@@ -24,11 +24,27 @@ jobs:
         # If you add a lockfile later, switch back to `npm ci` for reproducible installs.
         run: npm install
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          tools: phpcs
+          ini-values: memory_limit=256M
+
+      - name: Install PHP CodeSniffer standards
+        run: |
+          composer global require "wp-coding-standards/wpcs:^3.0"
+          phpcs --config-set installed_paths ~/.composer/vendor/wp-coding-standards/wpcs
+
       - name: Lint JS
         run: npm run lint:js --if-present
+
+      - name: Lint PHP
+        run: npm run lint:php --if-present
 
       - name: Build
         run: npm run build
 
-      - name: Generate POT (optional)
+      - name: Generate POT (informational only)
         run: npm run pot --if-present
+        continue-on-error: true
