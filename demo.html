@@ -108,35 +108,44 @@
     <div class="demo-section">
         <h2>Example 1: Simple Text Note</h2>
         <p>
-            This plugin helps you add <a href="#" class="wp-inline-context" data-inline-context="A small explanatory note that appears inline when clicked." role="button" aria-expanded="false">inline context notes</a> to your content without breaking the reading flow.
+            This plugin helps you add <a href="#context-note-demo1" class="wp-inline-context" data-inline-context="A small explanatory note that appears inline when clicked." data-anchor-id="context-note-demo1" role="button" aria-expanded="false">inline context notes</a> to your content without breaking the reading flow.
         </p>
     </div>
 
     <div class="demo-section">
         <h2>Example 2: Rich Content with HTML</h2>
         <p>
-            WordPress powers over <a href="#" class="wp-inline-context" data-inline-context="<p>WordPress is used by <strong>43%</strong> of all websites on the internet, according to <em>W3Techs</em> data from 2023.</p>" role="button" aria-expanded="false">40% of the web</a>, making it the most popular content management system.
+            WordPress powers over <a href="#context-note-demo2" class="wp-inline-context" data-inline-context="<p>WordPress is used by <strong>43%</strong> of all websites on the internet, according to <em>W3Techs</em> data from 2023.</p>" data-anchor-id="context-note-demo2" role="button" aria-expanded="false">40% of the web</a>, making it the most popular content management system.
         </p>
     </div>
 
     <div class="demo-section">
         <h2>Example 3: Technical Definition</h2>
         <p>
-            The block editor uses <a href="#" class="wp-inline-context" data-inline-context="<p>React is a JavaScript library for building user interfaces. It allows developers to create reusable UI components and manage complex application state efficiently.</p><p>Learn more at <a href='https://react.dev' rel='noopener noreferrer'>react.dev</a>.</p>" role="button" aria-expanded="false">React</a> for its interface components.
+            The block editor uses <a href="#context-note-demo3" class="wp-inline-context" data-inline-context="<p>React is a JavaScript library for building user interfaces. It allows developers to create reusable UI components and manage complex application state efficiently.</p><p>Learn more at <a href='https://react.dev' rel='noopener noreferrer'>react.dev</a>.</p>" data-anchor-id="context-note-demo3" role="button" aria-expanded="false">React</a> for its interface components.
         </p>
     </div>
 
     <div class="demo-section">
         <h2>Example 4: List Content</h2>
         <p>
-            Modern web development requires knowledge of <a href="#" class="wp-inline-context" data-inline-context="<p>The three core technologies are:</p><ul><li><strong>HTML</strong> - Structure</li><li><strong>CSS</strong> - Presentation</li><li><strong>JavaScript</strong> - Behavior</li></ul>" role="button" aria-expanded="false">several key technologies</a> to build interactive websites.
+            Modern web development requires knowledge of <a href="#context-note-demo4" class="wp-inline-context" data-inline-context="<p>The three core technologies are:</p><ul><li><strong>HTML</strong> - Structure</li><li><strong>CSS</strong> - Presentation</li><li><strong>JavaScript</strong> - Behavior</li></ul>" data-anchor-id="context-note-demo4" role="button" aria-expanded="false">several key technologies</a> to build interactive websites.
         </p>
     </div>
 
     <div class="demo-section">
-        <h2>Example 5: No href (Progressive Enhancement)</h2>
+        <h2>Direct Links to Notes</h2>
         <p>
-            Even when an anchor lacks an <code>href</code>, it is made keyboard-focusable at runtime: <a class="wp-inline-context" data-inline-context="This link intentionally omits href. The script adds tabindex=0 and role=button so you can Tab, then press Enter or Space to toggle.">this inline context</a>.
+            You can now link directly to specific inline context notes using anchor URLs:
+        </p>
+        <ul>
+            <li><a href="#context-note-demo1">Link to the first note about inline context</a></li>
+            <li><a href="#context-note-demo2">Link to the WordPress statistics note</a></li>
+            <li><a href="#context-note-demo3">Link to the React definition note</a></li>
+            <li><a href="#context-note-demo4">Link to the web technologies note</a></li>
+        </ul>
+        <p>
+            <em>Click any of these links to auto-open the corresponding note and scroll to it!</em>
         </p>
     </div>
 
@@ -150,6 +159,8 @@
             <li>Accessible with proper ARIA attributes</li>
             <li>Keyboard-friendly: Tab to focus, then Enter or Space to toggle</li>
             <li>Theme-friendly CSS variables for easy customization</li>
+            <li><strong>Direct linking:</strong> Share URLs with anchor links (#context-note-XXX)</li>
+            <li><strong>Auto-open:</strong> Notes open automatically when page loads with matching hash</li>
         </ul>
     </div>
 

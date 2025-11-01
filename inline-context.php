@@ -3,8 +3,8 @@
 /**
  * Plugin Name: Inline Context
  * Plugin URI: https://github.com/trybes/inline-context
- * Description: Add inline expandable context to selected text in the block editor. Click to reveal, click again to hide.
- * Version: 0.1.0
+ * Description: Add inline expandable context to selected text in the block editor with direct anchor linking. Click to reveal, click again to hide.
+ * Version: 1.0.0
  * Author: Trybes
  * Author URI: https://trybes.nl/
  * License: GPL-2.0-or-later
@@ -23,7 +23,7 @@ add_action('init', function () {
     load_plugin_textdomain('inline-context', false, dirname(plugin_basename(__FILE__)) . '/languages');
 });
 
-// Ensure the custom data attribute is allowed by KSES for post content.
+// Ensure the custom data attributes are allowed by KSES for post content.
 add_filter('wp_kses_allowed_html', function ($tags, $context) {
     if ($context === 'post') {
         if (!isset($tags['a'])) {
@@ -31,6 +31,7 @@ add_filter('wp_kses_allowed_html', function ($tags, $context) {
         }
         // Allow our custom attributes for inline context functionality
         $tags['a']['data-inline-context'] = true;
+        $tags['a']['data-anchor-id'] = true;
         $tags['a']['role'] = true;
         $tags['a']['aria-expanded'] = true;
     }
