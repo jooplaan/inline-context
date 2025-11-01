@@ -1,3 +1,7 @@
+# Continuous Integration workflow for Inline Context WordPress plugin
+# Runs on every push to main and all pull requests
+# Validates code quality using WordPress coding standards for both PHP and JavaScript
+
 name: CI
 
 on:
@@ -30,17 +34,22 @@ jobs:
           php-version: '8.0'
           tools: phpcs
           ini-values: memory_limit=256M
-
-      - name: Install PHP CodeSniffer standards
+          
+      - name: Install WordPress Coding Standards
         run: |
-          composer global require "wp-coding-standards/wpcs:^3.0"
-          phpcs --config-set installed_paths ~/.composer/vendor/wp-coding-standards/wpcs
+          git clone -b master https://github.com/WordPress/WordPress-Coding-Standards.git wpcs
+          phpcs --config-set installed_paths $(pwd)/wpcs
+          phpcs -i
 
       - name: Lint JS
         run: npm run lint:js --if-present
 
       - name: Lint PHP
-        run: npm run lint:php --if-present
+        run: |
+          # Verify WordPress standard is available
+          phpcs --standard=WordPress --version
+          # Run the actual linting
+          npm run lint:php
 
       - name: Build
         run: npm run build
