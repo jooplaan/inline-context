@@ -26,11 +26,18 @@
         }
         .wp-inline-context {
             cursor: pointer;
-            text-decoration: underline dotted;
-            color: #2271b1;
-            font-weight: 500;
+            /* Appear as regular text by default - no underline or color change */
+            text-decoration: none;
+            color: inherit;
             /* Keep text and chevron on the same line */
             white-space: nowrap;
+            /* Smooth color transition for hover/focus states */
+            transition: color 0.2s ease;
+        }
+        /* Hover and focus states - change text color to primary */
+        .wp-inline-context:hover,
+        .wp-inline-context:focus {
+            color: #2271b1;
         }
         .wp-inline-context:focus {
             outline: 2px solid #2271b1;
@@ -45,11 +52,19 @@
             margin-left: 0.25em;
             vertical-align: middle;
             text-decoration: none;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
+            /* Use a subtle gray color by default */
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23666"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            transition: transform 0.4s ease;
+            transition: transform 0.4s ease, background-image 0.2s ease;
+            opacity: 0.7;
+        }
+        /* Change chevron color on hover/focus to match primary color */
+        .wp-inline-context:hover::after,
+        .wp-inline-context:focus::after {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%232271b1"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
+            opacity: 1;
         }
         .wp-inline-context[aria-expanded="true"]::after,
         .wp-inline-context.wp-inline-context--open::after {
@@ -57,6 +72,7 @@
         }
         .wp-inline-context--open {
             font-weight: 600;
+            color: #2271b1;
         }
         .wp-inline-context-inline {
             display: block;
@@ -105,10 +121,15 @@
 <body>
     <h1>Inline Context - Demo</h1>
     
+    <div style="background: #e7f3ff; border: 1px solid #2271b1; border-radius: 6px; padding: 15px; margin: 20px 0;">
+        <h3 style="margin-top: 0; color: #2271b1;">✨ New Subtle Design (v1.0)</h3>
+        <p style="margin-bottom: 0;">Inline context links now appear as <strong>regular text</strong> with only a subtle chevron icon (↓) indicating additional information is available. <strong>Hover over any link</strong> to see the text change to the primary color, maintaining optimal reading flow while still providing clear interactive feedback.</p>
+    </div>
+    
     <div class="demo-section">
-        <h2>Example 1: Simple Text Note</h2>
+        <h2>Example 1: Subtle Design (Hover to See)</h2>
         <p>
-            This plugin helps you add <a href="#context-note-demo1" class="wp-inline-context" data-inline-context="A small explanatory note that appears inline when clicked." data-anchor-id="context-note-demo1" role="button" aria-expanded="false">inline context notes</a> to your content without breaking the reading flow.
+            This plugin helps you add <a href="#context-note-demo1" class="wp-inline-context" data-inline-context="<p>Notice how this anchor link appears as regular text with only a subtle chevron icon (↓) indicating additional context is available.</p><p>When you hover or focus on the link, the text color changes to the primary color to show it's interactive, but otherwise it maintains optimal reading flow by not looking like a traditional underlined link.</p>" data-anchor-id="context-note-demo1" role="button" aria-expanded="false">inline context notes</a> to your content without breaking the reading flow. The anchor appears as normal text with only the icon showing there's more information.
         </p>
     </div>
 
@@ -134,9 +155,16 @@
     </div>
 
     <div class="demo-section">
-        <h2>Example 5: Smart Link Behavior</h2>
+        <h2>Example 5: Interactive States</h2>
         <p>
-            This example demonstrates <a href="#context-note-demo5" class="wp-inline-context" data-inline-context="<p>Smart link behavior in action:</p><ul><li><a href='/'>Internal link</a> (same tab)</li><li><a href='#top'>Anchor link</a> (same tab)</li><li><a href='https://wordpress.org'>External link</a> (new tab)</li><li><a href='?test=true'>Query link</a> (same tab)</li></ul><p>External links automatically get <code>target='_blank'</code> and security attributes!</p>" data-anchor-id="context-note-demo5" role="button" aria-expanded="false">smart link behavior</a> for internal vs external links.
+            Hover over this <a href="#context-note-demo5" class="wp-inline-context" data-inline-context="<p><strong>Default State:</strong> Text appears in normal color (no underline) with a subtle gray chevron icon.</p><p><strong>Hover/Focus State:</strong> Text changes to primary color and chevron becomes more prominent.</p><p><strong>Optimal Reading Flow:</strong> The link doesn't visually interrupt the text flow until the user shows interest by hovering.</p>" data-anchor-id="context-note-demo5" role="button" aria-expanded="false">inline context link</a> to see how the color changes from normal text to primary color, while the chevron icon becomes more prominent.
+        </p>
+    </div>
+
+    <div class="demo-section">
+        <h2>Example 6: Smart Link Behavior</h2>
+        <p>
+            This demonstrates <a href="#context-note-demo6" class="wp-inline-context" data-inline-context="<p>Smart link behavior in action:</p><ul><li><a href='/'>Internal link</a> (same tab)</li><li><a href='#top'>Anchor link</a> (same tab)</li><li><a href='https://wordpress.org'>External link</a> (new tab)</li><li><a href='?test=true'>Query link</a> (same tab)</li></ul><p>External links automatically get <code>target='_blank'</code> and security attributes!</p>" data-anchor-id="context-note-demo6" role="button" aria-expanded="false">smart link behavior</a> for internal vs external links.
         </p>
     </div>
 
