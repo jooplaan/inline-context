@@ -42,7 +42,8 @@ zip -rq "$ZIP_PATH" . \
   -x ".nvmrc" \
   -x "__MACOSX/*" \
   -x ".env*" \
-  -x ".DS_Store"
+  -x ".DS_Store" \
+  -x "demo.html"
 
 # Validate main plugin file exists in the archive context
 if [[ ! -f "inline-context.php" ]]; then
