@@ -145,6 +145,7 @@ Uses WordPress i18n functions: `__('Text', 'inline-context')` with 'inline-conte
 - **Allowed HTML**: Limited to safe subset (p, strong, em, a, ol, ul, li, br)
 - **Link Hardening**: External links get rel="noopener noreferrer" automatically
 - **XSS Prevention**: No javascript: URLs allowed in content
+- **Smart Link Behavior**: Internal links stay in same tab, external links open in new tab with security attributes
 
 ### Quality Assurance
 - **WordPress Coding Standards**: Both PHP (PHPCS) and JavaScript (ESLint) standards enforced

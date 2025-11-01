@@ -32,14 +32,18 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.0'
-          tools: phpcs
+          tools: phpcs, composer
           ini-values: memory_limit=256M
           
       - name: Install WordPress Coding Standards
         run: |
-          git clone -b master https://github.com/WordPress/WordPress-Coding-Standards.git wpcs
-          phpcs --config-set installed_paths $(pwd)/wpcs
+          # Create a temporary composer.json for WPCS installation
+          mkdir -p wpcs-temp && cd wpcs-temp
+          echo '{"require-dev":{"wp-coding-standards/wpcs":"^3.0"}}' > composer.json
+          composer install --no-dev
+          phpcs --config-set installed_paths $(pwd)/vendor/wp-coding-standards/wpcs
           phpcs -i
+          cd ..
 
       - name: Lint JS
         run: npm run lint:js --if-present

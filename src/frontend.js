@@ -69,6 +69,57 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		}
 	}
 
+	// Process links in notes to set appropriate target behavior
+	const processLinksInNote = ( noteElement ) => {
+		const links = noteElement.querySelectorAll( 'a[href]' );
+		const currentDomain = window.location.hostname;
+
+		for ( const link of links ) {
+			const href = link.getAttribute( 'href' );
+
+			// Skip if not a valid URL
+			if ( ! href ) continue;
+
+			try {
+				// Handle relative URLs (internal links)
+				if (
+					href.startsWith( '/' ) ||
+					href.startsWith( '#' ) ||
+					href.startsWith( '?' )
+				) {
+					// Internal relative link - open in same tab
+					link.removeAttribute( 'target' );
+					continue;
+				}
+
+				// Handle absolute URLs
+				const url = new URL( href );
+
+				if ( url.hostname === currentDomain ) {
+					// Internal absolute link - open in same tab
+					link.removeAttribute( 'target' );
+				} else {
+					// External link - open in new tab
+					link.setAttribute( 'target', '_blank' );
+					// Ensure security attributes are present
+					const rel = link.getAttribute( 'rel' ) || '';
+					const relTokens = new Set(
+						rel.split( ' ' ).filter( Boolean )
+					);
+					relTokens.add( 'noopener' );
+					relTokens.add( 'noreferrer' );
+					link.setAttribute(
+						'rel',
+						Array.from( relTokens ).join( ' ' )
+					);
+				}
+			} catch ( error ) {
+				// Invalid URL - treat as internal link
+				link.removeAttribute( 'target' );
+			}
+		}
+	};
+
 	const toggleNote = ( trigger ) => {
 		if ( ! trigger ) return;
 
@@ -104,6 +155,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			hiddenContent.includes( '<em>' );
 		if ( isQuillContent ) {
 			span.innerHTML = sanitizeHtml( hiddenContent );
+			// Process links for proper target behavior
+			processLinksInNote( span );
 		} else {
 			span.textContent = decodeEntities( hiddenContent );
 		}
