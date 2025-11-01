@@ -40,11 +40,22 @@ jobs:
           # Install WPCS using composer global
           composer global require wp-coding-standards/wpcs:^3.0
           
-          # Set the installed_paths - composer global installs to ~/.composer/vendor
-          phpcs --config-set installed_paths ~/.composer/vendor/wp-coding-standards/wpcs
+          # Set the installed_paths - composer global installs to ~/.composer/vendor or ~/.config/composer/vendor
+          GLOBAL_VENDOR_PATH=""
+          if [ -d ~/.composer/vendor ]; then
+            GLOBAL_VENDOR_PATH=~/.composer/vendor/wp-coding-standards/wpcs
+          elif [ -d ~/.config/composer/vendor ]; then
+            GLOBAL_VENDOR_PATH=~/.config/composer/vendor/wp-coding-standards/wpcs
+          else
+            echo "Could not find composer global vendor directory"
+            exit 1
+          fi
+          
+          phpcs --config-set installed_paths "$GLOBAL_VENDOR_PATH"
           
           # Verify installation
-          echo "Checking available standards after installation:"
+          echo "WPCS installed at: $GLOBAL_VENDOR_PATH"
+          echo "Available standards after installation:"
           phpcs -i
 
       - name: Lint JS
