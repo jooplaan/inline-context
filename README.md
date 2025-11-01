@@ -35,6 +35,25 @@ This plugin does not collect data, set cookies, or connect to external services.
 - WordPress 6.0 or newer
 - PHP 7.4 or newer
 
+## Installation
+
+### Via WordPress Admin (Recommended)
+1. Download from WordPress.org plugin directory
+2. Upload via Plugins → Add New in your WordPress admin
+3. Activate the plugin
+
+### Via Composer (For Developers)
+```bash
+composer require jooplaan/inline-context
+```
+
+This will install the plugin to `wp-content/plugins/inline-context/` automatically using `composer/installers`.
+
+### Manual Installation
+1. Download the latest release from GitHub
+2. Extract to `wp-content/plugins/inline-context/`
+3. Activate via WordPress admin
+
 ## Development
 
 ### Getting started
