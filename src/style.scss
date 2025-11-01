@@ -2,10 +2,19 @@
 
 .wp-inline-context {
     cursor: pointer;
-    text-decoration: underline dotted;
-    color: var(--wp--preset--color--primary, #0073aa);
+    /* Appear as regular text by default - no underline or color change */
+    text-decoration: none;
+    color: inherit;
     /* Keep text and trailing chevron together */
     white-space: nowrap;
+    /* Smooth color transition for hover/focus states */
+    transition: color 0.2s ease;
+}
+
+/* Hover and focus states - change text color to primary */
+.wp-inline-context:hover,
+.wp-inline-context:focus {
+    color: var(--wp--preset--color--primary, #0073aa);
 }
 
 /* Focus styles for keyboard navigation */
@@ -59,6 +68,7 @@
 
 .wp-inline-context--open {
     font-weight: 600;
+    color: var(--wp--preset--color--primary, #0073aa);
 }
 
 /* SVG chevron icon indicator */
@@ -70,11 +80,20 @@
     margin-left: 0.25em;
     vertical-align: middle;
     text-decoration: none;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
+    /* Use a subtle gray color by default */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23666"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    transition: transform 0.4s ease;
+    transition: transform 0.4s ease, background-image 0.2s ease;
+    opacity: 0.7;
+}
+
+/* Change chevron color on hover/focus to match primary color */
+.wp-inline-context:hover::after,
+.wp-inline-context:focus::after {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%230073aa"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
+    opacity: 1;
 }
 
 /* Rotate chevron up when expanded */
