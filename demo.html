@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,17 +14,20 @@
             padding: 0 20px;
             color: #333;
         }
+
         h1 {
             color: #2271b1;
             border-bottom: 2px solid #2271b1;
             padding-bottom: 10px;
         }
+
         .demo-section {
             margin: 40px 0;
             padding: 20px;
             background: #f9f9f9;
             border-radius: 6px;
         }
+
         .wp-inline-context {
             cursor: pointer;
             /* Appear as regular text by default - no underline or color change */
@@ -34,16 +38,19 @@
             /* Smooth color transition for hover/focus states */
             transition: color 0.2s ease;
         }
+
         /* Hover and focus states - change text color to primary */
         .wp-inline-context:hover,
         .wp-inline-context:focus {
             color: #2271b1;
         }
+
         .wp-inline-context:focus {
             outline: 2px solid #2271b1;
             outline-offset: 2px;
             border-radius: 2px;
         }
+
         .wp-inline-context::after {
             content: '';
             display: inline-block;
@@ -60,20 +67,24 @@
             transition: transform 0.4s ease, background-image 0.2s ease;
             opacity: 0.7;
         }
+
         /* Change chevron color on hover/focus to match primary color */
         .wp-inline-context:hover::after,
         .wp-inline-context:focus::after {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%232271b1"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
             opacity: 1;
         }
+
         .wp-inline-context[aria-expanded="true"]::after,
         .wp-inline-context.wp-inline-context--open::after {
             transform: rotate(180deg);
         }
+
         .wp-inline-context--open {
             font-weight: 600;
             color: #2271b1;
         }
+
         .wp-inline-context-inline {
             display: block;
             margin: 0.75em 0;
@@ -87,6 +98,7 @@
             animation: wp-inline-context-reveal 0.3s ease-out;
             transform-origin: top left;
         }
+
         @keyframes wp-inline-context-reveal {
             from {
                 opacity: 0;
@@ -94,22 +106,27 @@
                 max-height: 0;
                 overflow: hidden;
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
                 max-height: 500px;
             }
         }
-        .wp-inline-context-inline > :first-child {
+
+        .wp-inline-context-inline> :first-child {
             margin-top: 0;
         }
-        .wp-inline-context-inline > :last-child {
+
+        .wp-inline-context-inline> :last-child {
             margin-bottom: 0;
         }
+
         .wp-inline-context-inline a {
             color: inherit;
             text-decoration-color: currentColor;
         }
+
         code {
             background: #f0f0f0;
             padding: 2px 6px;
@@ -118,53 +135,76 @@
         }
     </style>
 </head>
+
 <body>
     <h1>Inline Context - Demo</h1>
-    
+
     <div style="background: #e7f3ff; border: 1px solid #2271b1; border-radius: 6px; padding: 15px; margin: 20px 0;">
         <h3 style="margin-top: 0; color: #2271b1;">✨ New Subtle Design (v1.0)</h3>
-        <p style="margin-bottom: 0;">Inline context links now appear as <strong>regular text</strong> with only a subtle chevron icon (↓) indicating additional information is available. <strong>Hover over any link</strong> to see the text change to the primary color, maintaining optimal reading flow while still providing clear interactive feedback.</p>
+        <p style="margin-bottom: 0;">Inline context links now appear as <strong>regular text</strong> with only a subtle
+            chevron icon (↓) indicating additional information is available. <strong>Hover over any link</strong> to see
+            the text change to the primary color, maintaining optimal reading flow while still providing clear
+            interactive feedback.</p>
     </div>
-    
+
     <div class="demo-section">
         <h2>Example 1: Subtle Design (Hover to See)</h2>
         <p>
-            This plugin helps you add <a href="#context-note-demo1" class="wp-inline-context" data-inline-context="<p>Notice how this anchor link appears as regular text with only a subtle chevron icon (↓) indicating additional context is available.</p><p>When you hover or focus on the link, the text color changes to the primary color to show it's interactive, but otherwise it maintains optimal reading flow by not looking like a traditional underlined link.</p>" data-anchor-id="context-note-demo1" role="button" aria-expanded="false">inline context notes</a> to your content without breaking the reading flow. The anchor appears as normal text with only the icon showing there's more information.
+            This plugin helps you add <a href="#context-note-demo1" class="wp-inline-context"
+                data-inline-context="<p>Notice how this anchor link appears as regular text with only a subtle chevron icon (↓) indicating additional context is available.</p><p>When you hover or focus on the link, the text color changes to the primary color to show it's interactive, but otherwise it maintains optimal reading flow by not looking like a traditional underlined link.</p>"
+                data-anchor-id="context-note-demo1" role="button" aria-expanded="false">inline context notes</a> to your
+            content without breaking the reading flow. The anchor appears as normal text with only the icon showing
+            there's more information.
         </p>
     </div>
 
     <div class="demo-section">
         <h2>Example 2: Rich Content with HTML</h2>
         <p>
-            WordPress powers over <a href="#context-note-demo2" class="wp-inline-context" data-inline-context="<p>WordPress is used by <strong>43%</strong> of all websites on the internet, according to <em>W3Techs</em> data from 2023.</p>" data-anchor-id="context-note-demo2" role="button" aria-expanded="false">40% of the web</a>, making it the most popular content management system.
+            WordPress powers over <a href="#context-note-demo2" class="wp-inline-context"
+                data-inline-context="<p>WordPress is used by <strong>43%</strong> of all websites on the internet, according to <em>W3Techs</em> data from 2023.</p>"
+                data-anchor-id="context-note-demo2" role="button" aria-expanded="false">40% of the web</a>, making it
+            the most popular content management system.
         </p>
     </div>
 
     <div class="demo-section">
         <h2>Example 3: Technical Definition</h2>
         <p>
-            The block editor uses <a href="#context-note-demo3" class="wp-inline-context" data-inline-context="<p>React is a JavaScript library for building user interfaces. It allows developers to create reusable UI components and manage complex application state efficiently.</p><p>Learn more at <a href='https://react.dev' rel='noopener noreferrer'>react.dev</a>.</p>" data-anchor-id="context-note-demo3" role="button" aria-expanded="false">React</a> for its interface components.
+            The block editor uses <a href="#context-note-demo3" class="wp-inline-context"
+                data-inline-context="<p>React is a JavaScript library for building user interfaces. It allows developers to create reusable UI components and manage complex application state efficiently.</p><p>Learn more at <a href='https://react.dev' rel='noopener noreferrer'>react.dev</a>.</p>"
+                data-anchor-id="context-note-demo3" role="button" aria-expanded="false">React</a> for its interface
+            components.
         </p>
     </div>
 
     <div class="demo-section">
         <h2>Example 4: List Content</h2>
         <p>
-            Modern web development requires knowledge of <a href="#context-note-demo4" class="wp-inline-context" data-inline-context="<p>The three core technologies are:</p><ul><li><strong>HTML</strong> - Structure</li><li><strong>CSS</strong> - Presentation</li><li><strong>JavaScript</strong> - Behavior</li></ul>" data-anchor-id="context-note-demo4" role="button" aria-expanded="false">several key technologies</a> to build interactive websites.
+            Modern web development requires knowledge of <a href="#context-note-demo4" class="wp-inline-context"
+                data-inline-context="<p>The three core technologies are:</p><ul><li><strong>HTML</strong> - Structure</li><li><strong>CSS</strong> - Presentation</li><li><strong>JavaScript</strong> - Behavior</li></ul>"
+                data-anchor-id="context-note-demo4" role="button" aria-expanded="false">several key technologies</a> to
+            build interactive websites.
         </p>
     </div>
 
     <div class="demo-section">
         <h2>Example 5: Interactive States</h2>
         <p>
-            Hover over this <a href="#context-note-demo5" class="wp-inline-context" data-inline-context="<p><strong>Default State:</strong> Text appears in normal color (no underline) with a subtle gray chevron icon.</p><p><strong>Hover/Focus State:</strong> Text changes to primary color and chevron becomes more prominent.</p><p><strong>Optimal Reading Flow:</strong> The link doesn't visually interrupt the text flow until the user shows interest by hovering.</p>" data-anchor-id="context-note-demo5" role="button" aria-expanded="false">inline context link</a> to see how the color changes from normal text to primary color, while the chevron icon becomes more prominent.
+            Hover over this <a href="#context-note-demo5" class="wp-inline-context"
+                data-inline-context="<p><strong>Default State:</strong> Text appears in normal color (no underline) with a subtle gray chevron icon.</p><p><strong>Hover/Focus State:</strong> Text changes to primary color and chevron becomes more prominent.</p><p><strong>Optimal Reading Flow:</strong> The link doesn't visually interrupt the text flow until the user shows interest by hovering.</p>"
+                data-anchor-id="context-note-demo5" role="button" aria-expanded="false">inline context link</a> to see
+            how the color changes from normal text to primary color, while the chevron icon becomes more prominent.
         </p>
     </div>
 
     <div class="demo-section">
         <h2>Example 6: Smart Link Behavior</h2>
         <p>
-            This demonstrates <a href="#context-note-demo6" class="wp-inline-context" data-inline-context="<p>Smart link behavior in action:</p><ul><li><a href='/'>Internal link</a> (same tab)</li><li><a href='#top'>Anchor link</a> (same tab)</li><li><a href='https://wordpress.org'>External link</a> (new tab)</li><li><a href='?test=true'>Query link</a> (same tab)</li></ul><p>External links automatically get <code>target='_blank'</code> and security attributes!</p>" data-anchor-id="context-note-demo6" role="button" aria-expanded="false">smart link behavior</a> for internal vs external links.
+            This demonstrates <a href="#context-note-demo6" class="wp-inline-context"
+                data-inline-context="<p>Smart link behavior in action:</p><ul><li><a href='/'>Internal link</a> (same tab)</li><li><a href='#top'>Anchor link</a> (same tab)</li><li><a href='https://wordpress.org'>External link</a> (new tab)</li><li><a href='?test=true'>Query link</a> (same tab)</li></ul><p>External links automatically get <code>target='_blank'</code> and security attributes!</p>"
+                data-anchor-id="context-note-demo6" role="button" aria-expanded="false">smart link behavior</a> for
+            internal vs external links.
         </p>
     </div>
 
@@ -203,4 +243,5 @@
 
     <script src="build/frontend.js"></script>
 </body>
+
 </html>

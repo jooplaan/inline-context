@@ -9,33 +9,65 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-11-01T12:30:00+00:00\n"
+"POT-Creation-Date: 2025-11-02T16:24:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: manual\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: inline-context\n"
 
-#: src/edit.js:219
-#: src/edit.js:242
+#. Plugin Name of the plugin
+#: inline-context.php
+#: build/index.js:1
 #: src/index.js:9
 msgid "Inline Context"
 msgstr ""
 
-#: src/edit.js:251
-msgid "Add your note here..."
+#. Plugin URI of the plugin
+#: inline-context.php
+msgid "https://wordpress.org/plugins/inline-context/"
 msgstr ""
 
-#: src/edit.js:259
-msgid "Click to add rich formatting like bold, italics, links, and lists to your context note."
+#. Description of the plugin
+#: inline-context.php
+msgid "Add inline expandable context to selected text in the block editor with direct anchor linking. Click to reveal, click again to hide."
 msgstr ""
 
-#: src/edit.js:274
-msgid "Remove"
+#. Author of the plugin
+#: inline-context.php
+msgid "Trybes"
 msgstr ""
 
-#: src/edit.js:288
+#. Author URI of the plugin
+#: inline-context.php
+msgid "https://profiles.wordpress.org/trybes/"
+msgstr ""
+
+#: build/index.js:1
+#: src/edit.js:266
+#: src/edit.js:289
+msgid "Inline context"
+msgstr ""
+
+#: build/index.js:1
+#: src/edit.js:314
+msgid "Add inline context…"
+msgstr ""
+
+#: build/index.js:1
+#: src/edit.js:322
+msgid "Use the toolbar above to format your inline context with bold, italic, links, and lists."
+msgstr ""
+
+#: build/index.js:1
+#: src/edit.js:337
+msgid "Delete"
+msgstr ""
+
+#: build/index.js:1
+#: src/edit.js:348
 msgid "Cancel"
 msgstr ""
 
-#: src/edit.js:295
+#: build/index.js:1
+#: src/edit.js:355
 msgid "Save"
 msgstr ""
