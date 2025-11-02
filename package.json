@@ -1,26 +1,29 @@
 {
-  "name": "inline-context",
-  "version": "1.0.0",
-  "main": "src/index.js",
-  "scripts": {
-    "start": "wp-scripts start",
-    "build": "wp-scripts build",
-    "lint:js": "wp-scripts lint-js",
-    "lint:php": "phpcs --standard=WordPress *.php",
-    "lint:php:fix": "phpcbf --standard=WordPress *.php",
-    "lint": "npm run lint:js && npm run lint:php",
-    "test": "npm run lint",
-    "pot": "echo 'POT file generation requires WP-CLI. Run: wp i18n make-pot . languages/inline-context.pot --domain=inline-context'",
-    "prepackage": "npm run test && npm run build",
-    "package": "bash scripts/package.sh",
-    "prerelease": "npm run test && npm run build",
-    "release": "bash scripts/package.sh"
-  },
-  "dependencies": {
-    "react-quill": "^2.0.0",
-    "dompurify": "^3.0.0"
-  },
-  "devDependencies": {
-    "@wordpress/scripts": "^25.0.0"
-  }
+	"name": "inline-context",
+	"version": "1.0.0",
+	"main": "src/index.js",
+	"scripts": {
+		"start": "wp-scripts start",
+		"build": "wp-scripts build",
+		"lint:js": "wp-scripts lint-js",
+		"lint:js:fix": "wp-scripts lint-js --fix",
+		"lint:php": "phpcs --standard=WordPress *.php",
+		"lint:php:fix": "phpcbf --standard=WordPress *.php",
+		"format:js": "prettier --write \"src/**/*.{js,jsx,scss,css,json}\"",
+		"format": "npm run format:js && npm run lint:php:fix",
+		"lint": "npm run lint:js && npm run lint:php",
+		"test": "npm run lint",
+		"pot": "echo 'POT file generation requires WP-CLI. Run: wp i18n make-pot . languages/inline-context.pot --domain=inline-context'",
+		"prepackage": "npm run test && npm run build",
+		"package": "bash scripts/package.sh",
+		"prerelease": "npm run test && npm run build",
+		"release": "bash scripts/package.sh"
+	},
+	"dependencies": {
+		"react-quill": "^2.0.0",
+		"dompurify": "^3.0.0"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^25.0.0"
+	}
 }
