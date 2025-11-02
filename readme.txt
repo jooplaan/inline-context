@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,13 @@ Yes. The frontend uses CSS custom properties that you can override in your theme
 2. Frontend rendering of an inline note
 
 == Changelog ==
+= 1.0.1 =
+* **IMPROVED**: Enhanced VS Code development setup with WordPress coding standards
+* **IMPROVED**: Build process optimization and error fixes
+* **IMPROVED**: Better development workflow with automated formatting configuration
+* **FIX**: Resolved SCSS compilation errors in build process
+* **FIX**: PHP coding standards compliance issues resolved
+
 = 1.0.0 =
 * **NEW**: Unique anchor IDs for every context note with direct URL linking
 * **NEW**: Auto-opening notes when accessed via URL hash (#context-note-xxx)
