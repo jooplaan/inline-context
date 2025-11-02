@@ -32,6 +32,55 @@ const QUILL_MODULES = {
 
 const QUILL_FORMATS = [ 'bold', 'italic', 'link', 'list', 'bullet' ];
 
+// Generate a unique ID for the anchor
+const generateAnchorId = () => {
+	// Create a short, unique identifier
+	const timestamp = Date.now().toString( 36 );
+	const random = Math.random().toString( 36 ).substring( 2, 7 );
+	return `context-note-${ timestamp }-${ random }`;
+};
+
+// Helper: derive linked text from current selection or active inline-context run
+const getLinkedText = ( value ) => {
+	if ( ! value ) return '';
+	const { text = '', start = 0, end = 0, formats = [] } = value;
+
+	// If there's an explicit selection, use it.
+	if ( start < end ) {
+		return text.slice( start, end );
+	}
+
+	// Otherwise, if caret is within an inline-context, expand to that run.
+	const TYPE = 'trybes/inline-context';
+	if ( ! text || ! formats || ! formats.length ) return '';
+
+	const hasTypeAt = ( i ) => {
+		const at = formats?.[ i ];
+		if ( ! at ) return false;
+		const arr = Array.isArray( at ) ? at : [ at ];
+		return arr.some( ( f ) => f && f.type === TYPE );
+	};
+
+	// Caret is between characters; prefer the left character, else the right.
+	const leftIdx = Math.max( 0, Math.min( text.length - 1, start - 1 ) );
+	const rightIdx = Math.max( 0, Math.min( text.length - 1, start ) );
+
+	let seedIdx = -1;
+	if ( hasTypeAt( leftIdx ) ) {
+		seedIdx = leftIdx;
+	} else if ( hasTypeAt( rightIdx ) ) {
+		seedIdx = rightIdx;
+	}
+	if ( seedIdx < 0 ) return '';
+
+	let left = seedIdx;
+	let right = seedIdx;
+	while ( left - 1 >= 0 && hasTypeAt( left - 1 ) ) left--;
+	while ( right + 1 < text.length && hasTypeAt( right + 1 ) ) right++;
+
+	return text.slice( left, right + 1 );
+};
+
 export default function Edit( { isActive, value, onChange } ) {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ anchor, setAnchor ] = useState();
@@ -62,13 +111,11 @@ export default function Edit( { isActive, value, onChange } ) {
 		activeFormat?.attributes?.[ 'data-inline-context' ] || '';
 	const [ text, setText ] = useState( currentText );
 
-	// Generate a unique ID for the anchor
-	const generateAnchorId = () => {
-		// Create a short, unique identifier
-		const timestamp = Date.now().toString( 36 );
-		const random = Math.random().toString( 36 ).substring( 2, 7 );
-		return `context-note-${ timestamp }-${ random }`;
-	};
+	// Linked text for label (single-line with ellipsis)
+	const linkedText = useMemo( () => {
+		const s = ( getLinkedText( value ) || '' ).trim();
+		return s;
+	}, [ value ] );
 
 	// Apply the inline context to the current selection
 	const apply = useCallback( () => {
@@ -216,7 +263,7 @@ export default function Edit( { isActive, value, onChange } ) {
 		<span ref={ rootRef }>
 			<RichTextToolbarButton
 				icon="editor-ol"
-				title={ __( 'Inline Context', 'inline-context' ) }
+				title={ __( 'Inline context', 'inline-context' ) }
 				onClick={ toggle }
 				isActive={ isActive }
 				aria-expanded={ isOpen }
@@ -239,7 +286,23 @@ export default function Edit( { isActive, value, onChange } ) {
 				>
 					<div className="wp-reveal-popover wp-reveal-quill-editor">
 						<div className="wp-reveal-quill-label" id={ labelId }>
-							{ __( 'Inline Context', 'inline-context' ) }
+							{ __( 'Inline context', 'inline-context' ) }
+							{ linkedText ? ': ' : '' }
+							{ linkedText ? (
+								<span
+									title={ linkedText }
+									style={ {
+										display: 'inline-block',
+										maxWidth: '32ch',
+										overflow: 'hidden',
+										textOverflow: 'ellipsis',
+										whiteSpace: 'nowrap',
+										verticalAlign: 'bottom',
+									} }
+								>
+									{ linkedText }
+								</span>
+							) : null }
 						</div>
 						<div onKeyDownCapture={ handleEditorKeyDownCapture }>
 							<ReactQuill
@@ -271,10 +334,7 @@ export default function Edit( { isActive, value, onChange } ) {
 									isDestructive
 									onClick={ remove }
 								>
-									{ __(
-										'Remove Inline Context',
-										'inline-context'
-									) }
+									{ __( 'Delete', 'inline-context' ) }
 								</Button>
 							) }
 						</FlexItem>
