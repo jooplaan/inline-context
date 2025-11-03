@@ -44,6 +44,7 @@ This plugin does not collect data, set cookies, or connect to external services.
 
 ### Via Composer (For Developers)
 ```bash
+composer config repositories.inline-context vcs https://github.com/jooplaan/inline-context
 composer require jooplaan/inline-context
 ```
 
