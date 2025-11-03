@@ -58,7 +58,8 @@ add_action(
 	function () {
 		// Use generated asset metadata for dependencies and versioning.
 		$asset_file = __DIR__ . '/build/index.asset.php';
-		$asset      = file_exists( $asset_file ) ? include_once $asset_file : array(
+		// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Including generated asset file.
+		$asset = file_exists( $asset_file ) ? include_once $asset_file : array(
 			'dependencies' => array( 'wp-rich-text', 'wp-element', 'wp-components', 'wp-block-editor', 'wp-i18n' ),
 			'version'      => filemtime( __DIR__ . '/build/index.js' ),
 		);
@@ -90,7 +91,8 @@ add_action(
 	function () {
 		// Enqueue bundled frontend JS with asset metadata.
 		$frontend_asset_file = __DIR__ . '/build/frontend.asset.php';
-		$frontend_asset      = file_exists( $frontend_asset_file ) ? include_once $frontend_asset_file : array(
+		// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Including generated asset file.
+		$frontend_asset = file_exists( $frontend_asset_file ) ? include_once $frontend_asset_file : array(
 			'dependencies' => array(),
 			'version'      => filemtime( __DIR__ . '/build/frontend.js' ),
 		);
