@@ -14,8 +14,17 @@ import {
 	useRef,
 	useState,
 } from '@wordpress/element';
-import { RichTextToolbarButton } from '@wordpress/block-editor';
-import { Popover, Button, Flex, FlexItem } from '@wordpress/components';
+import {
+	RichTextToolbarButton,
+	URLInput,
+} from '@wordpress/block-editor';
+import {
+	Popover,
+	Button,
+	Flex,
+	FlexItem,
+	TextControl,
+} from '@wordpress/components';
 import { applyFormat, removeFormat } from '@wordpress/rich-text';
 import { __ } from '@wordpress/i18n';
 import ReactQuill from 'react-quill';
@@ -37,7 +46,17 @@ const generateAnchorId = () => {
 	// Create a short, unique identifier
 	const timestamp = Date.now().toString( 36 );
 	const random = Math.random().toString( 36 ).substring( 2, 7 );
-	return `context-note-${ timestamp }-${ random }`;
+	const anchorId = `context-note-${ timestamp }-${ random }`;
+
+	// Allow developers to customize anchor ID generation
+	if ( window.wp && window.wp.hooks ) {
+		return window.wp.hooks.applyFilters(
+			'inline_context_generate_anchor_id',
+			anchorId,
+			{ timestamp, random }
+		);
+	}
+	return anchorId;
 };
 
 // Helper: derive linked text from current selection or active inline-context run
@@ -84,6 +103,9 @@ const getLinkedText = ( value ) => {
 export default function Edit( { isActive, value, onChange } ) {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ anchor, setAnchor ] = useState();
+	const [ showLinkInput, setShowLinkInput ] = useState( false );
+	const [ linkUrl, setLinkUrl ] = useState( '' );
+	const [ linkText, setLinkText ] = useState( '' );
 	const prevFocusRef = useRef( null );
 	const rootRef = useRef( null );
 	const popoverId = useMemo(
@@ -98,6 +120,11 @@ export default function Edit( { isActive, value, onChange } ) {
 	const saveRef = useRef( null );
 	const removeRef = useRef( null );
 	const quillRef = useRef( null );
+	const addLinkButtonRef = useRef( null );
+	const urlInputRef = useRef( null );
+	const linkTextInputRef = useRef( null );
+	const insertLinkButtonRef = useRef( null );
+	const linkCancelButtonRef = useRef( null );
 
 	const activeFormat = value.activeFormats?.find(
 		( f ) => f.type === 'trybes/inline-context'
@@ -244,17 +271,91 @@ export default function Edit( { isActive, value, onChange } ) {
 				// Back to the toolbar button
 				prevFocusRef.current?.focus?.();
 			} else {
-				// To the first available action (Remove if present, else Cancel, else Save)
-				(
-					removeRef.current ||
-					cancelRef.current ||
-					saveRef.current
-				)?.focus?.();
+				// Forward tab: go to Add Link button first, then to other action buttons
+				addLinkButtonRef.current?.focus?.();
 			}
 		}
 	};
 
-	// Handle React Quill editor changes
+	// Handle Tab navigation within the action buttons area
+	const handleActionButtonsKeyDown = ( e, currentRef ) => {
+		if ( e.key !== 'Tab' ) return;
+		e.preventDefault();
+
+		// Define the tab order based on current state
+		const tabOrder = [
+			addLinkButtonRef,
+			// If link form is visible, include those fields
+			...( showLinkInput
+				? [
+						urlInputRef,
+						linkTextInputRef,
+						insertLinkButtonRef,
+						linkCancelButtonRef,
+				  ]
+				: [] ),
+			// Always include the main action buttons
+			...( activeFormat ? [ removeRef ] : [] ),
+			cancelRef,
+			saveRef,
+		].filter( ( ref ) => ref.current );
+
+		const currentIndex = tabOrder.indexOf( currentRef );
+
+		if ( e.shiftKey ) {
+			// Shift+Tab: go backwards
+			if ( currentIndex > 0 ) {
+				tabOrder[ currentIndex - 1 ].current?.focus?.();
+			} else {
+				// From first button, go back to editor
+				quillRef.current?.focus?.();
+			}
+		} else if ( currentIndex < tabOrder.length - 1 ) {
+			// Tab: go forwards
+			tabOrder[ currentIndex + 1 ].current?.focus?.();
+		} else {
+			// From last button, stay on it (or could cycle back)
+			tabOrder[ currentIndex ].current?.focus?.();
+		}
+	};
+
+	// Handle inserting a link at cursor position in ReactQuill
+	const insertLink = () => {
+		const quillInstance = quillRef.current?.getEditor();
+		if ( ! quillInstance || ! linkUrl ) return;
+
+		const range = quillInstance.getSelection();
+		const displayText = linkText || linkUrl;
+
+		if ( range ) {
+			// Insert the link at cursor position
+			quillInstance.insertText( range.index, displayText );
+			quillInstance.formatText(
+				range.index,
+				displayText.length,
+				'link',
+				linkUrl
+			);
+			// Move cursor after the link
+			quillInstance.setSelection( range.index + displayText.length );
+		} else {
+			// If no selection, append at the end
+			const length = quillInstance.getLength();
+			quillInstance.insertText( length - 1, ' ' + displayText );
+			quillInstance.formatText(
+				length,
+				displayText.length,
+				'link',
+				linkUrl
+			);
+		}
+
+		// Update our text state and close link input
+		setText( quillInstance.root.innerHTML );
+		setShowLinkInput( false );
+		setLinkUrl( '' );
+		setLinkText( '' );
+	}; // Handle React Quill editor changes
 	const handleQuillChange = ( content ) => {
 		setText( content );
 	};
@@ -279,6 +380,10 @@ export default function Edit( { isActive, value, onChange } ) {
 					role="dialog"
 					aria-modal={ false }
 					aria-labelledby={ labelId }
+					noArrow={ false }
+					resize={ true }
+					flip={ true }
+					shift={ true }
 					onClose={ () => {
 						setIsOpen( false );
 						setTimeout( () => prevFocusRef.current?.focus?.(), 0 );
@@ -318,9 +423,130 @@ export default function Edit( { isActive, value, onChange } ) {
 								theme="snow"
 							/>
 						</div>
+
+						{ showLinkInput && (
+							<div className="wp-reveal-link-control">
+								<div className="wp-reveal-link-url-wrapper">
+									<label
+										htmlFor="inline-context-url-input"
+										className="components-base-control__label"
+									>
+										{ __( 'Link URL', 'inline-context' ) }
+									</label>
+									<URLInput
+										id="inline-context-url-input"
+										ref={ urlInputRef }
+										value={ linkUrl }
+										onChange={ ( url, post ) => {
+											setLinkUrl( url );
+											// If a post is selected, use its title as link text
+											if ( post?.title && ! linkText ) {
+												setLinkText( post.title );
+											}
+										} }
+										placeholder={ __(
+											'Search or paste URL',
+											'inline-context'
+										) }
+										onKeyDown={ ( e ) =>
+											handleActionButtonsKeyDown(
+												e,
+												urlInputRef
+											)
+										}
+										__nextHasNoMarginBottom
+									/>
+									<p className="components-base-control__help">
+										{ __(
+											'Start typing to search for internal content or paste any URL',
+											'inline-context'
+										) }
+									</p>
+								</div>
+								<TextControl
+									ref={ linkTextInputRef }
+									label={ __(
+										'Link Text (optional)',
+										'inline-context'
+									) }
+									value={ linkText }
+									onChange={ setLinkText }
+									placeholder={ __(
+										'Custom link text',
+										'inline-context'
+									) }
+									onKeyDown={ ( e ) =>
+										handleActionButtonsKeyDown(
+											e,
+											linkTextInputRef
+										)
+									}
+								/>
+								<Flex gap={ 2 } style={ { marginTop: '8px' } }>
+									<Button
+										ref={ insertLinkButtonRef }
+										variant="primary"
+										size="small"
+										onClick={ insertLink }
+										disabled={ ! linkUrl }
+										onKeyDown={ ( e ) =>
+											handleActionButtonsKeyDown(
+												e,
+												insertLinkButtonRef
+											)
+										}
+									>
+										{ __(
+											'Insert Link',
+											'inline-context'
+										) }
+									</Button>
+									<Button
+										ref={ linkCancelButtonRef }
+										variant="secondary"
+										size="small"
+										onClick={ () => {
+											setShowLinkInput( false );
+											setLinkUrl( '' );
+											setLinkText( '' );
+										} }
+										onKeyDown={ ( e ) =>
+											handleActionButtonsKeyDown(
+												e,
+												linkCancelButtonRef
+											)
+										}
+									>
+										{ __( 'Cancel', 'inline-context' ) }
+									</Button>
+								</Flex>
+							</div>
+						) }
+
+						<div className="wp-reveal-quill-actions">
+							<Button
+								ref={ addLinkButtonRef }
+								variant="secondary"
+								size="small"
+								onClick={ () =>
+									setShowLinkInput( ! showLinkInput )
+								}
+								onKeyDown={ ( e ) =>
+									handleActionButtonsKeyDown(
+										e,
+										addLinkButtonRef
+									)
+								}
+							>
+								{ showLinkInput
+									? __( 'Hide Link Form', 'inline-context' )
+									: __( 'Add Link', 'inline-context' ) }
+							</Button>
+						</div>
+
 						<div className="wp-reveal-quill-help">
 							{ __(
-								'Use the toolbar above to format your inline context with bold, italic, links, and lists.',
+								'Use the toolbar above to format your inline context with bold, italic, links, and lists. Use "Add Link" to insert WordPress internal links.',
 								'inline-context'
 							) }
 						</div>
@@ -333,6 +559,12 @@ export default function Edit( { isActive, value, onChange } ) {
 									variant="tertiary"
 									isDestructive
 									onClick={ remove }
+									onKeyDown={ ( e ) =>
+										handleActionButtonsKeyDown(
+											e,
+											removeRef
+										)
+									}
 								>
 									{ __( 'Delete', 'inline-context' ) }
 								</Button>
@@ -344,6 +576,12 @@ export default function Edit( { isActive, value, onChange } ) {
 									ref={ cancelRef }
 									variant="secondary"
 									onClick={ () => setIsOpen( false ) }
+									onKeyDown={ ( e ) =>
+										handleActionButtonsKeyDown(
+											e,
+											cancelRef
+										)
+									}
 								>
 									{ __( 'Cancel', 'inline-context' ) }
 								</Button>
@@ -351,6 +589,9 @@ export default function Edit( { isActive, value, onChange } ) {
 									ref={ saveRef }
 									variant="primary"
 									onClick={ apply }
+									onKeyDown={ ( e ) =>
+										handleActionButtonsKeyDown( e, saveRef )
+									}
 								>
 									{ __( 'Save', 'inline-context' ) }
 								</Button>
