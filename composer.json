@@ -1,53 +1,55 @@
 {
-    "name": "jooplaan/inline-context",
-    "description": "Add inline expandable context notes with direct anchor linking. Features subtle design for optimal reading flow and smart link behavior.",
-    "type": "wordpress-plugin",
-    "keywords": [
-        "wordpress",
-        "plugin",
-        "gutenberg",
-        "block-editor",
-        "inline",
-        "context",
-        "footnote",
-        "tooltip",
-        "anchor-links"
-    ],
-    "homepage": "https://github.com/jooplaan/inline-context",
-    "license": "GPL-2.0-or-later",
-    "authors": [
-        {
-            "name": "Trybes",
-            "homepage": "https://trybes.nl",
-            "role": "Developer"
-        }
-    ],
-    "support": {
-        "issues": "https://github.com/jooplaan/inline-context/issues",
-        "source": "https://github.com/jooplaan/inline-context"
-    },
-    "require": {
-        "php": ">=7.4",
-        "composer/installers": "^1.0 || ^2.0"
-    },
-    "require-dev": {
-        "wp-coding-standards/wpcs": "^3.0"
-    },
-    "extra": {
-        "installer-name": "inline-context",
-        "installer-paths": {
-            "wp-content/plugins/{$name}/": ["type:wordpress-plugin"]
-        }
-    },
-    "scripts": {
-        "lint": "phpcs --standard=WordPress *.php",
-        "lint:fix": "phpcbf --standard=WordPress *.php",
-        "test": "composer run lint"
-    },
-    "config": {
-        "allow-plugins": {
-            "composer/installers": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true
-        }
-    }
+	"name": "jooplaan/inline-context",
+	"description": "Add inline expandable context notes with direct anchor linking. Features subtle design for optimal reading flow and smart link behavior.",
+	"type": "wordpress-plugin",
+	"keywords": [
+		"wordpress",
+		"plugin",
+		"gutenberg",
+		"block-editor",
+		"inline",
+		"context",
+		"footnote",
+		"tooltip",
+		"anchor-links"
+	],
+	"homepage": "https://github.com/jooplaan/inline-context",
+	"license": "GPL-2.0-or-later",
+	"authors": [
+		{
+			"name": "Joop Laan",
+			"homepage": "https://www.jooplaan.com",
+			"role": "Developer"
+		}
+	],
+	"support": {
+		"issues": "https://github.com/jooplaan/inline-context/issues",
+		"source": "https://github.com/jooplaan/inline-context"
+	},
+	"require": {
+		"php": ">=7.4",
+		"composer/installers": "^1.0 || ^2.0"
+	},
+	"require-dev": {
+		"wp-coding-standards/wpcs": "^3.0"
+	},
+	"extra": {
+		"installer-name": "inline-context",
+		"installer-paths": {
+			"wp-content/plugins/{$name}/": [
+				"type:wordpress-plugin"
+			]
+		}
+	},
+	"scripts": {
+		"lint": "phpcs --standard=WordPress *.php",
+		"lint:fix": "phpcbf --standard=WordPress *.php",
+		"test": "composer run lint"
+	},
+	"config": {
+		"allow-plugins": {
+			"composer/installers": true,
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	}
 }

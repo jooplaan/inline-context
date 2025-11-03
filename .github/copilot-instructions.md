@@ -6,7 +6,7 @@ This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expan
 
 ### Key Components
 
-- **Rich Text Format Registration** (`src/index.js`): Registers `trybes/inline-context` format type with WordPress
+- **Rich Text Format Registration** (`src/index.js`): Registers `jooplaan/inline-context` format type with WordPress
 - **Editor Interface** (`src/edit.js`): React component with ReactQuill rich text editor and popover interface
 - **Frontend Interaction** (`src/frontend.js`): Vanilla JS with DOMPurify for secure HTML rendering and anchor navigation
 - **Asset Management** (`inline-context.php`): WordPress coding standards compliant PHP with proper asset enqueuing
@@ -17,7 +17,7 @@ This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expan
 
 ```javascript
 // Format registration follows WordPress patterns
-registerFormatType('trybes/inline-context', {
+registerFormatType('jooplaan/inline-context', {
   tagName: 'a', // Output HTML element
   className: 'wp-inline-context', // CSS class for styling
   attributes: {
@@ -94,14 +94,14 @@ Uses `@wordpress/scripts` which provides:
 ```php
 // Editor assets (Block Editor only)
 add_action('enqueue_block_editor_assets', function() {
-    wp_enqueue_script('trybes-inline-context', 'build/index.js', [...]);
-    wp_enqueue_style('trybes-inline-context', 'build/index.css', [...]);
+    wp_enqueue_script('jooplaan-inline-context', 'build/index.js', [...]);
+    wp_enqueue_style('jooplaan-inline-context', 'build/index.css', [...]);
 });
 
 // Frontend assets (Public site)
 add_action('wp_enqueue_scripts', function() {
-    wp_enqueue_script('trybes-inline-context-frontend', 'build/frontend.js', [...]);
-    wp_enqueue_style('trybes-inline-context-frontend-style', 'build/style-index.css', [...]);
+    wp_enqueue_script('jooplaan-inline-context-frontend', 'build/frontend.js', [...]);
+    wp_enqueue_style('jooplaan-inline-context-frontend-style', 'build/style-index.css', [...]);
 });
 ```
 

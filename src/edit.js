@@ -106,7 +106,7 @@ const getLinkedText = ( value ) => {
 	}
 
 	// Otherwise, if caret is within an inline-context, expand to that run.
-	const TYPE = 'trybes/inline-context';
+	const TYPE = 'jooplaan/inline-context';
 	if ( ! text || ! formats || ! formats.length ) return '';
 
 	const hasTypeAt = ( i ) => {
@@ -165,10 +165,10 @@ export default function Edit( { isActive, value, onChange } ) {
 	const copyLinkButtonRef = useRef( null );
 
 	const activeFormat = value.activeFormats?.find(
-		( f ) => f.type === 'trybes/inline-context'
+		( f ) => f.type === 'jooplaan/inline-context'
 	);
 	const remove = () => {
-		onChange( removeFormat( value, 'trybes/inline-context' ) );
+		onChange( removeFormat( value, 'jooplaan/inline-context' ) );
 		setIsOpen( false );
 		setTimeout( () => prevFocusRef.current?.focus?.(), 0 );
 	};
@@ -213,7 +213,7 @@ export default function Edit( { isActive, value, onChange } ) {
 
 			onChange(
 				applyFormat( value, {
-					type: 'trybes/inline-context',
+					type: 'jooplaan/inline-context',
 					attributes: {
 						...activeFormat.attributes,
 						'data-anchor-id': uniqueId,
@@ -239,7 +239,7 @@ export default function Edit( { isActive, value, onChange } ) {
 
 		onChange(
 			applyFormat( value, {
-				type: 'trybes/inline-context',
+				type: 'jooplaan/inline-context',
 				attributes: {
 					'data-inline-context': text,
 					'data-anchor-id': anchorId,
@@ -265,7 +265,7 @@ export default function Edit( { isActive, value, onChange } ) {
 			if ( next ) {
 				// Sync the editor with the currently selected inline context when opening
 				const fmt = value.activeFormats?.find(
-					( f ) => f.type === 'trybes/inline-context'
+					( f ) => f.type === 'jooplaan/inline-context'
 				);
 				setText( fmt?.attributes?.[ 'data-inline-context' ] || '' );
 			}
