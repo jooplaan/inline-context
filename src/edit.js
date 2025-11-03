@@ -243,8 +243,9 @@ export default function Edit( { isActive, value, onChange } ) {
 				attributes: {
 					'data-inline-context': text,
 					'data-anchor-id': anchorId,
+					href: `#${ anchorId }`,
 					id: `trigger-${ anchorId }`,
-					type: 'button',
+					role: 'button',
 					'aria-expanded': 'false',
 				},
 			} )

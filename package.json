@@ -1,6 +1,6 @@
 {
 	"name": "inline-context",
-	"version": "1.1.2",
+	"version": "1.1.3",
 	"main": "src/index.js",
 	"scripts": {
 		"start": "wp-scripts start",
