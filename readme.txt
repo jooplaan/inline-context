@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -62,6 +62,13 @@ Yes. The frontend uses CSS custom properties that you can override in your theme
 * **IMPROVED**: Better development workflow with automated formatting configuration
 * **FIX**: Resolved SCSS compilation errors in build process
 * **FIX**: PHP coding standards compliance issues resolved
+
+= 1.1.2 =
+* **NEW**: Copy link functionality - users can copy direct anchor links to any context note
+* **IMPROVED**: HTML validity with semantic button elements instead of anchor tags
+* **IMPROVED**: Duplicate ID prevention system for copy/paste scenarios
+* **FIX**: ESLint compatibility issues with Node.js v24
+* **FIX**: Automatic unique ID generation when duplicates are detected
 
 = 1.0.0 =
 * **NEW**: Unique anchor IDs for every context note with direct URL linking

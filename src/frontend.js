@@ -78,20 +78,30 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return applyFilters( 'inline_context_post_sanitize_html', sanitized );
 	};
 
-	// Progressive enhancement: ensure keyboard accessibility
-	// - Only add tabindex when href is missing (to avoid changing tab order unnecessarily)
-	// - Ensure role and aria-expanded have sensible defaults
+	// Progressive enhancement: ensure proper button attributes
 	for ( const trigger of document.querySelectorAll( '.wp-inline-context' ) ) {
-		if ( ! trigger.hasAttribute( 'href' ) ) {
+		// Ensure button type is set (for semantic correctness)
+		if (
+			trigger.tagName.toLowerCase() === 'button' &&
+			! trigger.hasAttribute( 'type' )
+		) {
+			trigger.setAttribute( 'type', 'button' );
+		}
+		// Ensure aria-expanded is set for all triggers
+		if ( ! trigger.hasAttribute( 'aria-expanded' ) ) {
+			trigger.setAttribute( 'aria-expanded', 'false' );
+		}
+		// Legacy support: for older inline contexts using <a> tags, add accessibility
+		if (
+			trigger.tagName.toLowerCase() === 'a' &&
+			! trigger.hasAttribute( 'href' )
+		) {
 			if ( ! trigger.hasAttribute( 'tabindex' ) ) {
 				trigger.setAttribute( 'tabindex', '0' );
 			}
 			if ( ! trigger.hasAttribute( 'role' ) ) {
 				trigger.setAttribute( 'role', 'button' );
 			}
-		}
-		if ( ! trigger.hasAttribute( 'aria-expanded' ) ) {
-			trigger.setAttribute( 'aria-expanded', 'false' );
 		}
 	}
 
