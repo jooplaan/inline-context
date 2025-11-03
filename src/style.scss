@@ -2,15 +2,27 @@
 
 .wp-inline-context {
 	cursor: pointer;
-	/* Appear as regular text by default - no underline or color change */
+	/* Reset button styling to appear as regular text */
+	background: none;
+	border: none;
+	padding: 0;
+	margin: 0;
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
+	text-align: inherit;
 	text-decoration: none;
 	color: inherit;
 	/* Keep text and trailing chevron together */
-	white-space: normal; // was: nowrap
+	white-space: normal;
 	overflow-wrap: anywhere;
 	word-break: break-word;
 	/* Smooth color transition for hover/focus states */
 	transition: color 0.2s ease;
+	/* Improve anchor scrolling behavior */
+	display: inline-block;
+	scroll-margin-top: var(--trybes-inline-context-scroll-margin, 2rem);
 }
 
 /* Hover and focus states - change text color to primary */

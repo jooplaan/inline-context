@@ -24,6 +24,7 @@ import {
 } from '@wordpress/components';
 import { applyFormat, removeFormat } from '@wordpress/rich-text';
 import { __ } from '@wordpress/i18n';
+import { select } from '@wordpress/data';
 import ReactQuill from 'react-quill';
 
 // WordPress-friendly Quill configuration
@@ -54,6 +55,44 @@ const generateAnchorId = () => {
 		);
 	}
 	return anchorId;
+};
+
+// Check if an anchor ID already exists in the document and generate a unique one if needed
+const ensureUniqueAnchorId = ( proposedId ) => {
+	if ( ! proposedId ) {
+		return generateAnchorId();
+	}
+
+	// Check if this ID already exists in the current post content
+	const editor = window.wp?.data?.select( 'core/editor' );
+	if ( ! editor ) {
+		// Fallback: check DOM if editor API unavailable
+		const existingTrigger = document.querySelector(
+			`[data-anchor-id="${ proposedId }"]`
+		);
+		return existingTrigger ? generateAnchorId() : proposedId;
+	}
+
+	// Get all blocks and check for duplicate anchor IDs
+	const allBlocks = editor.getBlocks();
+	const allContent = JSON.stringify( allBlocks );
+
+	// Count occurrences of this anchor ID in the content
+	const regex = new RegExp(
+		`"data-anchor-id":"${ proposedId.replace(
+			/[.*+?^${}()|[\]\\]/g,
+			'\\$&'
+		) }"`,
+		'g'
+	);
+	const matches = allContent.match( regex );
+
+	// If found more than once (current instance + duplicate), generate new ID
+	if ( matches && matches.length > 1 ) {
+		return generateAnchorId();
+	}
+
+	return proposedId;
 };
 
 // Helper: derive linked text from current selection or active inline-context run
@@ -103,6 +142,7 @@ export default function Edit( { isActive, value, onChange } ) {
 	const [ showLinkInput, setShowLinkInput ] = useState( false );
 	const [ linkUrl, setLinkUrl ] = useState( '' );
 	const [ linkText, setLinkText ] = useState( '' );
+	const [ copyLinkStatus, setCopyLinkStatus ] = useState( 'idle' ); // 'idle', 'copying', 'copied'
 	const prevFocusRef = useRef( null );
 	const rootRef = useRef( null );
 	const popoverId = useMemo(
@@ -122,6 +162,7 @@ export default function Edit( { isActive, value, onChange } ) {
 	const linkTextInputRef = useRef( null );
 	const insertLinkButtonRef = useRef( null );
 	const linkCancelButtonRef = useRef( null );
+	const copyLinkButtonRef = useRef( null );
 
 	const activeFormat = value.activeFormats?.find(
 		( f ) => f.type === 'trybes/inline-context'
@@ -135,6 +176,54 @@ export default function Edit( { isActive, value, onChange } ) {
 		activeFormat?.attributes?.[ 'data-inline-context' ] || '';
 	const [ text, setText ] = useState( currentText );
 
+	// Auto-fix duplicate IDs when component mounts or activeFormat changes
+	useEffect( () => {
+		if ( ! activeFormat?.attributes?.[ 'data-anchor-id' ] ) {
+			return; // No existing format to check
+		}
+
+		const currentId = activeFormat.attributes[ 'data-anchor-id' ];
+
+		// Always check for duplicates, regardless of when this runs
+		const editor = window.wp?.data?.select( 'core/editor' );
+		let hasDuplicate = false;
+
+		if ( editor ) {
+			// Get the entire post content as HTML
+			const content = editor.getEditedPostContent();
+
+			// Count occurrences of this anchor ID in the raw content
+			const anchorIdMatches =
+				content.match(
+					new RegExp(
+						`data-anchor-id="${ currentId.replace(
+							/[.*+?^${}()|[\]\\]/g,
+							'\\$&'
+						) }"`,
+						'g'
+					)
+				) || [];
+
+			hasDuplicate = anchorIdMatches.length > 1;
+		}
+
+		// If duplicate detected, generate new ID immediately
+		if ( hasDuplicate ) {
+			const uniqueId = generateAnchorId();
+
+			onChange(
+				applyFormat( value, {
+					type: 'trybes/inline-context',
+					attributes: {
+						...activeFormat.attributes,
+						'data-anchor-id': uniqueId,
+						id: `trigger-${ uniqueId }`,
+					},
+				} )
+			);
+		}
+	}, [ activeFormat, onChange, value ] );
+
 	// Linked text for label (single-line with ellipsis)
 	const linkedText = useMemo( () => {
 		const s = ( getLinkedText( value ) || '' ).trim();
@@ -143,10 +232,10 @@ export default function Edit( { isActive, value, onChange } ) {
 
 	// Apply the inline context to the current selection
 	const apply = useCallback( () => {
-		// Use existing ID if editing, or generate new one if creating
-		const anchorId =
-			activeFormat?.attributes?.[ 'data-anchor-id' ] ||
-			generateAnchorId();
+		// Get proposed ID (existing or new)
+		const proposedId = activeFormat?.attributes?.[ 'data-anchor-id' ];
+		// Ensure uniqueness (handles copy/paste duplicates)
+		const anchorId = ensureUniqueAnchorId( proposedId );
 
 		onChange(
 			applyFormat( value, {
@@ -154,8 +243,8 @@ export default function Edit( { isActive, value, onChange } ) {
 				attributes: {
 					'data-inline-context': text,
 					'data-anchor-id': anchorId,
-					href: `#${ anchorId }`,
-					role: 'button',
+					id: `trigger-${ anchorId }`,
+					type: 'button',
 					'aria-expanded': 'false',
 				},
 			} )
@@ -282,6 +371,10 @@ export default function Edit( { isActive, value, onChange } ) {
 		// Define the tab order based on current state
 		const tabOrder = [
 			addLinkButtonRef,
+			// If editing existing note and has anchor ID, include copy link button
+			...( activeFormat?.attributes?.[ 'data-anchor-id' ]
+				? [ copyLinkButtonRef ]
+				: [] ),
 			// If link form is visible, include those fields
 			...( showLinkInput
 				? [
@@ -352,7 +445,71 @@ export default function Edit( { isActive, value, onChange } ) {
 		setShowLinkInput( false );
 		setLinkUrl( '' );
 		setLinkText( '' );
-	}; // Handle React Quill editor changes
+	};
+
+	// Handle copying the anchor link to clipboard
+	const copyAnchorLink = async () => {
+		const anchorId = activeFormat?.attributes?.[ 'data-anchor-id' ];
+		if ( ! anchorId ) return;
+
+		// Get the frontend permalink of the current post
+		const postId = select( 'core/editor' )?.getCurrentPostId();
+		let frontendUrl = '';
+
+		if ( postId ) {
+			// Try to get the permalink from the editor store
+			const permalink = select( 'core/editor' )?.getPermalink();
+			const editedPostContent =
+				select( 'core/editor' )?.getEditedPostAttribute( 'link' );
+
+			// Use permalink if available, otherwise fall back to the edited post link
+			frontendUrl =
+				permalink ||
+				editedPostContent ||
+				window.location.href.split( '#' )[ 0 ];
+		} else {
+			// Fallback to current URL if we can't get post data
+			frontendUrl = window.location.href.split( '#' )[ 0 ];
+		}
+
+		const fullAnchorUrl = `${ frontendUrl }#${ anchorId }`;
+
+		setCopyLinkStatus( 'copying' );
+
+		try {
+			await window.navigator.clipboard.writeText( fullAnchorUrl );
+			setCopyLinkStatus( 'copied' );
+
+			// Reset status after 2 seconds
+			setTimeout( () => {
+				setCopyLinkStatus( 'idle' );
+			}, 2000 );
+		} catch ( error ) {
+			// Fallback for older browsers or when clipboard API fails
+			const textArea = document.createElement( 'textarea' );
+			textArea.value = fullAnchorUrl;
+			textArea.style.position = 'fixed';
+			textArea.style.opacity = '0';
+			document.body.appendChild( textArea );
+			textArea.select();
+
+			try {
+				document.execCommand( 'copy' );
+				setCopyLinkStatus( 'copied' );
+				setTimeout( () => {
+					setCopyLinkStatus( 'idle' );
+				}, 2000 );
+			} catch ( fallbackError ) {
+				// eslint-disable-next-line no-console
+				console.warn( 'Failed to copy link:', fallbackError );
+				setCopyLinkStatus( 'idle' );
+			}
+
+			document.body.removeChild( textArea );
+		}
+	};
+
+	// Handle React Quill editor changes
 	const handleQuillChange = ( content ) => {
 		setText( content );
 	};
@@ -539,6 +696,41 @@ export default function Edit( { isActive, value, onChange } ) {
 									? __( 'Hide Link Form', 'inline-context' )
 									: __( 'Add Link', 'inline-context' ) }
 							</Button>
+
+							{ activeFormat?.attributes?.[
+								'data-anchor-id'
+							] && (
+								<Button
+									ref={ copyLinkButtonRef }
+									variant="link"
+									size="small"
+									onClick={ copyAnchorLink }
+									disabled={ copyLinkStatus === 'copying' }
+									onKeyDown={ ( e ) =>
+										handleActionButtonsKeyDown(
+											e,
+											copyLinkButtonRef
+										)
+									}
+									style={ {
+										marginLeft: '8px',
+										textDecoration:
+											copyLinkStatus === 'idle'
+												? 'underline'
+												: 'none',
+									} }
+								>
+									{ copyLinkStatus === 'copied' &&
+										__( 'Link copied', 'inline-context' ) }
+									{ copyLinkStatus === 'copying' &&
+										__( 'Copying…', 'inline-context' ) }
+									{ copyLinkStatus === 'idle' &&
+										__(
+											'Copy link to this note',
+											'inline-context'
+										) }
+								</Button>
+							) }
 						</div>
 
 						<div className="wp-reveal-quill-help">

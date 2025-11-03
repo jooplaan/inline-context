@@ -7,13 +7,13 @@ import 'react-quill/dist/quill.snow.css';
 
 registerFormatType( 'trybes/inline-context', {
 	title: __( 'Inline Context', 'inline-context' ),
-	tagName: 'a',
+	tagName: 'button',
 	className: 'wp-inline-context',
 	attributes: {
 		'data-inline-context': 'data-inline-context',
 		'data-anchor-id': 'data-anchor-id',
-		href: 'href',
-		role: 'role',
+		id: 'id',
+		type: 'type',
 		'aria-expanded': 'aria-expanded',
 	},
 	edit: Edit,

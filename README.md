@@ -11,9 +11,10 @@ Add small “click to reveal” notes inline with your text. Perfect for short e
 ## How to use
 
 1. In the editor, select the text you want to explain.
-2. Click the “Inline Context” button in the formatting toolbar.
+2. Click the "Inline Context" button in the formatting toolbar.
 3. Type your note and save.
-4. View your page and click the highlighted text to reveal/hide the note.
+4. **Copy shareable links**: Click "Copy link to this note" in the editor to get a direct link to any note.
+5. View your page and click the highlighted text to reveal/hide the note.
 
 ## Why it’s helpful
 
