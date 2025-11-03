@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,11 @@ Yes. The frontend uses CSS custom properties that you can override in your theme
 2. Frontend rendering of an inline note
 
 == Changelog ==
+= 1.1.0 =
+* **NEW**: WordPress LinkControl integration for easy internal page/post linking
+* **NEW**: Familiar WordPress interface for selecting content and adding external URLs
+* **IMPROVED**: Enhanced rich text editor with better link management capabilities
+
 = 1.0.1 =
 * **IMPROVED**: Enhanced VS Code development setup with WordPress coding standards
 * **IMPROVED**: Build process optimization and error fixes

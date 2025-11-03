@@ -3,7 +3,7 @@
  * Plugin Name: Inline Context
  * Plugin URI: https://wordpress.org/plugins/inline-context/
  * Description: Add inline expandable context to selected text in the block editor with direct anchor linking. Click to reveal, click again to hide.
- * Version: 1.0.1
+ * Version: 1.1.0
  * Author: Trybes
  * Author URI: https://profiles.wordpress.org/trybes/
  * License: GPL-2.0-or-later
@@ -36,10 +36,16 @@ add_filter(
 				$tags['a'] = array();
 			}
 			// Allow our custom attributes for inline context functionality.
-			$tags['a']['data-inline-context'] = true;
-			$tags['a']['data-anchor-id']      = true;
-			$tags['a']['role']                = true;
-			$tags['a']['aria-expanded']       = true;
+			$allowed_attributes = apply_filters(
+				'inline_context_allowed_attributes',
+				array(
+					'data-inline-context' => true,
+					'data-anchor-id'      => true,
+					'role'                => true,
+					'aria-expanded'       => true,
+				)
+			);
+			$tags['a']          = array_merge( $tags['a'], $allowed_attributes );
 		}
 		return $tags;
 	},

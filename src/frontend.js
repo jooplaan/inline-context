@@ -1,7 +1,13 @@
 import DOMPurify from 'dompurify';
 
 document.addEventListener( 'DOMContentLoaded', () => {
-	const revealedClass = 'wp-inline-context--open';
+	const { applyFilters } = wp.hooks || { applyFilters: ( name, val ) => val };
+
+	// Allow developers to customize the CSS class used for revealed notes
+	const revealedClass = applyFilters(
+		'inline_context_revealed_class',
+		'wp-inline-context--open'
+	);
 
 	const decodeEntities = ( str ) => {
 		if ( ! str ) return '';
@@ -10,9 +16,22 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return txt.value;
 	};
 
-	// Configure DOMPurify to allow the small subset used by our Quill config
-	const ALLOWED_TAGS = [ 'p', 'strong', 'em', 'a', 'ol', 'ul', 'li', 'br' ];
-	const ALLOWED_ATTR = [ 'href', 'rel', 'target' ];
+	// Configure DOMPurify - allow developers to extend allowed tags/attributes
+	const ALLOWED_TAGS = applyFilters( 'inline_context_allowed_tags', [
+		'p',
+		'strong',
+		'em',
+		'a',
+		'ol',
+		'ul',
+		'li',
+		'br',
+	] );
+	const ALLOWED_ATTR = applyFilters( 'inline_context_allowed_attributes', [
+		'href',
+		'rel',
+		'target',
+	] );
 
 	// Add a hook to harden links (no javascript:, add rel)
 	if ( typeof DOMPurify.addHook === 'function' ) {
@@ -44,12 +63,19 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 	const sanitizeHtml = ( html ) => {
 		if ( ! html ) return '';
-		return DOMPurify.sanitize( html, {
+		// Allow developers to modify HTML before sanitization
+		const filteredHtml = applyFilters(
+			'inline_context_pre_sanitize_html',
+			html
+		);
+		const sanitized = DOMPurify.sanitize( filteredHtml, {
 			ALLOWED_TAGS,
 			ALLOWED_ATTR,
 			ALLOW_ARIA_ATTR: true,
 			RETURN_TRUSTED_TYPE: false,
 		} );
+		// Allow developers to modify HTML after sanitization
+		return applyFilters( 'inline_context_post_sanitize_html', sanitized );
 	};
 
 	// Progressive enhancement: ensure keyboard accessibility
@@ -74,6 +100,14 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		const links = noteElement.querySelectorAll( 'a[href]' );
 		const currentDomain = window.location.hostname;
 
+		// Allow developers to customize link behavior
+		const shouldProcessLinks = applyFilters(
+			'inline_context_process_links',
+			true,
+			noteElement
+		);
+		if ( ! shouldProcessLinks ) return;
+
 		for ( const link of links ) {
 			const href = link.getAttribute( 'href' );
 
@@ -87,8 +121,18 @@ document.addEventListener( 'DOMContentLoaded', () => {
 					href.startsWith( '#' ) ||
 					href.startsWith( '?' )
 				) {
-					// Internal relative link - open in same tab
-					link.removeAttribute( 'target' );
+					// Internal relative link - apply filter
+					const internalTarget = applyFilters(
+						'inline_context_internal_link_target',
+						'_self',
+						href,
+						link
+					);
+					if ( internalTarget === '_self' ) {
+						link.removeAttribute( 'target' );
+					} else {
+						link.setAttribute( 'target', internalTarget );
+					}
 					continue;
 				}
 
@@ -96,12 +140,29 @@ document.addEventListener( 'DOMContentLoaded', () => {
 				const url = new URL( href );
 
 				if ( url.hostname === currentDomain ) {
-					// Internal absolute link - open in same tab
-					link.removeAttribute( 'target' );
+					// Internal absolute link - apply filter
+					const internalTarget = applyFilters(
+						'inline_context_internal_link_target',
+						'_self',
+						href,
+						link
+					);
+					if ( internalTarget === '_self' ) {
+						link.removeAttribute( 'target' );
+					} else {
+						link.setAttribute( 'target', internalTarget );
+					}
 				} else {
-					// External link - open in new tab
-					link.setAttribute( 'target', '_blank' );
-					// Ensure security attributes are present
+					// External link - apply filter for target
+					const externalTarget = applyFilters(
+						'inline_context_external_link_target',
+						'_blank',
+						href,
+						link
+					);
+					link.setAttribute( 'target', externalTarget );
+
+					// Ensure security attributes are present for external links
 					const rel = link.getAttribute( 'rel' ) || '';
 					const relTokens = new Set(
 						rel.split( ' ' ).filter( Boolean )
@@ -147,7 +208,14 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		const noteId = `note-${ anchorId }`;
 
 		const span = document.createElement( 'span' );
-		span.className = 'wp-inline-context-inline';
+		// Allow developers to customize the note container class
+		const noteClass = applyFilters(
+			'inline_context_note_class',
+			'wp-inline-context-inline',
+			trigger
+		);
+		span.className = noteClass;
+
 		// Use sanitized HTML for Quill content; for legacy plain text, insert as textContent
 		const isQuillContent =
 			hiddenContent.includes( '<p>' ) ||

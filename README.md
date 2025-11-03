@@ -156,6 +156,8 @@ npm run package  # automatically runs: test → build → package
 
 ## Support
 
+For developer documentation on extending the plugin with WordPress filters, see [FILTERS.md](FILTERS.md).
+
 Please use the support forum on WordPress.org once the plugin is published. We'll do our best to help.
 
 ## License
