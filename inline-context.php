@@ -4,8 +4,8 @@
  * Plugin URI: https://wordpress.org/plugins/inline-context/
  * Description: Add inline expandable context to selected text in the block editor with direct anchor linking. Click to reveal, click again to hide.
  * Version: 1.1.2
- * Author: Trybes
- * Author URI: https://profiles.wordpress.org/trybes/
+ * Author: Joop Laan
+ * Author URI: https://profiles.wordpress.org/joop/
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Requires at least: 6.0
@@ -65,7 +65,7 @@ add_action(
 		);
 
 		wp_enqueue_script(
-			'trybes-inline-context',
+			'jooplaan-inline-context',
 			plugins_url( 'build/index.js', __FILE__ ),
 			$asset['dependencies'],
 			$asset['version'],
@@ -74,11 +74,11 @@ add_action(
 
 		// Enable JS translations for strings in the editor script.
 		if ( function_exists( 'wp_set_script_translations' ) ) {
-			wp_set_script_translations( 'trybes-inline-context', 'inline-context', plugin_dir_path( __FILE__ ) . 'languages' );
+			wp_set_script_translations( 'jooplaan-inline-context', 'inline-context', plugin_dir_path( __FILE__ ) . 'languages' );
 		}
 
 		wp_enqueue_style(
-			'trybes-inline-context',
+			'jooplaan-inline-context',
 			plugins_url( 'build/index.css', __FILE__ ),
 			array(),
 			filemtime( __DIR__ . '/build/index.css' )
@@ -101,7 +101,7 @@ add_action(
 		$dependencies = array_merge( $frontend_asset['dependencies'], array( 'wp-hooks' ) );
 
 		wp_enqueue_script(
-			'trybes-inline-context-frontend',
+			'jooplaan-inline-context-frontend',
 			plugins_url( 'build/frontend.js', __FILE__ ),
 			$dependencies,
 			$frontend_asset['version'],
@@ -109,7 +109,7 @@ add_action(
 		);
 		// Use compiled frontend styles from SCSS build.
 		wp_enqueue_style(
-			'trybes-inline-context-frontend-style',
+			'jooplaan-inline-context-frontend-style',
 			plugins_url( 'build/style-index.css', __FILE__ ),
 			array(),
 			filemtime( __DIR__ . '/build/style-index.css' )

@@ -1,5 +1,5 @@
 === Inline Context ===
-Contributors: Trybes
+Contributors: joop
 Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
 Tested up to: 6.6

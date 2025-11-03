@@ -5,7 +5,7 @@ import './style.scss';
 import './editor.scss';
 import 'react-quill/dist/quill.snow.css';
 
-registerFormatType( 'trybes/inline-context', {
+registerFormatType( 'jooplaan/inline-context', {
 	title: __( 'Inline Context', 'inline-context' ),
 	tagName: 'button',
 	className: 'wp-inline-context',
