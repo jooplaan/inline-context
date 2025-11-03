@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,19 @@ Yes. The frontend uses CSS custom properties that you can override in your theme
 2. Frontend rendering of an inline note
 
 == Changelog ==
+= 1.1.3 =
+* **FIX**: Inline context text is now editable in the block editor (changed from button to anchor tag)
+* **IMPROVED**: Better HTML semantics with anchor tags using role="button" for accessibility
+* **IMPROVED**: Added href attribute for proper anchor link functionality
+
+= 1.1.2 =
+* **NEW**: Copy link functionality - users can copy direct anchor links to any context note
+* **NEW**: Developer filters for extensive plugin customization (11 filters available)
+* **IMPROVED**: Complete namespace refactoring from trybes to jooplaan
+* **IMPROVED**: Duplicate ID prevention system for copy/paste scenarios
+* **FIX**: Frontend display issue - added wp-hooks dependency
+* **FIX**: Demo.html compatibility with standalone usage
+
 = 1.1.1 =
 * **FIX**: Added wp-hooks dependency for frontend filters support
 * **FIX**: Resolved console error preventing notes from displaying on frontend

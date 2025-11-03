@@ -7,13 +7,14 @@ import 'react-quill/dist/quill.snow.css';
 
 registerFormatType( 'jooplaan/inline-context', {
 	title: __( 'Inline Context', 'inline-context' ),
-	tagName: 'button',
+	tagName: 'a',
 	className: 'wp-inline-context',
 	attributes: {
 		'data-inline-context': 'data-inline-context',
 		'data-anchor-id': 'data-anchor-id',
+		href: 'href',
 		id: 'id',
-		type: 'type',
+		role: 'role',
 		'aria-expanded': 'aria-expanded',
 	},
 	edit: Edit,
