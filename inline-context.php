@@ -3,7 +3,7 @@
  * Plugin Name: Inline Context
  * Plugin URI: https://wordpress.org/plugins/inline-context/
  * Description: Add inline expandable context to selected text in the block editor with direct anchor linking. Click to reveal, click again to hide.
- * Version: 1.1.3
+ * Version: 1.1.4
  * Author: Joop Laan
  * Author URI: https://profiles.wordpress.org/joop/
  * License: GPL-2.0-or-later
@@ -18,6 +18,9 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+
+// Define plugin version constant.
+define( 'INLINE_CONTEXT_VERSION', '1.1.4' );
 
 // Load translations.
 add_action(
@@ -64,11 +67,16 @@ add_action(
 			'version'      => filemtime( __DIR__ . '/build/index.js' ),
 		);
 
+		// Use plugin version for production, filemtime for development.
+		$version = defined( 'WP_DEBUG' ) && WP_DEBUG && isset( $asset['version'] )
+			? filemtime( __DIR__ . '/build/index.js' )
+			: INLINE_CONTEXT_VERSION;
+
 		wp_enqueue_script(
 			'jooplaan-inline-context',
 			plugins_url( 'build/index.js', __FILE__ ),
 			$asset['dependencies'],
-			$asset['version'],
+			$version,
 			true
 		);
 
@@ -81,7 +89,9 @@ add_action(
 			'jooplaan-inline-context',
 			plugins_url( 'build/index.css', __FILE__ ),
 			array(),
-			filemtime( __DIR__ . '/build/index.css' )
+			defined( 'WP_DEBUG' ) && WP_DEBUG
+				? filemtime( __DIR__ . '/build/index.css' )
+				: INLINE_CONTEXT_VERSION
 		);
 	}
 );
@@ -100,11 +110,16 @@ add_action(
 		// Add wp-hooks as a dependency for filter support.
 		$dependencies = array_merge( $frontend_asset['dependencies'], array( 'wp-hooks' ) );
 
+		// Use plugin version for production, filemtime for development.
+		$version = defined( 'WP_DEBUG' ) && WP_DEBUG
+			? filemtime( __DIR__ . '/build/frontend.js' )
+			: INLINE_CONTEXT_VERSION;
+
 		wp_enqueue_script(
 			'jooplaan-inline-context-frontend',
 			plugins_url( 'build/frontend.js', __FILE__ ),
 			$dependencies,
-			$frontend_asset['version'],
+			$version,
 			true
 		);
 		// Use compiled frontend styles from SCSS build.
@@ -112,7 +127,9 @@ add_action(
 			'jooplaan-inline-context-frontend-style',
 			plugins_url( 'build/style-index.css', __FILE__ ),
 			array(),
-			filemtime( __DIR__ . '/build/style-index.css' )
+			defined( 'WP_DEBUG' ) && WP_DEBUG
+				? filemtime( __DIR__ . '/build/style-index.css' )
+				: INLINE_CONTEXT_VERSION
 		);
 	}
 );
