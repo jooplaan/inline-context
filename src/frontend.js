@@ -97,9 +97,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 	// Process links in notes to set appropriate target behavior
 	const processLinksInNote = ( noteElement ) => {
-		const links = noteElement.querySelectorAll( 'a[href]' );
-		const currentDomain = window.location.hostname;
-
 		// Allow developers to customize link behavior
 		const shouldProcessLinks = applyFilters(
 			'inline_context_process_links',
@@ -107,6 +104,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			noteElement
 		);
 		if ( ! shouldProcessLinks ) return;
+
+		const links = noteElement.querySelectorAll( 'a[href]' );
+		const currentDomain = window.location.hostname;
 
 		for ( const link of links ) {
 			const href = link.getAttribute( 'href' );

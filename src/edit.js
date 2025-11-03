@@ -14,10 +14,7 @@ import {
 	useRef,
 	useState,
 } from '@wordpress/element';
-import {
-	RichTextToolbarButton,
-	URLInput,
-} from '@wordpress/block-editor';
+import { RichTextToolbarButton, URLInput } from '@wordpress/block-editor';
 import {
 	Popover,
 	Button,
