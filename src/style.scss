@@ -55,7 +55,10 @@
 			var(--wp--preset--color--primary, #0073aa)
 		);
 	border-radius: var(--jooplaan-inline-note-radius, 6px);
-	box-shadow: var(--jooplaan-inline-note-shadow, 0 1px 2px rgba(0, 0, 0, 0.05));
+	box-shadow: var(
+		--jooplaan-inline-note-shadow,
+		0 1px 2px rgba(0, 0, 0, 0.05)
+	);
 	/* Typography */
 	font-size: 0.95em;
 	/* Progressive enhancement: smooth reveal animation */
