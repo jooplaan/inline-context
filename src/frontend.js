@@ -78,30 +78,15 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return applyFilters( 'inline_context_post_sanitize_html', sanitized );
 	};
 
-	// Progressive enhancement: ensure proper button attributes
+	// Progressive enhancement: ensure proper accessibility attributes
 	for ( const trigger of document.querySelectorAll( '.wp-inline-context' ) ) {
-		// Ensure button type is set (for semantic correctness)
-		if (
-			trigger.tagName.toLowerCase() === 'button' &&
-			! trigger.hasAttribute( 'type' )
-		) {
-			trigger.setAttribute( 'type', 'button' );
-		}
 		// Ensure aria-expanded is set for all triggers
 		if ( ! trigger.hasAttribute( 'aria-expanded' ) ) {
 			trigger.setAttribute( 'aria-expanded', 'false' );
 		}
-		// Legacy support: for older inline contexts using <a> tags, add accessibility
-		if (
-			trigger.tagName.toLowerCase() === 'a' &&
-			! trigger.hasAttribute( 'href' )
-		) {
-			if ( ! trigger.hasAttribute( 'tabindex' ) ) {
-				trigger.setAttribute( 'tabindex', '0' );
-			}
-			if ( ! trigger.hasAttribute( 'role' ) ) {
-				trigger.setAttribute( 'role', 'button' );
-			}
+		// Ensure role="button" is set for accessibility
+		if ( ! trigger.hasAttribute( 'role' ) ) {
+			trigger.setAttribute( 'role', 'button' );
 		}
 	}
 
