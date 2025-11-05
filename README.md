@@ -121,7 +121,7 @@ This project enforces WordPress coding standards for both JavaScript and PHP:
 
 - **JavaScript**: Uses `@wordpress/scripts` with ESLint for WordPress coding standards
 - **PHP**: Uses PHP_CodeSniffer with WordPress-Coding-Standards ruleset
-- **Automatic Quality Checks**: All packaging and release commands automatically run linting checks first
+- **Automatic Quality Checks**: All packaging and release commands automatically fix and check linting before building
 
 ### Quality assurance workflow
 
@@ -130,18 +130,24 @@ This project enforces WordPress coding standards for both JavaScript and PHP:
 npm run test
 
 # Fix auto-fixable issues
-npm run lint:php:fix
+npm run lint:fix       # Fixes both JS and PHP
+npm run lint:js:fix    # Fix JavaScript only
+npm run lint:php:fix   # Fix PHP only
 
-# Package only if quality checks pass
-npm run package  # automatically runs: test → build → package
+# Package with automatic linting fixes and checks
+npm run package  # automatically runs: lint:fix → build → package
+
+# Release workflow (same as package)
+npm run release  # automatically runs: lint:fix → build → package
 ```
 
 ## Releasing a new version
 
-1. **Ensure code quality**: Run `npm run test` to check all standards are met
+1. **Code quality is automatic**: `npm run release` automatically fixes linting issues before building
 
 2. **Update version numbers** in:
-   - `inline-context.php` (plugin header)
+   - `inline-context.php` (plugin header and INLINE_CONTEXT_VERSION constant)
+   - `package.json` (version field)
    - `readme.txt` (Stable tag and Changelog)
    - `package.json` (version field)
 
