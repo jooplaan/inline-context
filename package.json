@@ -12,11 +12,12 @@
 		"format:js": "prettier --write \"src/**/*.{js,jsx,scss,css,json}\"",
 		"format": "npm run format:js && npm run lint:php:fix",
 		"lint": "npm run lint:js && npm run lint:php",
+		"lint:fix": "npm run lint:js:fix && npm run lint:php:fix",
 		"test": "npm run lint",
 		"pot": "echo 'POT file generation requires WP-CLI. Run: wp i18n make-pot . languages/inline-context.pot --domain=inline-context'",
-		"prepackage": "npm run test && npm run build",
+		"prepackage": "npm run lint:fix && npm run build",
 		"package": "bash scripts/package.sh",
-		"prerelease": "npm run test && npm run build",
+		"prerelease": "npm run lint:fix && npm run build",
 		"release": "bash scripts/package.sh"
 	},
 	"dependencies": {
