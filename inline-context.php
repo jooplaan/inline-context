@@ -3,7 +3,7 @@
  * Plugin Name: Inline Context
  * Plugin URI: https://wordpress.org/plugins/inline-context/
  * Description: Add inline expandable context to selected text in the block editor with direct anchor linking. Click to reveal, click again to hide.
- * Version: 1.1.4
+ * Version: 1.1.5
  * Author: Joop Laan
  * Author URI: https://profiles.wordpress.org/joop/
  * License: GPL-2.0-or-later
@@ -19,8 +19,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// Define plugin version constant.
-define( 'INLINE_CONTEXT_VERSION', '1.1.4' );
+define( 'INLINE_CONTEXT_VERSION', '1.1.5' );
 
 // Load translations.
 add_action(
