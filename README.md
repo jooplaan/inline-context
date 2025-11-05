@@ -149,7 +149,7 @@ npm run release  # automatically runs: lint:fix → build → package
    - `inline-context.php` (plugin header and INLINE_CONTEXT_VERSION constant)
    - `package.json` (version field)
    - `readme.txt` (Stable tag and Changelog)
-   - `package.json` (version field)
+   - `composer.json` (version field)
 
 3. **Build and package** (includes automatic quality checks):
 
