@@ -46,10 +46,23 @@ Yes. The frontend uses CSS custom properties that you can override in your theme
 2. Frontend rendering of an inline note
 
 == Changelog ==
+== Changelog ==
+
+= 1.1.5 =
+* **NEW**: HTML source editor toggle in ReactQuill toolbar for direct HTML editing
+* **NEW**: Visual toggle between WYSIWYG and HTML source modes with dedicated icon
+* **IMPROVED**: Better icon sizing and styling for toolbar buttons
+* **IMPROVED**: Smooth switching between visual and source editing modes
+* **FIX**: Toggle button functionality working correctly after multiple switches
+
+= 1.1.4 =
+* **NEW**: Theme.json integration for WordPress Site Editor customization
+* **NEW**: STYLING.md documentation with comprehensive theming examples
+* **IMPROVED**: Conditional asset versioning (filemtime for dev, constant for production)
+* **IMPROVED**: CSS custom properties now use --wp--custom--inline-context--* namespace
+* **REMOVED**: Legacy --jooplaan-* CSS properties (breaking change)
+
 = 1.1.3 =
-* **FIX**: Inline context text is now editable in the block editor (changed from button to anchor tag)
-* **IMPROVED**: Better HTML semantics with anchor tags using role="button" for accessibility
-* **IMPROVED**: Added href attribute for proper anchor link functionality
 
 = 1.1.2 =
 * **NEW**: Copy link functionality - users can copy direct anchor links to any context note
