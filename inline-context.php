@@ -30,6 +30,28 @@ add_action(
 	}
 );
 
+// Register theme.json for Site Editor styling support.
+add_action(
+	'after_setup_theme',
+	function () {
+		// Add theme.json support for customizing inline context styles in Site Editor.
+		add_filter(
+			'wp_theme_json_data_default',
+			function ( $theme_json ) {
+				$plugin_theme_json_path = __DIR__ . '/theme.json';
+				if ( file_exists( $plugin_theme_json_path ) ) {
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local theme.json file.
+					$plugin_theme_json_data = json_decode( file_get_contents( $plugin_theme_json_path ), true );
+					if ( is_array( $plugin_theme_json_data ) ) {
+						$theme_json->update_with( $plugin_theme_json_data );
+					}
+				}
+				return $theme_json;
+			}
+		);
+	}
+);
+
 // Ensure the custom data attributes are allowed by KSES for post content.
 add_filter(
 	'wp_kses_allowed_html',
