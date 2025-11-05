@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.1.5
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -48,6 +48,16 @@ Yes. The frontend uses CSS custom properties that you can override in your theme
 == Changelog ==
 == Changelog ==
 
+= 1.2.0 =
+* **NEW**: Admin settings page for customizing CSS variables in WordPress admin
+* **NEW**: 23 configurable styling options across Link, Note Block, and Chevron sections
+* **NEW**: Color pickers for easy color customization
+* **NEW**: Text inputs for dimensions, shadows, and other properties
+* **NEW**: Reset to Defaults button for quick restoration
+* **NEW**: Live preview section in settings page
+* **IMPROVED**: CSS custom properties now properly injected to frontend
+* **IMPROVED**: Clean separation of admin UI and frontend CSS output
+
 = 1.1.5 =
 * **NEW**: HTML source editor toggle in ReactQuill toolbar for direct HTML editing
 * **NEW**: Visual toggle between WYSIWYG and HTML source modes with dedicated icon
@@ -61,6 +71,16 @@ Yes. The frontend uses CSS custom properties that you can override in your theme
 * **IMPROVED**: Conditional asset versioning (filemtime for dev, constant for production)
 * **IMPROVED**: CSS custom properties now use --wp--custom--inline-context--* namespace
 * **REMOVED**: Legacy --jooplaan-* CSS properties (breaking change)
+
+= 1.1.5 =
+* **NEW**: HTML source editor toggle in ReactQuill toolbar
+* **NEW**: Visual toggle between WYSIWYG and HTML source modes
+* **IMPROVED**: Better icon sizing and styling for toolbar buttons
+* **IMPROVED**: Smooth switching between visual and source editing
+* **IMPROVED**: Automated linting and fixing before releases
+* **FIX**: Toggle button functionality after multiple switches
+
+= 1.1.4 =
 
 = 1.1.3 =
 
