@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,7 +72,10 @@ Yes. The frontend uses CSS custom properties that you can override in your theme
 * **IMPROVED**: CSS custom properties now use --wp--custom--inline-context--* namespace
 * **REMOVED**: Legacy --jooplaan-* CSS properties (breaking change)
 
-= 1.1.5 =
+= 1.2.1 =
+* **FIX**: Updated composer.json version number to match plugin version
+
+= 1.2.0 =
 * **NEW**: HTML source editor toggle in ReactQuill toolbar
 * **NEW**: Visual toggle between WYSIWYG and HTML source modes
 * **IMPROVED**: Better icon sizing and styling for toolbar buttons
