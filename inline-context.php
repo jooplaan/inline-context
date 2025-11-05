@@ -21,6 +21,11 @@ defined( 'ABSPATH' ) || exit;
 
 define( 'INLINE_CONTEXT_VERSION', '1.1.5' );
 
+// Load admin settings page.
+if ( is_admin() ) {
+	require_once __DIR__ . '/admin-settings.php';
+}
+
 // Load translations.
 add_action(
 	'init',
