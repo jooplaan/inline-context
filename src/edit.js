@@ -28,13 +28,17 @@ import { select } from '@wordpress/data';
 import ReactQuill from 'react-quill';
 
 // WordPress-friendly Quill configuration
+// Note: We add a custom 'code-view' button to the toolbar via container option
 const QUILL_MODULES = {
-	toolbar: [
-		[ 'bold', 'italic' ],
-		[ 'link' ],
-		[ { list: 'ordered' }, { list: 'bullet' } ],
-		[ 'clean' ],
-	],
+	toolbar: {
+		container: [
+			[ 'bold', 'italic' ],
+			[ 'link' ],
+			[ { list: 'ordered' }, { list: 'bullet' } ],
+			[ 'clean' ],
+			[ 'code-view' ], // Custom button for HTML source toggle
+		],
+	},
 };
 
 const QUILL_FORMATS = [ 'bold', 'italic', 'link', 'list', 'bullet' ];
@@ -143,6 +147,7 @@ export default function Edit( { isActive, value, onChange } ) {
 	const [ linkUrl, setLinkUrl ] = useState( '' );
 	const [ linkText, setLinkText ] = useState( '' );
 	const [ copyLinkStatus, setCopyLinkStatus ] = useState( 'idle' ); // 'idle', 'copying', 'copied'
+	const [ isSourceMode, setIsSourceMode ] = useState( false ); // Toggle between WYSIWYG and HTML source
 	const prevFocusRef = useRef( null );
 	const rootRef = useRef( null );
 	const popoverId = useMemo(
@@ -163,6 +168,7 @@ export default function Edit( { isActive, value, onChange } ) {
 	const insertLinkButtonRef = useRef( null );
 	const linkCancelButtonRef = useRef( null );
 	const copyLinkButtonRef = useRef( null );
+	const sourceTextareaRef = useRef( null );
 
 	const activeFormat = value.activeFormats?.find(
 		( f ) => f.type === 'jooplaan/inline-context'
@@ -319,18 +325,45 @@ export default function Edit( { isActive, value, onChange } ) {
 	}, [ activeFormat?.attributes?.[ 'data-inline-context' ] ] );
 
 	// When opening, place focus inside the Quill editor for immediate typing
+	// Also set up custom toolbar handler for code-view button
 	useEffect( () => {
-		if ( ! isOpen ) return;
+		if ( ! isOpen || isSourceMode ) return;
 		const t = setTimeout( () => {
 			const inst = quillRef.current;
+			const editor = inst?.getEditor?.();
+
+			if ( editor ) {
+				// Set up custom toolbar button handler BEFORE focusing
+				const toolbar = editor.getModule( 'toolbar' );
+				if ( toolbar ) {
+					toolbar.addHandler( 'code-view', () => {
+						setIsSourceMode( ( prev ) => ! prev );
+					} );
+
+					// Add click listener to the button as fallback
+					const container = editor.container;
+					const codeViewBtn =
+						container?.previousSibling?.querySelector?.(
+							'.ql-code-view'
+						);
+					if ( codeViewBtn ) {
+						codeViewBtn.onclick = ( e ) => {
+							e.preventDefault();
+							setIsSourceMode( ( prev ) => ! prev );
+						};
+					}
+				}
+			}
+
+			// Focus the editor
 			if ( inst?.focus ) {
 				inst.focus();
-			} else if ( inst?.getEditor ) {
-				inst.getEditor()?.focus?.();
+			} else if ( editor?.focus ) {
+				editor.focus();
 			}
 		}, 0 );
 		return () => clearTimeout( t );
-	}, [ isOpen ] );
+	}, [ isOpen, isSourceMode ] );
 
 	// Add handy keyboard shortcuts for the popover
 	useEffect( () => {
@@ -565,18 +598,60 @@ export default function Edit( { isActive, value, onChange } ) {
 							) : null }
 						</div>
 						<div onKeyDownCapture={ handleEditorKeyDownCapture }>
-							<ReactQuill
-								ref={ quillRef }
-								value={ text }
-								onChange={ handleQuillChange }
-								modules={ QUILL_MODULES }
-								formats={ QUILL_FORMATS }
-								placeholder={ __(
-									'Add inline context…',
-									'inline-context'
-								) }
-								theme="snow"
-							/>
+							{ ! isSourceMode ? (
+								<ReactQuill
+									ref={ quillRef }
+									value={ text }
+									onChange={ handleQuillChange }
+									modules={ QUILL_MODULES }
+									formats={ QUILL_FORMATS }
+									placeholder={ __(
+										'Add inline context…',
+										'inline-context'
+									) }
+									theme="snow"
+								/>
+							) : (
+								<>
+									<div className="wp-reveal-source-header">
+										<span className="wp-reveal-source-label">
+											{ __(
+												'HTML Source',
+												'inline-context'
+											) }
+										</span>
+										<Button
+											variant="link"
+											size="small"
+											onClick={ () =>
+												setIsSourceMode( false )
+											}
+											style={ {
+												fontSize: '12px',
+												textDecoration: 'underline',
+											} }
+										>
+											{ __(
+												'Back to Visual Editor',
+												'inline-context'
+											) }
+										</Button>
+									</div>
+									<textarea
+										ref={ sourceTextareaRef }
+										value={ text }
+										onChange={ ( e ) =>
+											setText( e.target.value )
+										}
+										className="wp-reveal-source-editor"
+										placeholder={ __(
+											'Edit HTML source…',
+											'inline-context'
+										) }
+										rows={ 10 }
+									/>
+								</>
+							) }
 						</div>
 
 						{ showLinkInput && (
@@ -736,7 +811,7 @@ export default function Edit( { isActive, value, onChange } ) {
 
 						<div className="wp-reveal-quill-help">
 							{ __(
-								'Use the toolbar above to format your inline context with bold, italic, links, and lists. Use "Add Link" to insert WordPress internal links.',
+								'Use the toolbar to format your inline context with bold, italic, links, and lists. Use "Add Link" for WordPress internal links, or click the code icon (&lt;/&gt;) to edit HTML source.',
 								'inline-context'
 							) }
 						</div>

@@ -3,7 +3,7 @@
  * Plugin Name: Inline Context
  * Plugin URI: https://wordpress.org/plugins/inline-context/
  * Description: Add inline expandable context to selected text in the block editor with direct anchor linking. Click to reveal, click again to hide.
- * Version: 1.1.4
+ * Version: 1.2.1
  * Author: Joop Laan
  * Author URI: https://profiles.wordpress.org/joop/
  * License: GPL-2.0-or-later
@@ -19,14 +19,38 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// Define plugin version constant.
-define( 'INLINE_CONTEXT_VERSION', '1.1.4' );
+define( 'INLINE_CONTEXT_VERSION', '1.2.1' );
+
+// Always load admin settings (needed for CSS output on frontend).
+require_once __DIR__ . '/admin-settings.php';
 
 // Load translations.
 add_action(
 	'init',
 	function () {
 		load_plugin_textdomain( 'inline-context', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+	}
+);
+
+// Register theme.json for Site Editor styling support.
+add_action(
+	'after_setup_theme',
+	function () {
+		// Add theme.json support for customizing inline context styles in Site Editor.
+		add_filter(
+			'wp_theme_json_data_default',
+			function ( $theme_json ) {
+				$plugin_theme_json_path = __DIR__ . '/theme.json';
+				if ( file_exists( $plugin_theme_json_path ) ) {
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local theme.json file.
+					$plugin_theme_json_data = json_decode( file_get_contents( $plugin_theme_json_path ), true );
+					if ( is_array( $plugin_theme_json_data ) ) {
+						$theme_json->update_with( $plugin_theme_json_data );
+					}
+				}
+				return $theme_json;
+			}
+		);
 	}
 );
 

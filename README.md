@@ -16,12 +16,28 @@ Add small “click to reveal” notes inline with your text. Perfect for short e
 4. **Copy shareable links**: Click "Copy link to this note" in the editor to get a direct link to any note.
 5. View your page and click the highlighted text to reveal/hide the note.
 
-## Why it’s helpful
+## Why it's helpful
 
 - Clean reading experience — extra info appears only when needed
 - Simple controls in the block editor toolbar
 - Theme‑friendly styles (easy to adjust with CSS variables)
+- **Customizable in Site Editor** — Style colors, spacing, and appearance through WordPress UI
 - Accessible by default (proper ARIA attributes)
+
+## Customization
+
+The plugin supports extensive styling customization through the WordPress Site Editor (WordPress 6.1+) and CSS custom properties. You can customize:
+
+- Link colors (hover, focus, active states)
+- Note block appearance (background, borders, shadows)
+- Spacing and typography
+- Chevron indicator styling
+
+For detailed styling instructions and examples, see [STYLING.md](STYLING.md).
+
+For developer filters and programmatic customization, see [FILTERS.md](FILTERS.md).
+
+For future feature ideas and version 2.0 roadmap, see [ROADMAP.md](ROADMAP.md).
 
 ## Accessibility
 
@@ -107,7 +123,7 @@ This project enforces WordPress coding standards for both JavaScript and PHP:
 
 - **JavaScript**: Uses `@wordpress/scripts` with ESLint for WordPress coding standards
 - **PHP**: Uses PHP_CodeSniffer with WordPress-Coding-Standards ruleset
-- **Automatic Quality Checks**: All packaging and release commands automatically run linting checks first
+- **Automatic Quality Checks**: All packaging and release commands automatically fix and check linting before building
 
 ### Quality assurance workflow
 
@@ -116,20 +132,26 @@ This project enforces WordPress coding standards for both JavaScript and PHP:
 npm run test
 
 # Fix auto-fixable issues
-npm run lint:php:fix
+npm run lint:fix       # Fixes both JS and PHP
+npm run lint:js:fix    # Fix JavaScript only
+npm run lint:php:fix   # Fix PHP only
 
-# Package only if quality checks pass
-npm run package  # automatically runs: test → build → package
+# Package with automatic linting fixes and checks
+npm run package  # automatically runs: lint:fix → build → package
+
+# Release workflow (same as package)
+npm run release  # automatically runs: lint:fix → build → package
 ```
 
 ## Releasing a new version
 
-1. **Ensure code quality**: Run `npm run test` to check all standards are met
+1. **Code quality is automatic**: `npm run release` automatically fixes linting issues before building
 
 2. **Update version numbers** in:
-   - `inline-context.php` (plugin header)
-   - `readme.txt` (Stable tag and Changelog)
+   - `inline-context.php` (plugin header and INLINE_CONTEXT_VERSION constant)
    - `package.json` (version field)
+   - `readme.txt` (Stable tag and Changelog)
+   - `composer.json` (version field)
 
 3. **Build and package** (includes automatic quality checks):
 
@@ -157,8 +179,6 @@ npm run package  # automatically runs: test → build → package
 6. **Deploy**: Upload `dist/inline-context.zip` to WordPress.org SVN (or use the zip for manual distribution)
 
 ## Support
-
-For developer documentation on extending the plugin with WordPress filters, see [FILTERS.md](FILTERS.md).
 
 Please use the support forum on WordPress.org once the plugin is published. We'll do our best to help.
 

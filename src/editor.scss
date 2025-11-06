@@ -157,6 +157,103 @@
 	color: white;
 }
 
+/* Source code view (code-block) styling */
+.wp-reveal-quill-editor .ql-editor pre.ql-syntax {
+	background-color: #1e1e1e;
+	color: #d4d4d4;
+	border-radius: 4px;
+	padding: 12px;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+	font-size: 12px;
+	line-height: 1.5;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	max-height: 300px;
+}
+
+/* Code block button icon styling */
+.wp-reveal-quill-editor .ql-toolbar button.ql-code-block {
+	position: relative;
+}
+
+// Custom code-view button styling in Quill toolbar
+.ql-toolbar .ql-code-view {
+	width: auto;
+
+	&::before {
+		content: '</>';
+		font-family: 'Courier New', Courier, monospace;
+		font-weight: bold;
+		font-size: 12px;
+		color: #444;
+		display: inline-block;
+		line-height: 1;
+		white-space: nowrap;
+	}
+
+	&:hover::before {
+		color: #06c;
+	}
+
+	&.ql-active::before {
+		color: #06c;
+	}
+}
+
+/* Source code editor (textarea for HTML editing) */
+// Header for HTML source view with toggle link
+.wp-reveal-source-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 12px;
+	background-color: #f0f0f0;
+	border: 1px solid #8c8f94;
+	border-bottom: none;
+	border-radius: 2px 2px 0 0;
+
+	.wp-reveal-source-label {
+		font-size: 12px;
+		font-weight: 600;
+		color: #1e1e1e;
+	}
+}
+
+// Quill editor - Dark theme styling for source code editing
+.wp-reveal-source-editor {
+	width: 100%;
+	min-height: 150px;
+	max-height: 300px;
+	padding: 12px;
+	border: 1px solid #8c8f94;
+	border-top: none;
+	border-radius: 0 0 2px 2px;
+	font-family: Monaco, Menlo, 'Ubuntu Mono', Consolas, 'Courier New', monospace;
+	font-size: 13px;
+	line-height: 1.6;
+	background-color: #1e1e1e;
+	color: #d4d4d4;
+	resize: vertical;
+	box-sizing: border-box;
+
+	&:focus {
+		outline: 2px solid #2271b1;
+		outline-offset: -2px;
+	}
+
+	&::placeholder {
+		color: #858585;
+	}
+}
+
+/* Editor controls (toggle button) */
+.wp-reveal-editor-controls {
+	margin-top: 4px;
+	margin-bottom: 8px;
+	text-align: right;
+}
+
 /* Make the popover look inline/frameless near the selection */
 /* default popover frame (no special overrides) */
 
