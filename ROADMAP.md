@@ -2,20 +2,36 @@
 
 This document outlines potential features and improvements for version 2.0 of the Inline Context plugin.
 
+## ✅ Completed in v1.3.0
+
+### Note Categories with Custom Icons ✓
+**Status**: SHIPPED in v1.3.0
+
+Implemented complete category management system:
+- ✅ Category selector in editor popover
+- ✅ Custom icons for each category (closed/open states)
+- ✅ Visual icon picker with 30 curated Dashicons
+- ✅ Support for all 300+ Dashicons via manual entry
+- ✅ Color-coded categories
+- ✅ Keyboard-accessible icon picker (Esc, Tab navigation)
+- ✅ ARIA labels and focus management
+- ✅ Default categories: Internal Article, External Article, Definition, Tip
+
+### Comprehensive Styling Controls ✓
+**Status**: SHIPPED in v1.3.0
+
+Implemented full styling customization:
+- ✅ Tabbed admin interface (Categories + Styling)
+- ✅ Link styling controls (hover, focus, open states)
+- ✅ Note styling controls (padding, margins, borders, shadows)
+- ✅ Chevron styling options
+- ✅ Live interactive preview
+- ✅ Helpful descriptions for each setting
+- ✅ CSS variable integration
+
 ## High Priority Features
 
-### 1. Note Categories with Custom Icons
-**Impact**: High | **Effort**: Medium
-
-Allow users to categorize notes (definition, example, warning, tip) with distinct icons:
-- Replace chevron with category-specific icons
-- Color-code categories automatically
-- Filter/search notes by category in editor
-- Add category selector to note editor
-
-**Benefits**: Significantly improves visual organization and helps readers quickly identify note types.
-
-### 2. Preset Themes
+### 1. Preset Themes
 **Impact**: High | **Effort**: Low
 
 Include 3-5 pre-configured color schemes in admin settings:
@@ -27,7 +43,7 @@ Include 3-5 pre-configured color schemes in admin settings:
 
 **Benefits**: Makes styling accessible to non-technical users without CSS knowledge.
 
-### 3. Context Library Panel
+### 2. Context Library Panel
 **Impact**: High | **Effort**: Medium
 
 Add a sidebar panel in the editor showing all inline contexts in the current post:
@@ -36,10 +52,11 @@ Add a sidebar panel in the editor showing all inline contexts in the current pos
 - See which notes are linked/shared
 - Sort by creation date or alphabetically
 - Search/filter functionality
+- Filter by category
 
 **Benefits**: Essential for managing posts with many notes. Improves content workflow significantly.
 
-### 4. Tooltip Mode
+### 3. Tooltip Mode
 **Impact**: High | **Effort**: Medium
 
 Alternative display style as hoverable tooltips:
@@ -50,7 +67,7 @@ Alternative display style as hoverable tooltips:
 
 **Benefits**: Many users expect tooltip-style functionality. Provides cleaner design for certain use cases.
 
-### 5. Global/Reusable Notes
+### 4. Global/Reusable Notes
 **Impact**: High | **Effort**: High
 
 Create reusable notes that can be inserted anywhere:
@@ -58,22 +75,69 @@ Create reusable notes that can be inserted anywhere:
 - Insert via dropdown in editor
 - Update once, reflect everywhere
 - Track usage locations
+- Organize by category
 
 **Benefits**: Huge time-saver for repeated information (product specs, author bios, legal disclaimers).
 
 ## Medium Priority Features
 
-### 6. Animation Options
+## Medium Priority Features
+
+### 5. Keyboard Shortcuts
 **Impact**: Medium | **Effort**: Low
 
-Let users choose reveal animation style:
-- Fade (current default)
-- Slide down
-- Scale
-- No animation (instant)
-- Respect `prefers-reduced-motion`
+Add editor keyboard shortcuts:
+- `Ctrl/Cmd + Shift + I`: Insert inline context
+- `Ctrl/Cmd + K`: Edit existing context under cursor
+- Navigate between notes with arrow keys
 
-**Benefits**: Improves accessibility and gives users control over visual experience.
+**Benefits**: Faster workflow for power users writing content-heavy posts.
+
+### 6. Export/Import Settings
+**Impact**: Medium | **Effort**: Low
+
+Allow backing up and sharing configurations:
+- Export all settings as JSON
+- Import from file
+- Reset to defaults option
+- Share configurations across sites
+
+**Benefits**: Easy setup for multi-site networks. Share custom themes with community.
+
+### 7. Animation Options
+**Impact**: Medium | **Effort**: Low
+
+Add animation controls in admin settings:
+- Slide, fade, or no animation
+- Animation speed control
+- Reduced motion preference detection
+
+**Benefits**: Personalization and accessibility (respects `prefers-reduced-motion`).
+
+### 8. Statistics Dashboard
+**Impact**: Medium | **Effort**: Medium
+
+Show usage metrics in admin:
+- Total notes across site
+- Most-used categories
+- Posts with most notes
+- Note engagement tracking (if analytics integrated)
+
+**Benefits**: Content strategy insights. Identify popular note types.
+
+### 9. Search Integration
+**Impact**: Medium | **Effort**: Medium
+
+Make note content searchable:
+- Include notes in WordPress search results
+- Show which notes contain search terms
+- Highlight matches when expanded
+- Optional: exclude from search
+
+**Benefits**: Improves discoverability of content hidden in notes.
+
+### 10. Print Styles
+**Impact**: Medium | **Effort**: Low
 
 ### 7. JavaScript Public API
 **Impact**: Medium | **Effort**: Medium
