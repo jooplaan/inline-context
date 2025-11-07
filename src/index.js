@@ -12,6 +12,7 @@ registerFormatType( 'jooplaan/inline-context', {
 	attributes: {
 		'data-inline-context': 'data-inline-context',
 		'data-anchor-id': 'data-anchor-id',
+		'data-category-id': 'data-category-id',
 		href: 'href',
 		id: 'id',
 		role: 'role',
