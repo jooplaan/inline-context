@@ -67,17 +67,18 @@ Alternative display style as hoverable tooltips:
 
 **Benefits**: Many users expect tooltip-style functionality. Provides cleaner design for certain use cases.
 
-### 4. Global/Reusable Notes
+### 4. Context Library (Global/Reusable Notes via CPT)
 **Impact**: High | **Effort**: High
 
-Create reusable notes that can be inserted anywhere:
-- Store notes in custom post type
-- Insert via dropdown in editor
-- Update once, reflect everywhere
-- Track usage locations
-- Organize by category
+Create a "Context Library" of reusable notes powered by a dedicated Custom Post Type (CPT).
+- **Centralized Management**: Manage all reusable notes from a single "Context Library" screen in the WP admin.
+- **Custom Post Type**: Store notes in a dedicated `inline_context` CPT for robustness and compatibility.
+- **Insert from Library**: Insert existing notes from the library via a searchable dropdown in the editor popover.
+- **Update Once, Reflect Everywhere**: Edit a note in the library, and the changes automatically apply to all instances.
+- **Track Usage**: See which posts and pages use a specific note.
+- **Import/Export**: Allow bulk import/export of notes via CSV or JSON for easy migration and backup.
 
-**Benefits**: Huge time-saver for repeated information (product specs, author bios, legal disclaimers).
+**Benefits**: Transforms the plugin into a powerful knowledge management tool. Huge time-saver for repeated information (product specs, author bios, legal disclaimers).
 
 ## Medium Priority Features
 
@@ -185,27 +186,53 @@ Automatically optimize for printing:
 
 **Benefits**: Better user experience for readers who print content.
 
+### 11. Low-Tech Accessibility & Text-Based Browser Support
+**Impact**: High | **Effort**: Medium
+
+Ensure inline context notes are accessible in all browsing contexts:
+- **Progressive Enhancement**: Content works without JavaScript
+- **Text-Based Browsers**: Full support for Lynx, w3m, links, etc.
+- **NoScript Fallback**: Display notes inline by default when JavaScript disabled
+- **Print-Friendly**: Auto-expand all notes for printing
+- **RSS Feeds**: Include note content in feed output
+- **Screen Reader Mode**: Option to auto-expand all notes for assistive technology
+- **Graceful Degradation**: Maintain functionality across all user agents
+
+**Implementation Ideas**:
+- Server-side rendering option (notes inline by default, JavaScript progressively enhances to collapse/expand)
+- `<noscript>` tags with expanded content
+- CSS-only expand/collapse using `:target` pseudo-class for anchor links
+- WordPress filter to control default expanded/collapsed state
+- Admin option: "Default state for users without JavaScript"
+
+**Benefits**: 
+- Universal accessibility across all browsing environments
+- Respects user choice of technology
+- Better SEO (search engines see all content)
+- Improved accessibility for assistive technologies
+- Content remains useful in email clients, readers, and aggregators
+
 ## Advanced Features (Future Consideration)
 
-### 11. Position Control
+### 12. Position Control
 Display notes above/below trigger instead of inline:
 - Floating box above/below trigger
 - Sidebar placement option
 - Sticky positioning for long notes
 
-### 12. Dark Mode Support
+### 13. Dark Mode Support
 Auto-detect system preferences:
 - Automatically adjust colors
 - Separate light/dark color schemes in settings
 - CSS `prefers-color-scheme` integration
 
-### 13. Conditional Display
+### 14. Conditional Display
 Show/hide notes based on context:
 - User role/capabilities
 - Logged in/out status
 - Custom conditions via filters
 
-### 14. Multi-language Support
+### 15. Multi-language Support
 Different note content per language:
 - WPML integration
 - Polylang integration
