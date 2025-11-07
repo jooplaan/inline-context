@@ -3,6 +3,9 @@ import DOMPurify from 'dompurify';
 document.addEventListener( 'DOMContentLoaded', () => {
 	const { applyFilters } = wp.hooks || { applyFilters: ( name, val ) => val };
 
+	// Get categories from localized data
+	const categories = window.inlineContextData?.categories || {};
+
 	// Allow developers to customize the CSS class used for revealed notes
 	const revealedClass = applyFilters(
 		'inline_context_revealed_class',
@@ -78,6 +81,31 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return applyFilters( 'inline_context_post_sanitize_html', sanitized );
 	};
 
+	// Add or update category icon for a trigger
+	const addCategoryIcon = ( trigger, categoryId, isOpen ) => {
+		const category = categories[ categoryId ];
+		if ( ! category ) return;
+
+		// Remove existing icon if present
+		const existingIcon = trigger.querySelector(
+			'.wp-inline-context-category-icon'
+		);
+		if ( existingIcon ) {
+			existingIcon.remove();
+		}
+
+		// Create icon element
+		const icon = document.createElement( 'span' );
+		icon.className = `wp-inline-context-category-icon dashicons ${
+			isOpen ? category.icon_open : category.icon_closed
+		}`;
+		icon.style.color = category.color;
+		icon.setAttribute( 'aria-hidden', 'true' );
+
+		// Insert icon at the end of the trigger (superscript style)
+		trigger.appendChild( icon );
+	};
+
 	// Progressive enhancement: ensure proper accessibility attributes
 	for ( const trigger of document.querySelectorAll( '.wp-inline-context' ) ) {
 		// Ensure aria-expanded is set for all triggers
@@ -87,6 +115,12 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		// Ensure role="button" is set for accessibility
 		if ( ! trigger.hasAttribute( 'role' ) ) {
 			trigger.setAttribute( 'role', 'button' );
+		}
+
+		// Add category icon if category is set
+		const categoryId = trigger.dataset.categoryId;
+		if ( categoryId && categories[ categoryId ] ) {
+			addCategoryIcon( trigger, categoryId, false );
 		}
 	}
 
@@ -187,6 +221,12 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			trigger.setAttribute( 'aria-expanded', 'false' );
 			trigger.removeAttribute( 'aria-describedby' );
 			trigger.removeAttribute( 'aria-controls' );
+
+			// Update icon to closed state
+			const categoryId = trigger.dataset.categoryId;
+			if ( categoryId && categories[ categoryId ] ) {
+				addCategoryIcon( trigger, categoryId, false );
+			}
 			return;
 		}
 
@@ -231,6 +271,12 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		trigger.setAttribute( 'aria-expanded', 'true' );
 		trigger.setAttribute( 'aria-describedby', noteId );
 		trigger.setAttribute( 'aria-controls', noteId );
+
+		// Update icon to open state
+		const categoryId = trigger.dataset.categoryId;
+		if ( categoryId && categories[ categoryId ] ) {
+			addCategoryIcon( trigger, categoryId, true );
+		}
 	};
 
 	// Handle click events

@@ -23,18 +23,53 @@
 	/* Improve anchor scrolling behavior */
 	display: inline-block;
 	// Add scroll margin for smooth anchor navigation
-	scroll-margin-top: var(--wp--custom--inline-context--link--scroll-margin, 2rem);
+	scroll-margin-top: var(
+		--wp--custom--inline-context--link--scroll-margin,
+		2rem
+	);
+}
+
+/* Category icon styling */
+.wp-inline-context-category-icon {
+	display: inline-block;
+	margin-left: 0.15em;
+	margin-right: 0;
+	font-size: 0.6em;
+	vertical-align: super;
+	line-height: 0;
+	position: relative;
+	top: -0.1em;
+	transition: color 0.2s ease, transform 0.2s ease;
+	text-decoration: none;
+}
+
+/* Subtle scale effect on hover */
+.wp-inline-context:hover .wp-inline-context-category-icon,
+.wp-inline-context:focus .wp-inline-context-category-icon {
+	transform: scale(1.15);
+}
+
+/* Rotate effect for categories with different open/closed icons */
+.wp-inline-context.wp-inline-context--open .wp-inline-context-category-icon {
+	transform: scale(1);
 }
 
 /* Hover and focus states - change text color to primary */
 .wp-inline-context:hover,
 .wp-inline-context:focus {
-	color: var(--wp--custom--inline-context--link--hover-color, var(--wp--preset--color--primary, #0073aa));
+	color: var(
+		--wp--custom--inline-context--link--hover-color,
+		var(--wp--preset--color--primary, #0073aa)
+	);
 }
 
 /* Focus styles for keyboard navigation */
 .wp-inline-context:focus {
-	outline: 2px solid var(--wp--custom--inline-context--link--focus-border-color, var(--wp--preset--color--primary, #0073aa));
+	outline: 2px solid
+		var(
+			--wp--custom--inline-context--link--focus-border-color,
+			var(--wp--preset--color--primary, #0073aa)
+		);
 	outline-offset: 2px;
 	border-radius: 2px;
 }
@@ -46,12 +81,26 @@
 	padding: var(--wp--custom--inline-context--note--padding-y, 0.75em)
 		var(--wp--custom--inline-context--note--padding-x, 1em);
 	/* Surface */
-	background: var(--wp--custom--inline-context--note--background, rgba(0, 0, 0, 0.04));
-	border: 1px solid var(--wp--custom--inline-context--note--border-color, rgba(0, 0, 0, 0.08));
-	border-left: var(--wp--custom--inline-context--note--accent-width, 3px) solid
-		var(--wp--custom--inline-context--note--accent-color, var(--wp--preset--color--primary, #0073aa));
+	background: var(
+		--wp--custom--inline-context--note--background,
+		rgba(0, 0, 0, 0.04)
+	);
+	border: 1px solid
+		var(
+			--wp--custom--inline-context--note--border-color,
+			rgba(0, 0, 0, 0.08)
+		);
+	border-left: var(--wp--custom--inline-context--note--accent-width, 3px)
+		solid
+		var(
+			--wp--custom--inline-context--note--accent-color,
+			var(--wp--preset--color--primary, #0073aa)
+		);
 	border-radius: var(--wp--custom--inline-context--note--radius, 6px);
-	box-shadow: var(--wp--custom--inline-context--note--shadow, 0 1px 2px rgba(0, 0, 0, 0.05));
+	box-shadow: var(
+		--wp--custom--inline-context--note--shadow,
+		0 1px 2px rgba(0, 0, 0, 0.05)
+	);
 	/* Typography */
 	font-size: var(--wp--custom--inline-context--note--font-size, 0.95em);
 	/* Progressive enhancement: smooth reveal animation */
@@ -86,12 +135,17 @@
 /* Optional link styling inside notes (theme-overridable) */
 .wp-inline-context-inline a {
 	color: var(--wp--custom--inline-context--note--link-color, inherit);
-	text-decoration-color: var(--wp--custom--inline-context--note--link-underline, currentColor);
+	text-decoration-color: var(
+		--wp--custom--inline-context--note--link-underline,
+		currentColor
+	);
 }
 
 .wp-inline-context--open {
-	font-weight: 600;
-	color: var(--wp--custom--inline-context--link--open-color, var(--wp--preset--color--primary, #0073aa));
+	color: var(
+		--wp--custom--inline-context--link--open-color,
+		var(--wp--preset--color--primary, #0073aa)
+	);
 }
 
 /* SVG chevron icon indicator */
@@ -100,7 +154,10 @@
 	display: inline-block;
 	width: var(--wp--custom--inline-context--chevron--size, 0.75em);
 	height: var(--wp--custom--inline-context--chevron--size, 0.75em);
-	margin-left: var(--wp--custom--inline-context--chevron--margin-left, 0.25em);
+	margin-left: var(
+		--wp--custom--inline-context--chevron--margin-left,
+		0.25em
+	);
 	vertical-align: middle;
 	text-decoration: none;
 	/* Use a subtle gray color by default */
@@ -110,6 +167,11 @@
 	background-position: center;
 	transition: transform 0.4s ease, background-image 0.2s ease;
 	opacity: var(--wp--custom--inline-context--chevron--opacity, 0.7);
+}
+
+/* Hide chevron when category icon is present */
+.wp-inline-context:has(.wp-inline-context-category-icon)::after {
+	display: none;
 }
 
 /* Change chevron color on hover/focus to match primary color */

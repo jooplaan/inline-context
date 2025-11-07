@@ -1,167 +1,55 @@
 /**
- * React Quill editor component for WordPress inline context
- * Features:
- * - Rich text editing with bold, italic, links, and lists (no underline)
- * - Add new inline context to selected text
- * - Edit existing inline context
- * - Remove existing inline context
- * - WordPress-friendly styling and keyboard shortcuts
+ * Refactored Edit component for WordPress inline context
+ * Optimized for performance and maintainability
  */
-import {
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from '@wordpress/element';
-import { RichTextToolbarButton, URLInput } from '@wordpress/block-editor';
-import {
-	Popover,
-	Button,
-	Flex,
-	FlexItem,
-	TextControl,
-} from '@wordpress/components';
+import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
+import { RichTextToolbarButton } from '@wordpress/block-editor';
+import { Popover, Button } from '@wordpress/components';
 import { applyFormat, removeFormat } from '@wordpress/rich-text';
 import { __ } from '@wordpress/i18n';
-import { select } from '@wordpress/data';
-import ReactQuill from 'react-quill';
 
-// WordPress-friendly Quill configuration
-// Note: We add a custom 'code-view' button to the toolbar via container option
-const QUILL_MODULES = {
-	toolbar: {
-		container: [
-			[ 'bold', 'italic' ],
-			[ 'link' ],
-			[ { list: 'ordered' }, { list: 'bullet' } ],
-			[ 'clean' ],
-			[ 'code-view' ], // Custom button for HTML source toggle
-		],
-	},
-};
+// Utils
+import { ensureUniqueAnchorId } from './utils/anchor';
+import { getLinkedText } from './utils/text';
+import { copyAnchorLinkToClipboard } from './utils/clipboard';
 
-const QUILL_FORMATS = [ 'bold', 'italic', 'link', 'list', 'bullet' ];
+// Hooks
+import {
+	useAnchorIdDuplicateCheck,
+	usePopoverAnchor,
+	usePopoverKeyboardShortcuts,
+	useSyncEditorContent,
+	useCopyLinkStatus,
+} from './hooks/useInlineContext';
 
-// Generate a unique ID for the anchor
-const generateAnchorId = () => {
-	// Create a short, unique identifier
-	const timestamp = Date.now().toString( 36 );
-	const random = Math.random().toString( 36 ).substring( 2, 7 );
-	const anchorId = `context-note-${ timestamp }-${ random }`;
+// Components
+import CategorySelector from './components/CategorySelector';
+import QuillEditor from './components/QuillEditor';
+import LinkControl from './components/LinkControl';
+import PopoverActions from './components/PopoverActions';
 
-	// Allow developers to customize anchor ID generation
-	if ( window.wp && window.wp.hooks ) {
-		return window.wp.hooks.applyFilters(
-			'inline_context_generate_anchor_id',
-			anchorId,
-			{ timestamp, random }
-		);
-	}
-	return anchorId;
-};
+// Quill keyboard navigation utilities
+import { useQuillKeyboardNav } from './hooks/useQuillKeyboardNav';
 
-// Check if an anchor ID already exists in the document and generate a unique one if needed
-const ensureUniqueAnchorId = ( proposedId ) => {
-	if ( ! proposedId ) {
-		return generateAnchorId();
-	}
-
-	// Check if this ID already exists in the current post content
-	const editor = window.wp?.data?.select( 'core/editor' );
-	if ( ! editor ) {
-		// Fallback: check DOM if editor API unavailable
-		const existingTrigger = document.querySelector(
-			`[data-anchor-id="${ proposedId }"]`
-		);
-		return existingTrigger ? generateAnchorId() : proposedId;
-	}
-
-	// Get all blocks and check for duplicate anchor IDs
-	const allBlocks = editor.getBlocks();
-	const allContent = JSON.stringify( allBlocks );
-
-	// Count occurrences of this anchor ID in the content
-	const regex = new RegExp(
-		`"data-anchor-id":"${ proposedId.replace(
-			/[.*+?^${}()|[\]\\]/g,
-			'\\$&'
-		) }"`,
-		'g'
-	);
-	const matches = allContent.match( regex );
-
-	// If found more than once (current instance + duplicate), generate new ID
-	if ( matches && matches.length > 1 ) {
-		return generateAnchorId();
-	}
-
-	return proposedId;
-};
-
-// Helper: derive linked text from current selection or active inline-context run
-const getLinkedText = ( value ) => {
-	if ( ! value ) return '';
-	const { text = '', start = 0, end = 0, formats = [] } = value;
-
-	// If there's an explicit selection, use it.
-	if ( start < end ) {
-		return text.slice( start, end );
-	}
-
-	// Otherwise, if caret is within an inline-context, expand to that run.
-	const TYPE = 'jooplaan/inline-context';
-	if ( ! text || ! formats || ! formats.length ) return '';
-
-	const hasTypeAt = ( i ) => {
-		const at = formats?.[ i ];
-		if ( ! at ) return false;
-		const arr = Array.isArray( at ) ? at : [ at ];
-		return arr.some( ( f ) => f && f.type === TYPE );
-	};
-
-	// Caret is between characters; prefer the left character, else the right.
-	const leftIdx = Math.max( 0, Math.min( text.length - 1, start - 1 ) );
-	const rightIdx = Math.max( 0, Math.min( text.length - 1, start ) );
-
-	let seedIdx = -1;
-	if ( hasTypeAt( leftIdx ) ) {
-		seedIdx = leftIdx;
-	} else if ( hasTypeAt( rightIdx ) ) {
-		seedIdx = rightIdx;
-	}
-	if ( seedIdx < 0 ) return '';
-
-	let left = seedIdx;
-	let right = seedIdx;
-	while ( left - 1 >= 0 && hasTypeAt( left - 1 ) ) left--;
-	while ( right + 1 < text.length && hasTypeAt( right + 1 ) ) right++;
-
-	return text.slice( left, right + 1 );
-};
+const FORMAT_TYPE = 'jooplaan/inline-context';
 
 export default function Edit( { isActive, value, onChange } ) {
+	// State
 	const [ isOpen, setIsOpen ] = useState( false );
-	const [ anchor, setAnchor ] = useState();
+	const [ text, setText ] = useState( '' );
+	const [ categoryId, setCategoryId ] = useState( '' );
 	const [ showLinkInput, setShowLinkInput ] = useState( false );
 	const [ linkUrl, setLinkUrl ] = useState( '' );
 	const [ linkText, setLinkText ] = useState( '' );
-	const [ copyLinkStatus, setCopyLinkStatus ] = useState( 'idle' ); // 'idle', 'copying', 'copied'
-	const [ isSourceMode, setIsSourceMode ] = useState( false ); // Toggle between WYSIWYG and HTML source
+	const [ isSourceMode, setIsSourceMode ] = useState( false );
+
+	// Refs
 	const prevFocusRef = useRef( null );
 	const rootRef = useRef( null );
-	const popoverId = useMemo(
-		() =>
-			`inline-context-popover-${ Math.random()
-				.toString( 36 )
-				.slice( 2 ) }`,
-		[]
-	);
-	const labelId = `${ popoverId }-label`;
+	const quillRef = useRef( null );
 	const cancelRef = useRef( null );
 	const saveRef = useRef( null );
 	const removeRef = useRef( null );
-	const quillRef = useRef( null );
 	const addLinkButtonRef = useRef( null );
 	const urlInputRef = useRef( null );
 	const linkTextInputRef = useRef( null );
@@ -170,85 +58,51 @@ export default function Edit( { isActive, value, onChange } ) {
 	const copyLinkButtonRef = useRef( null );
 	const sourceTextareaRef = useRef( null );
 
+	// Derived state
 	const activeFormat = value.activeFormats?.find(
-		( f ) => f.type === 'jooplaan/inline-context'
+		( f ) => f.type === FORMAT_TYPE
 	);
-	const remove = () => {
-		onChange( removeFormat( value, 'jooplaan/inline-context' ) );
+	const categories = useMemo( () => {
+		const data = window.inlineContextData || {};
+		return data.categories || {};
+	}, [] );
+	const popoverId = useMemo(
+		() =>
+			`inline-context-popover-${ Math.random()
+				.toString( 36 )
+				.slice( 2 ) }`,
+		[]
+	);
+	const labelId = `${ popoverId }-label`;
+	const linkedText = useMemo(
+		() => ( getLinkedText( value ) || '' ).trim(),
+		[ value ]
+	);
+
+	// Auto-fix duplicate anchor IDs
+	useAnchorIdDuplicateCheck( activeFormat, value, onChange );
+
+	// Get popover anchor position
+	const anchor = usePopoverAnchor( isOpen, value );
+
+	// Handlers
+	const remove = useCallback( () => {
+		onChange( removeFormat( value, FORMAT_TYPE ) );
 		setIsOpen( false );
 		setTimeout( () => prevFocusRef.current?.focus?.(), 0 );
-	};
-	const currentText =
-		activeFormat?.attributes?.[ 'data-inline-context' ] || '';
-	const [ text, setText ] = useState( currentText );
+	}, [ onChange, value ] );
 
-	// Auto-fix duplicate IDs when component mounts or activeFormat changes
-	useEffect( () => {
-		if ( ! activeFormat?.attributes?.[ 'data-anchor-id' ] ) {
-			return; // No existing format to check
-		}
-
-		const currentId = activeFormat.attributes[ 'data-anchor-id' ];
-
-		// Always check for duplicates, regardless of when this runs
-		const editor = window.wp?.data?.select( 'core/editor' );
-		let hasDuplicate = false;
-
-		if ( editor ) {
-			// Get the entire post content as HTML
-			const content = editor.getEditedPostContent();
-
-			// Count occurrences of this anchor ID in the raw content
-			const anchorIdMatches =
-				content.match(
-					new RegExp(
-						`data-anchor-id="${ currentId.replace(
-							/[.*+?^${}()|[\]\\]/g,
-							'\\$&'
-						) }"`,
-						'g'
-					)
-				) || [];
-
-			hasDuplicate = anchorIdMatches.length > 1;
-		}
-
-		// If duplicate detected, generate new ID immediately
-		if ( hasDuplicate ) {
-			const uniqueId = generateAnchorId();
-
-			onChange(
-				applyFormat( value, {
-					type: 'jooplaan/inline-context',
-					attributes: {
-						...activeFormat.attributes,
-						'data-anchor-id': uniqueId,
-						id: `trigger-${ uniqueId }`,
-					},
-				} )
-			);
-		}
-	}, [ activeFormat, onChange, value ] );
-
-	// Linked text for label (single-line with ellipsis)
-	const linkedText = useMemo( () => {
-		const s = ( getLinkedText( value ) || '' ).trim();
-		return s;
-	}, [ value ] );
-
-	// Apply the inline context to the current selection
 	const apply = useCallback( () => {
-		// Get proposed ID (existing or new)
 		const proposedId = activeFormat?.attributes?.[ 'data-anchor-id' ];
-		// Ensure uniqueness (handles copy/paste duplicates)
 		const anchorId = ensureUniqueAnchorId( proposedId );
 
 		onChange(
 			applyFormat( value, {
-				type: 'jooplaan/inline-context',
+				type: FORMAT_TYPE,
 				attributes: {
 					'data-inline-context': text,
 					'data-anchor-id': anchorId,
+					'data-category-id': categoryId || '',
 					href: `#${ anchorId }`,
 					id: `trigger-${ anchorId }`,
 					role: 'button',
@@ -257,12 +111,10 @@ export default function Edit( { isActive, value, onChange } ) {
 			} )
 		);
 		setIsOpen( false );
-		// Restore focus to the previously focused control for smooth keyboard workflow
 		setTimeout( () => prevFocusRef.current?.focus?.(), 0 );
-	}, [ onChange, text, value, activeFormat ] );
+	}, [ onChange, text, categoryId, value, activeFormat ] );
 
-	const toggle = () => {
-		// Remember the element that had focus before opening so we can restore it on close
+	const toggle = useCallback( () => {
 		if ( ! isOpen ) {
 			const doc = rootRef.current?.ownerDocument || document;
 			prevFocusRef.current = doc.activeElement;
@@ -270,189 +122,31 @@ export default function Edit( { isActive, value, onChange } ) {
 		setIsOpen( ( prev ) => {
 			const next = ! prev;
 			if ( next ) {
-				// Sync the editor with the currently selected inline context when opening
 				const fmt = value.activeFormats?.find(
-					( f ) => f.type === 'jooplaan/inline-context'
+					( f ) => f.type === FORMAT_TYPE
 				);
 				setText( fmt?.attributes?.[ 'data-inline-context' ] || '' );
+				setCategoryId( fmt?.attributes?.[ 'data-category-id' ] || '' );
 			}
 			return next;
 		} );
-	};
+	}, [ isOpen, value ] );
 
-	// Compute a virtual element for the current selection so the Popover can anchor near the selected text
-	useEffect( () => {
-		if ( ! isOpen ) return;
-		const getSelectionAnchor = () => {
-			const view = rootRef.current?.ownerDocument?.defaultView || window;
-			const sel = view.getSelection?.();
-			if ( ! sel || sel.rangeCount === 0 ) return undefined;
-			const range = sel.getRangeAt( 0 ).cloneRange();
-			try {
-				if ( range.collapsed ) {
-					// Insert a zero-width marker to measure caret position
-					const marker = document.createElement( 'span' );
-					marker.appendChild( document.createTextNode( '\u200b' ) );
-					range.insertNode( marker );
-					const rect = marker.getBoundingClientRect();
-					marker.remove();
-					return rect;
-				}
-				return range.getBoundingClientRect();
-			} catch ( error ) {
-				// eslint-disable-next-line no-console
-				console.warn( 'Failed to get selection anchor:', error );
-				return undefined;
-			}
-		};
-		const rect = getSelectionAnchor();
-		if ( ! rect ) {
-			setAnchor( undefined );
+	const handleClose = useCallback( () => {
+		setIsOpen( false );
+		setTimeout( () => prevFocusRef.current?.focus?.(), 0 );
+	}, [] );
+
+	const insertLink = useCallback( () => {
+		const quillInstance = quillRef.current?.getEditor();
+		if ( ! quillInstance || ! linkUrl ) {
 			return;
 		}
-		// Create a virtual element compatible with Floating UI/Popover expectations
-		const virtualEl = {
-			getBoundingClientRect: () => rect,
-		};
-		setAnchor( virtualEl );
-	}, [ isOpen, value?.start, value?.end ] );
-
-	// Also resync text if the active format changes while popover is open
-	useEffect( () => {
-		if ( ! isOpen ) return;
-		setText( currentText );
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ activeFormat?.attributes?.[ 'data-inline-context' ] ] );
-
-	// When opening, place focus inside the Quill editor for immediate typing
-	// Also set up custom toolbar handler for code-view button
-	useEffect( () => {
-		if ( ! isOpen || isSourceMode ) return;
-		const t = setTimeout( () => {
-			const inst = quillRef.current;
-			const editor = inst?.getEditor?.();
-
-			if ( editor ) {
-				// Set up custom toolbar button handler BEFORE focusing
-				const toolbar = editor.getModule( 'toolbar' );
-				if ( toolbar ) {
-					toolbar.addHandler( 'code-view', () => {
-						setIsSourceMode( ( prev ) => ! prev );
-					} );
-
-					// Add click listener to the button as fallback
-					const container = editor.container;
-					const codeViewBtn =
-						container?.previousSibling?.querySelector?.(
-							'.ql-code-view'
-						);
-					if ( codeViewBtn ) {
-						codeViewBtn.onclick = ( e ) => {
-							e.preventDefault();
-							setIsSourceMode( ( prev ) => ! prev );
-						};
-					}
-				}
-			}
-
-			// Focus the editor
-			if ( inst?.focus ) {
-				inst.focus();
-			} else if ( editor?.focus ) {
-				editor.focus();
-			}
-		}, 0 );
-		return () => clearTimeout( t );
-	}, [ isOpen, isSourceMode ] );
-
-	// Add handy keyboard shortcuts for the popover
-	useEffect( () => {
-		if ( ! isOpen ) return;
-		const onKeyDown = ( e ) => {
-			if ( ( e.metaKey || e.ctrlKey ) && e.key === 'Enter' ) {
-				e.preventDefault();
-				apply();
-			}
-			if ( e.key === 'Escape' ) {
-				e.preventDefault();
-				setIsOpen( false );
-			}
-		};
-		document.addEventListener( 'keydown', onKeyDown );
-		return () => document.removeEventListener( 'keydown', onKeyDown );
-	}, [ isOpen, apply ] );
-
-	// Allow Tab to move focus from the Quill editor to the first action button,
-	// and Shift+Tab to return to the toolbar toggle button.
-	const handleEditorKeyDownCapture = ( e ) => {
-		if ( e.key === 'Tab' ) {
-			e.preventDefault();
-			if ( e.shiftKey ) {
-				// Back to the toolbar button
-				prevFocusRef.current?.focus?.();
-			} else {
-				// Forward tab: go to Add Link button first, then to other action buttons
-				addLinkButtonRef.current?.focus?.();
-			}
-		}
-	};
-
-	// Handle Tab navigation within the action buttons area
-	const handleActionButtonsKeyDown = ( e, currentRef ) => {
-		if ( e.key !== 'Tab' ) return;
-		e.preventDefault();
-
-		// Define the tab order based on current state
-		const tabOrder = [
-			addLinkButtonRef,
-			// If editing existing note and has anchor ID, include copy link button
-			...( activeFormat?.attributes?.[ 'data-anchor-id' ]
-				? [ copyLinkButtonRef ]
-				: [] ),
-			// If link form is visible, include those fields
-			...( showLinkInput
-				? [
-						urlInputRef,
-						linkTextInputRef,
-						insertLinkButtonRef,
-						linkCancelButtonRef,
-				  ]
-				: [] ),
-			// Always include the main action buttons
-			...( activeFormat ? [ removeRef ] : [] ),
-			cancelRef,
-			saveRef,
-		].filter( ( ref ) => ref.current );
-
-		const currentIndex = tabOrder.indexOf( currentRef );
-
-		if ( e.shiftKey ) {
-			// Shift+Tab: go backwards
-			if ( currentIndex > 0 ) {
-				tabOrder[ currentIndex - 1 ].current?.focus?.();
-			} else {
-				// From first button, go back to editor
-				quillRef.current?.focus?.();
-			}
-		} else if ( currentIndex < tabOrder.length - 1 ) {
-			// Tab: go forwards
-			tabOrder[ currentIndex + 1 ].current?.focus?.();
-		} else {
-			// From last button, stay on it (or could cycle back)
-			tabOrder[ currentIndex ].current?.focus?.();
-		}
-	};
-
-	// Handle inserting a link at cursor position in ReactQuill
-	const insertLink = () => {
-		const quillInstance = quillRef.current?.getEditor();
-		if ( ! quillInstance || ! linkUrl ) return;
 
 		const range = quillInstance.getSelection();
 		const displayText = linkText || linkUrl;
 
 		if ( range ) {
-			// Insert the link at cursor position
 			quillInstance.insertText( range.index, displayText );
 			quillInstance.formatText(
 				range.index,
@@ -460,10 +154,8 @@ export default function Edit( { isActive, value, onChange } ) {
 				'link',
 				linkUrl
 			);
-			// Move cursor after the link
 			quillInstance.setSelection( range.index + displayText.length );
 		} else {
-			// If no selection, append at the end
 			const length = quillInstance.getLength();
 			quillInstance.insertText( length - 1, ' ' + displayText );
 			quillInstance.formatText(
@@ -474,79 +166,52 @@ export default function Edit( { isActive, value, onChange } ) {
 			);
 		}
 
-		// Update our text state and close link input
 		setText( quillInstance.root.innerHTML );
 		setShowLinkInput( false );
 		setLinkUrl( '' );
 		setLinkText( '' );
-	};
+	}, [ linkUrl, linkText ] );
 
-	// Handle copying the anchor link to clipboard
-	const copyAnchorLink = async () => {
-		const anchorId = activeFormat?.attributes?.[ 'data-anchor-id' ];
-		if ( ! anchorId ) return;
+	const handleCancelLink = useCallback( () => {
+		setShowLinkInput( false );
+		setLinkUrl( '' );
+		setLinkText( '' );
+	}, [] );
 
-		// Get the frontend permalink of the current post
-		const postId = select( 'core/editor' )?.getCurrentPostId();
-		let frontendUrl = '';
+	// Copy link functionality with status
+	const copyLinkFunction = useCallback(
+		( onSuccess, onError ) => {
+			const anchorId = activeFormat?.attributes?.[ 'data-anchor-id' ];
+			return copyAnchorLinkToClipboard( anchorId, onSuccess, onError );
+		},
+		[ activeFormat ]
+	);
+	const { status: copyLinkStatus, copyWithStatus: handleCopyLink } =
+		useCopyLinkStatus( copyLinkFunction );
 
-		if ( postId ) {
-			// Try to get the permalink from the editor store
-			const permalink = select( 'core/editor' )?.getPermalink();
-			const editedPostContent =
-				select( 'core/editor' )?.getEditedPostAttribute( 'link' );
+	// Sync editor content when format changes
+	useSyncEditorContent( isOpen, activeFormat, setText, setCategoryId );
 
-			// Use permalink if available, otherwise fall back to the edited post link
-			frontendUrl =
-				permalink ||
-				editedPostContent ||
-				window.location.href.split( '#' )[ 0 ];
-		} else {
-			// Fallback to current URL if we can't get post data
-			frontendUrl = window.location.href.split( '#' )[ 0 ];
-		}
+	// Keyboard shortcuts
+	usePopoverKeyboardShortcuts( isOpen, apply, handleClose );
 
-		const fullAnchorUrl = `${ frontendUrl }#${ anchorId }`;
-
-		setCopyLinkStatus( 'copying' );
-
-		try {
-			await window.navigator.clipboard.writeText( fullAnchorUrl );
-			setCopyLinkStatus( 'copied' );
-
-			// Reset status after 2 seconds
-			setTimeout( () => {
-				setCopyLinkStatus( 'idle' );
-			}, 2000 );
-		} catch ( error ) {
-			// Fallback for older browsers or when clipboard API fails
-			const textArea = document.createElement( 'textarea' );
-			textArea.value = fullAnchorUrl;
-			textArea.style.position = 'fixed';
-			textArea.style.opacity = '0';
-			document.body.appendChild( textArea );
-			textArea.select();
-
-			try {
-				document.execCommand( 'copy' );
-				setCopyLinkStatus( 'copied' );
-				setTimeout( () => {
-					setCopyLinkStatus( 'idle' );
-				}, 2000 );
-			} catch ( fallbackError ) {
-				// eslint-disable-next-line no-console
-				console.warn( 'Failed to copy link:', fallbackError );
-				setCopyLinkStatus( 'idle' );
-			}
-
-			document.body.removeChild( textArea );
-		}
-	};
-
-	// Handle React Quill editor changes
-	const handleQuillChange = ( content ) => {
-		setText( content );
-	};
+	// Keyboard navigation
+	const { handleEditorKeyDownCapture, handleActionButtonsKeyDown } =
+		useQuillKeyboardNav( {
+			showLinkInput,
+			activeFormat,
+			prevFocusRef,
+			quillRef,
+			addLinkButtonRef,
+			copyLinkButtonRef,
+			urlInputRef,
+			linkTextInputRef,
+			insertLinkButtonRef,
+			linkCancelButtonRef,
+			removeRef,
+			cancelRef,
+			saveRef,
+		} );
 
 	return (
 		<span ref={ rootRef }>
@@ -572,10 +237,7 @@ export default function Edit( { isActive, value, onChange } ) {
 					resize={ true }
 					flip={ true }
 					shift={ true }
-					onClose={ () => {
-						setIsOpen( false );
-						setTimeout( () => prevFocusRef.current?.focus?.(), 0 );
-					} }
+					onClose={ handleClose }
 				>
 					<div className="wp-reveal-popover wp-reveal-quill-editor">
 						<div className="wp-reveal-quill-label" id={ labelId }>
@@ -597,161 +259,38 @@ export default function Edit( { isActive, value, onChange } ) {
 								</span>
 							) : null }
 						</div>
-						<div onKeyDownCapture={ handleEditorKeyDownCapture }>
-							{ ! isSourceMode ? (
-								<ReactQuill
-									ref={ quillRef }
-									value={ text }
-									onChange={ handleQuillChange }
-									modules={ QUILL_MODULES }
-									formats={ QUILL_FORMATS }
-									placeholder={ __(
-										'Add inline context…',
-										'inline-context'
-									) }
-									theme="snow"
-								/>
-							) : (
-								<>
-									<div className="wp-reveal-source-header">
-										<span className="wp-reveal-source-label">
-											{ __(
-												'HTML Source',
-												'inline-context'
-											) }
-										</span>
-										<Button
-											variant="link"
-											size="small"
-											onClick={ () =>
-												setIsSourceMode( false )
-											}
-											style={ {
-												fontSize: '12px',
-												textDecoration: 'underline',
-											} }
-										>
-											{ __(
-												'Back to Visual Editor',
-												'inline-context'
-											) }
-										</Button>
-									</div>
-									<textarea
-										ref={ sourceTextareaRef }
-										value={ text }
-										onChange={ ( e ) =>
-											setText( e.target.value )
-										}
-										className="wp-reveal-source-editor"
-										placeholder={ __(
-											'Edit HTML source…',
-											'inline-context'
-										) }
-										rows={ 10 }
-									/>
-								</>
-							) }
-						</div>
 
-						{ showLinkInput && (
-							<div className="wp-reveal-link-control">
-								<div className="wp-reveal-link-url-wrapper">
-									<label
-										htmlFor="inline-context-url-input"
-										className="components-base-control__label"
-									>
-										{ __( 'Link URL', 'inline-context' ) }
-									</label>
-									<URLInput
-										id="inline-context-url-input"
-										ref={ urlInputRef }
-										value={ linkUrl }
-										onChange={ ( url, post ) => {
-											setLinkUrl( url );
-											// If a post is selected, use its title as link text
-											if ( post?.title && ! linkText ) {
-												setLinkText( post.title );
-											}
-										} }
-										placeholder={ __(
-											'Search or paste URL',
-											'inline-context'
-										) }
-										onKeyDown={ ( e ) =>
-											handleActionButtonsKeyDown(
-												e,
-												urlInputRef
-											)
-										}
-										__nextHasNoMarginBottom
-									/>
-									<p className="components-base-control__help">
-										{ __(
-											'Start typing to search for internal content or paste any URL',
-											'inline-context'
-										) }
-									</p>
-								</div>
-								<TextControl
-									ref={ linkTextInputRef }
-									label={ __(
-										'Link Text (optional)',
-										'inline-context'
-									) }
-									value={ linkText }
-									onChange={ setLinkText }
-									placeholder={ __(
-										'Custom link text',
-										'inline-context'
-									) }
-									onKeyDown={ ( e ) =>
-										handleActionButtonsKeyDown(
-											e,
-											linkTextInputRef
-										)
-									}
-								/>
-								<Flex gap={ 2 } style={ { marginTop: '8px' } }>
-									<Button
-										ref={ insertLinkButtonRef }
-										variant="primary"
-										size="small"
-										onClick={ insertLink }
-										disabled={ ! linkUrl }
-										onKeyDown={ ( e ) =>
-											handleActionButtonsKeyDown(
-												e,
-												insertLinkButtonRef
-											)
-										}
-									>
-										{ __(
-											'Insert Link',
-											'inline-context'
-										) }
-									</Button>
-									<Button
-										ref={ linkCancelButtonRef }
-										variant="secondary"
-										size="small"
-										onClick={ () => {
-											setShowLinkInput( false );
-											setLinkUrl( '' );
-											setLinkText( '' );
-										} }
-										onKeyDown={ ( e ) =>
-											handleActionButtonsKeyDown(
-												e,
-												linkCancelButtonRef
-											)
-										}
-									>
-										{ __( 'Cancel', 'inline-context' ) }
-									</Button>
-								</Flex>
-							</div>
-						) }
+						<CategorySelector
+							value={ categoryId }
+							onChange={ setCategoryId }
+							categories={ categories }
+						/>
+
+						<QuillEditor
+							value={ text }
+							onChange={ setText }
+							isSourceMode={ isSourceMode }
+							onSourceModeToggle={ setIsSourceMode }
+							quillRef={ quillRef }
+							sourceTextareaRef={ sourceTextareaRef }
+							onKeyDownCapture={ handleEditorKeyDownCapture }
+							isOpen={ isOpen }
+						/>
+
+						<LinkControl
+							isVisible={ showLinkInput }
+							linkUrl={ linkUrl }
+							linkText={ linkText }
+							onUrlChange={ setLinkUrl }
+							onTextChange={ setLinkText }
+							onInsert={ insertLink }
+							onCancel={ handleCancelLink }
+							urlInputRef={ urlInputRef }
+							linkTextInputRef={ linkTextInputRef }
+							insertButtonRef={ insertLinkButtonRef }
+							cancelButtonRef={ linkCancelButtonRef }
+							onKeyDown={ handleActionButtonsKeyDown }
+						/>
 
 						<div className="wp-reveal-quill-actions">
 							<Button
@@ -780,7 +319,7 @@ export default function Edit( { isActive, value, onChange } ) {
 									ref={ copyLinkButtonRef }
 									variant="link"
 									size="small"
-									onClick={ copyAnchorLink }
+									onClick={ handleCopyLink }
 									disabled={ copyLinkStatus === 'copying' }
 									onKeyDown={ ( e ) =>
 										handleActionButtonsKeyDown(
@@ -816,53 +355,17 @@ export default function Edit( { isActive, value, onChange } ) {
 							) }
 						</div>
 					</div>
-					<Flex justify="space-between" align="center">
-						<FlexItem>
-							{ isActive && (
-								<Button
-									ref={ removeRef }
-									variant="tertiary"
-									isDestructive
-									onClick={ remove }
-									onKeyDown={ ( e ) =>
-										handleActionButtonsKeyDown(
-											e,
-											removeRef
-										)
-									}
-								>
-									{ __( 'Delete', 'inline-context' ) }
-								</Button>
-							) }
-						</FlexItem>
-						<FlexItem>
-							<Flex gap={ 2 }>
-								<Button
-									ref={ cancelRef }
-									variant="secondary"
-									onClick={ () => setIsOpen( false ) }
-									onKeyDown={ ( e ) =>
-										handleActionButtonsKeyDown(
-											e,
-											cancelRef
-										)
-									}
-								>
-									{ __( 'Cancel', 'inline-context' ) }
-								</Button>
-								<Button
-									ref={ saveRef }
-									variant="primary"
-									onClick={ apply }
-									onKeyDown={ ( e ) =>
-										handleActionButtonsKeyDown( e, saveRef )
-									}
-								>
-									{ __( 'Save', 'inline-context' ) }
-								</Button>
-							</Flex>
-						</FlexItem>
-					</Flex>
+
+					<PopoverActions
+						isActive={ isActive }
+						onRemove={ remove }
+						onCancel={ handleClose }
+						onSave={ apply }
+						onKeyDown={ handleActionButtonsKeyDown }
+						removeRef={ removeRef }
+						cancelRef={ cancelRef }
+						saveRef={ saveRef }
+					/>
 				</Popover>
 			) }
 		</span>

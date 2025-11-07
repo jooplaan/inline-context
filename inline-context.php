@@ -3,7 +3,7 @@
  * Plugin Name: Inline Context
  * Plugin URI: https://wordpress.org/plugins/inline-context/
  * Description: Add inline expandable context to selected text in the block editor with direct anchor linking. Click to reveal, click again to hide.
- * Version: 1.2.1
+ * Version: 1.3.1
  * Author: Joop Laan
  * Author URI: https://profiles.wordpress.org/joop/
  * License: GPL-2.0-or-later
@@ -19,7 +19,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'INLINE_CONTEXT_VERSION', '1.2.1' );
+define( 'INLINE_CONTEXT_VERSION', '1.3.1' );
 
 // Always load admin settings (needed for CSS output on frontend).
 require_once __DIR__ . '/admin-settings.php';
@@ -68,6 +68,7 @@ add_filter(
 				array(
 					'data-inline-context' => true,
 					'data-anchor-id'      => true,
+					'data-category-id'    => true,
 					'role'                => true,
 					'aria-expanded'       => true,
 				)
@@ -102,6 +103,15 @@ add_action(
 			$asset['dependencies'],
 			$version,
 			true
+		);
+
+		// Pass categories to the editor.
+		wp_localize_script(
+			'jooplaan-inline-context',
+			'inlineContextData',
+			array(
+				'categories' => inline_context_get_categories(),
+			)
 		);
 
 		// Enable JS translations for strings in the editor script.
@@ -146,6 +156,19 @@ add_action(
 			$version,
 			true
 		);
+
+		// Pass categories to frontend.
+		wp_localize_script(
+			'jooplaan-inline-context-frontend',
+			'inlineContextData',
+			array(
+				'categories' => inline_context_get_categories(),
+			)
+		);
+
+		// Enqueue Dashicons for category icons.
+		wp_enqueue_style( 'dashicons' );
+
 		// Use compiled frontend styles from SCSS build.
 		wp_enqueue_style(
 			'jooplaan-inline-context-frontend-style',

@@ -1,37 +1,67 @@
 # Inline Context
 
-Add small “click to reveal” notes inline with your text. Perfect for short explanations, definitions, and asides that shouldn’t break the reading flow.
+Add categorized "click to reveal" notes inline with your text. Perfect for short explanations, definitions, and asides with custom icons and full styling control.
 
 ## What it does
 
-- Lets you attach a brief note to any piece of text in the block editor.
-- Readers click the highlighted text to show the note inline, and click again to hide it.
-- Keeps pages clean and easy to scan while still offering helpful context.
+- Lets you attach a brief note to any piece of text in the block editor
+- Organize notes with custom categories (Internal Article, External Article, Definition, Tip, etc.)
+- Each category has distinct icons for closed/open states
+- Readers click the highlighted text to show the note inline, and click again to hide it
+- Full styling control through tabbed admin interface
+- Keeps pages clean and easy to scan while still offering helpful context
+
+## Key Features
+
+### Category Management
+- **Custom Categories**: Create unlimited categories to organize your notes
+- **Icon Selection**: Choose from 30 curated Dashicons or use any of 300+ available
+- **Visual Icon Picker**: Accessible modal with keyboard navigation (Esc, Tab, Enter)
+- **Dual Icon States**: Different icons for closed/open states provide visual feedback
+- **Color Coding**: Assign colors to each category for visual distinction
+
+### Styling Controls
+- **Tabbed Interface**: Clean admin settings with Categories and Styling tabs
+- **Comprehensive Options**: Control colors, spacing, borders, shadows for every element
+- **Live Preview**: Interactive preview shows exactly how notes will appear
+- **Helpful Descriptions**: Every setting includes clear explanation of its purpose
+
+### Rich Features
+- **Direct Anchor Links**: Every note gets a unique URL anchor for easy sharing (#context-note-xxx)
+- **Auto-Opening**: Notes automatically open when accessed via direct link
+- **Smart Link Behavior**: Internal links stay in same tab, external links open in new tab with security
+- **Rich Text Support**: Notes support bold, italic, links, lists with ReactQuill editor
+- **Security First**: Content sanitized with DOMPurify before frontend display
+- **Full Accessibility**: ARIA support, keyboard navigation, focus management
 
 ## How to use
 
-1. In the editor, select the text you want to explain.
-2. Click the "Inline Context" button in the formatting toolbar.
-3. Type your note and save.
-4. **Copy shareable links**: Click "Copy link to this note" in the editor to get a direct link to any note.
-5. View your page and click the highlighted text to reveal/hide the note.
+### Setting up categories
+1. Go to Settings > Inline Context
+2. Click the Categories tab
+3. Add or edit categories with custom names, icons, and colors
+4. Click the icon button to open the visual picker
+5. Save your settings
 
-## Why it's helpful
+### Adding notes in the editor
+1. Select the text you want to explain
+2. Click the "Inline Context" button in the formatting toolbar
+3. Choose a category (optional)
+4. Type your note content
+5. Save and view your page
 
-- Clean reading experience — extra info appears only when needed
-- Simple controls in the block editor toolbar
-- Theme‑friendly styles (easy to adjust with CSS variables)
-- **Customizable in Site Editor** — Style colors, spacing, and appearance through WordPress UI
-- Accessible by default (proper ARIA attributes)
+### Customizing appearance
+1. Go to Settings > Inline Context > Styling tab
+2. Adjust link colors, note styling, chevron appearance
+3. See changes immediately in the live preview
+4. Save settings
 
 ## Customization
 
-The plugin supports extensive styling customization through the WordPress Site Editor (WordPress 6.1+) and CSS custom properties. You can customize:
-
-- Link colors (hover, focus, active states)
-- Note block appearance (background, borders, shadows)
-- Spacing and typography
-- Chevron indicator styling
+The plugin supports extensive styling customization through:
+- **Admin Settings**: Tabbed interface with comprehensive visual controls
+- **CSS Variables**: All settings use CSS custom properties for easy override
+- **Live Preview**: See changes in real-time before saving
 
 For detailed styling instructions and examples, see [STYLING.md](STYLING.md).
 
@@ -41,7 +71,13 @@ For future feature ideas and version 2.0 roadmap, see [ROADMAP.md](ROADMAP.md).
 
 ## Accessibility
 
-Notes include `aria-expanded`, `aria-controls`, and `aria-describedby` on the trigger and `role="note"` on the revealed content.
+- Full keyboard navigation in icon picker (Esc to close, Tab/Shift+Tab to navigate)
+- ARIA attributes on all interactive elements (`role="dialog"`, `aria-modal`, `aria-label`)
+- Focus management (auto-focus on modal open, focus restoration on close)
+- Focus trapping within modal
+- Proper button semantics for icon selection
+- Screen reader friendly labels on all icons
+- Notes include `aria-expanded` and `role="note"` attributes
 
 ## Privacy
 
