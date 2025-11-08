@@ -156,6 +156,11 @@
 	}
 }
 
+/* Hide endnotes section when JavaScript is available */
+.js .wp-inline-context-noscript-notes {
+	display: none;
+}
+
 @media print {
 	.wp-inline-context-inline {
 		display: block !important; /* Ensure notes are visible for printing */

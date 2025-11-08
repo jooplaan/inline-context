@@ -30,18 +30,6 @@ add_action( 'admin_menu', 'inline_context_add_settings_page' );
  * Register settings
  */
 function inline_context_register_settings() {
-	// Register accessibility setting.
-	register_setting(
-		'inline_context_accessibility_settings',
-		'inline_context_noscript_support',
-		array(
-			'type'              => 'boolean',
-			'sanitize_callback' => 'rest_sanitize_boolean',
-			'default'           => true,
-			'show_in_rest'      => true,
-		)
-	);
-
 	// Register categories setting.
 	register_setting(
 		'inline_context_categories_settings',
@@ -62,14 +50,6 @@ function inline_context_register_settings() {
 			'sanitize_callback' => 'inline_context_sanitize_css_variables',
 			'default'           => inline_context_get_default_css_variables(),
 		)
-	);
-
-	// Accessibility tab section.
-	add_settings_section(
-		'inline_context_accessibility_section',
-		__( 'Accessibility', 'inline-context' ),
-		'inline_context_accessibility_section_callback',
-		'inline-context-settings-accessibility'
 	);
 
 	// Categories tab section.
@@ -364,32 +344,6 @@ function inline_context_sanitize_categories( $input ) {
  */
 
 /**
- * Accessibility section callback
- */
-function inline_context_accessibility_section_callback() {
-	$option = get_option( 'inline_context_noscript_support', true );
-	?>
-	<p><?php esc_html_e( 'Settings to improve support for users without JavaScript, text-based browsers, and RSS feeds.', 'inline-context' ); ?></p>
-	<table class="form-table" role="presentation">
-		<tbody>
-			<tr>
-				<th scope="row"><?php esc_html_e( 'Progressive Enhancement', 'inline-context' ); ?></th>
-				<td>
-					<label for="inline_context_noscript_support">
-						<input name="inline_context_noscript_support" type="checkbox" id="inline_context_noscript_support" value="1" <?php checked( $option ); ?>>
-						<?php esc_html_e( 'Enable server-side rendering of notes for accessibility.', 'inline-context' ); ?>
-					</label>
-					<p class="description">
-						<?php esc_html_e( 'When enabled, note content is included directly in the page HTML. This makes it accessible to text-browsers, RSS readers, and users with JavaScript disabled. The content is progressively enhanced for interactive users.', 'inline-context' ); ?>
-					</p>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-	<?php
-}
-
-/**
  * Categories section callback
  */
 function inline_context_categories_section_callback() {
@@ -577,9 +531,9 @@ function inline_context_render_categories_editor() {
 				<div class="category-fields">
 					<div class="category-field">
 						<label><?php esc_html_e( 'Category Name', 'inline-context' ); ?></label>
-						<input type="text" 
-							name="inline_context_categories[<?php echo esc_attr( $id ); ?>][name]" 
-							value="<?php echo esc_attr( $category['name'] ); ?>" 
+						<input type="text"
+							name="inline_context_categories[<?php echo esc_attr( $id ); ?>][name]"
+							value="<?php echo esc_attr( $category['name'] ); ?>"
 							required />
 					</div>
 					<div class="category-field">
@@ -612,13 +566,13 @@ function inline_context_render_categories_editor() {
 					</div>
 					<div class="category-field">
 						<label><?php esc_html_e( 'Color', 'inline-context' ); ?></label>
-						<input type="color" 
-							name="inline_context_categories[<?php echo esc_attr( $id ); ?>][color]" 
+						<input type="color"
+							name="inline_context_categories[<?php echo esc_attr( $id ); ?>][color]"
 							value="<?php echo esc_attr( $category['color'] ); ?>" />
 					</div>
 				</div>
-				<input type="hidden" 
-					name="inline_context_categories[<?php echo esc_attr( $id ); ?>][id]" 
+				<input type="hidden"
+					name="inline_context_categories[<?php echo esc_attr( $id ); ?>][id]"
 					value="<?php echo esc_attr( $id ); ?>" />
 				<div class="category-actions">
 					<button type="button" class="button button-secondary button-small delete-category" data-category-id="<?php echo esc_attr( $id ); ?>">
@@ -678,13 +632,13 @@ function inline_context_render_categories_editor() {
 					const button = e.target.closest('.icon-picker-button');
 					const wrapper = button.closest('.icon-field-wrapper');
 					currentTargetInput = wrapper.querySelector('.icon-input');
-					
+
 					// Store currently focused element
 					focusedElementBeforeModal = document.activeElement;
-					
+
 					// Open modal
 					modal.classList.add('active');
-					
+
 					// Focus on close button when modal opens
 					setTimeout(() => {
 						closeBtn.focus();
@@ -696,7 +650,7 @@ function inline_context_render_categories_editor() {
 			function closeModal() {
 				modal.classList.remove('active');
 				currentTargetInput = null;
-				
+
 				// Restore focus to the button that opened the modal
 				if (focusedElementBeforeModal) {
 					focusedElementBeforeModal.focus();
@@ -780,16 +734,16 @@ function inline_context_render_categories_editor() {
 						<div class="category-fields">
 							<div class="category-field">
 								<label><?php echo esc_js( __( 'Category Name', 'inline-context' ) ); ?></label>
-								<input type="text" 
-									name="inline_context_categories[${newId}][name]" 
-									value="<?php echo esc_js( __( 'New Category', 'inline-context' ) ); ?>" 
+								<input type="text"
+									name="inline_context_categories[${newId}][name]"
+									value="<?php echo esc_js( __( 'New Category', 'inline-context' ) ); ?>"
 									required />
 							</div>
 							<div class="category-field">
 								<label><?php echo esc_js( __( 'Icon (Closed)', 'inline-context' ) ); ?></label>
-								<input type="text" 
-									name="inline_context_categories[${newId}][icon_closed]" 
-									value="dashicons-admin-links" 
+								<input type="text"
+									name="inline_context_categories[${newId}][icon_closed]"
+									value="dashicons-admin-links"
 									placeholder="dashicons-admin-links" />
 								<div class="dashicons-examples">
 									<?php
@@ -807,9 +761,9 @@ function inline_context_render_categories_editor() {
 							</div>
 							<div class="category-field">
 								<label><?php echo esc_js( __( 'Icon (Open)', 'inline-context' ) ); ?></label>
-								<input type="text" 
-									name="inline_context_categories[${newId}][icon_open]" 
-									value="dashicons-admin-links" 
+								<input type="text"
+									name="inline_context_categories[${newId}][icon_open]"
+									value="dashicons-admin-links"
 									placeholder="dashicons-book-alt" />
 								<div class="dashicons-examples">
 									<?php
@@ -830,8 +784,8 @@ function inline_context_render_categories_editor() {
 							</div>
 							<div class="category-field">
 								<label><?php echo esc_js( __( 'Color', 'inline-context' ) ); ?></label>
-								<input type="color" 
-									name="inline_context_categories[${newId}][color]" 
+								<input type="color"
+									name="inline_context_categories[${newId}][color]"
 									value="#2271b1" />
 							</div>
 						</div>
@@ -843,7 +797,7 @@ function inline_context_render_categories_editor() {
 						</div>
 					</div>
 				`;
-				
+
 				document.querySelector('.categories-list').insertAdjacentHTML('beforeend', newCategoryHtml);
 				categoryCounter++;
 				attachDeleteListeners();
@@ -854,7 +808,7 @@ function inline_context_render_categories_editor() {
 				document.querySelectorAll('.delete-category').forEach(function(btn) {
 					btn.replaceWith(btn.cloneNode(true)); // Remove old listeners
 				});
-				
+
 				document.querySelectorAll('.delete-category').forEach(function(btn) {
 					btn.addEventListener('click', function() {
 						if (confirm('<?php echo esc_js( __( 'Are you sure you want to delete this category?', 'inline-context' ) ); ?>')) {
@@ -948,9 +902,8 @@ function inline_context_render_settings_page() {
 
 	// Define tabs.
 	$tabs = array(
-		'categories'    => __( 'Categories', 'inline-context' ),
-		'styling'       => __( 'Styling', 'inline-context' ),
-		'accessibility' => __( 'Accessibility', 'inline-context' ),
+		'categories' => __( 'Categories', 'inline-context' ),
+		'styling'    => __( 'Styling', 'inline-context' ),
 	);
 
 	// Get current tab.
@@ -1084,9 +1037,9 @@ function inline_context_render_settings_page() {
 
 					trigger.addEventListener('click', function(e) {
 						e.preventDefault();
-						
+
 						const existingNote = document.querySelector('.wp-inline-context-inline[data-anchor-id="preview-note"]');
-						
+
 						if (existingNote) {
 							// Remove note
 							existingNote.remove();
@@ -1099,7 +1052,7 @@ function inline_context_render_settings_page() {
 							note.setAttribute('data-anchor-id', 'preview-note');
 							note.setAttribute('role', 'note');
 							note.innerHTML = trigger.getAttribute('data-inline-context');
-							
+
 							trigger.parentElement.insertAdjacentElement('afterend', note);
 							trigger.setAttribute('aria-expanded', 'true');
 							trigger.classList.add('wp-inline-context--open');
@@ -1161,14 +1114,6 @@ function inline_context_render_settings_page() {
 					text-decoration: var(--wp--custom--inline-context--note--link-underline, underline);
 				}
 			</style>
-		<?php else : // Accessibility tab. ?>
-			<form action="options.php" method="post">
-				<?php
-				settings_fields( 'inline_context_accessibility_settings' );
-				do_settings_sections( 'inline-context-settings-accessibility' );
-				submit_button();
-				?>
-			</form>
 		<?php endif; ?>
 	</div>
 	<?php
@@ -1180,5 +1125,3 @@ function inline_context_render_settings_page() {
 function inline_context_handle_reset() {
 	// Reset is now handled within each page's render function.
 }
-
-
