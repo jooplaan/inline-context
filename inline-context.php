@@ -3,7 +3,7 @@
  * Plugin Name: Inline Context
  * Plugin URI: https://wordpress.org/plugins/inline-context/
  * Description: Add inline expandable context to selected text in the block editor with direct anchor linking. Click to reveal, click again to hide.
- * Version: 1.3.2
+ * Version: 1.4.0
  * Author: Joop Laan
  * Author URI: https://profiles.wordpress.org/joop/
  * License: GPL-2.0-or-later
@@ -19,7 +19,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'INLINE_CONTEXT_VERSION', '1.3.2' );
+define( 'INLINE_CONTEXT_VERSION', '1.4.0' );
 
 // Load common functions available on both frontend and admin.
 require_once __DIR__ . '/inline-context-common.php';
@@ -58,6 +58,123 @@ add_action(
 		);
 	}
 );
+
+/**
+ * Filter post content to aggregate notes at the end for non-JS users.
+ *
+ * This function implements a footnote/endnote pattern for accessibility. It finds all
+ * inline context links, moves their content to an ordered list at the end of the post,
+ * and updates the trigger links to be standard anchor links. This ensures full
+ * accessibility for text-browsers, RSS feeds, and users with JavaScript disabled.
+ *
+ * @param string $content The post content.
+ * @return string The modified post content.
+ */
+function inline_context_add_noscript_content( $content ) {
+	// Only run if the noscript support option is enabled and not in the admin.
+	if ( ! get_option( 'inline_context_noscript_support', false ) || is_admin() ) {
+		return $content;
+	}
+
+	// Only run if the content contains our specific links.
+	if ( false === strpos( $content, 'wp-inline-context' ) ) {
+		return $content;
+	}
+
+	// Use DOMDocument to safely manipulate HTML.
+	$doc = new DOMDocument();
+	// Suppress warnings from invalid HTML.
+	@$doc->loadHTML( '<?xml encoding="utf-8" ?>' . $content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+
+	$links            = $doc->getElementsByTagName( 'a' );
+	$notes_to_append  = array();
+	$nodes_to_process = array();
+	$note_counter     = 1;
+
+	foreach ( $links as $link ) {
+		if ( $link->hasAttribute( 'data-inline-context' ) && $link->hasAttribute( 'data-anchor-id' ) ) {
+			$nodes_to_process[] = $link;
+		}
+	}
+
+	if ( empty( $nodes_to_process ) ) {
+		return $content;
+	}
+
+	// Process nodes in reverse to avoid issues with live DOM modification.
+	foreach ( array_reverse( $nodes_to_process ) as $link ) {
+		$note_content_html = $link->getAttribute( 'data-inline-context' );
+		$anchor_id         = $link->getAttribute( 'data-anchor-id' ); // This is the unified ID, e.g., "context-note-...".
+		$trigger_id        = 'trigger-' . $anchor_id;
+
+		// 1. Modify the trigger link for non-JS view to point to the unified anchor.
+		$link->setAttribute( 'href', '#' . $anchor_id );
+		$link->setAttribute( 'id', $trigger_id );
+		$link->setAttribute( 'role', 'link' ); // It's a standard link now.
+		$link->removeAttribute( 'aria-expanded' );
+
+		// 2. Store note content for appending later.
+		$notes_to_append[] = array(
+			'note_id'           => $anchor_id, // Use the unified anchor ID for the note itself.
+			'trigger_id'        => $trigger_id,
+			'note_content_html' => $note_content_html,
+			'note_number'       => $note_counter++,
+		);
+	}
+
+	// 3. Create the notes section at the end of the content.
+	$notes_section_html = '';
+	if ( ! empty( $notes_to_append ) ) {
+		$notes_doc     = new DOMDocument();
+		$notes_section = $notes_doc->createElement( 'section' );
+		$notes_section->setAttribute( 'class', 'wp-inline-context-noscript-notes' );
+		$notes_section->setAttribute( 'aria-label', __( 'Context Notes', 'inline-context' ) );
+
+		$heading = $notes_doc->createElement( 'h2', __( 'Notes', 'inline-context' ) );
+		$notes_section->appendChild( $heading );
+
+		$list = $notes_doc->createElement( 'ol' );
+		$notes_section->appendChild( $list );
+
+		// Reverse the notes to append them in the correct order.
+		foreach ( array_reverse( $notes_to_append ) as $note_data ) {
+			$item = $notes_doc->createElement( 'li' );
+			$item->setAttribute( 'id', $note_data['note_id'] );
+
+			// Append the note content.
+			$fragment = $notes_doc->createDocumentFragment();
+			@$fragment->appendXML( $note_data['note_content_html'] );
+			$item->appendChild( $fragment );
+
+			// Add a "back to text" link.
+			$back_link = $notes_doc->createElement( 'a', ' &#8617;' ); // Using ↩ character.
+			$back_link->setAttribute( 'href', '#' . $note_data['trigger_id'] );
+			$back_link->setAttribute( 'aria-label', __( 'Back to text', 'inline-context' ) );
+			$back_link->setAttribute( 'class', 'wp-inline-context-back-link' );
+
+			// Find the last paragraph in the note to append the back link.
+			$paragraphs = $item->getElementsByTagName( 'p' );
+			if ( $paragraphs->length > 0 ) {
+				$last_paragraph = $paragraphs->item( $paragraphs->length - 1 );
+				$last_paragraph->appendChild( $back_link );
+			} else {
+				// If no paragraphs, append directly to the list item.
+				$item->appendChild( $back_link );
+			}
+
+			$list->appendChild( $item );
+		}
+
+		$notes_doc->appendChild( $notes_section );
+		$notes_section_html = $notes_doc->saveHTML( $notes_section );
+	}
+
+	// Get the modified content and append the notes section.
+	$modified_content = $doc->saveHTML();
+
+	return $modified_content . '<noscript>' . $notes_section_html . '</noscript>';
+}
+add_filter( 'the_content', 'inline_context_add_noscript_content', 1 );
 
 // Ensure the custom data attributes are allowed by KSES for post content.
 add_filter(
@@ -162,12 +279,13 @@ add_action(
 			true
 		);
 
-		// Pass categories to frontend.
+		// Pass settings and categories to frontend.
 		wp_localize_script(
 			'jooplaan-inline-context-frontend',
 			'inlineContextData',
 			array(
-				'categories' => inline_context_get_categories(),
+				'categories'      => inline_context_get_categories(),
+				'noscriptEnabled' => get_option( 'inline_context_noscript_support', false ),
 			)
 		);
 
