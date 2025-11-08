@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.3.1
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,10 @@ Yes. Icons automatically switch between closed and open states when users click 
 5. Frontend rendering with category icon
 
 == Changelog ==
+
+= 1.3.1 =
+* **IMPROVED**: Refactored PHP code to split front-end and admin code
+* **IMPROVED**: Refactored CSS code for compatibilitybility with themes
 
 = 1.3.1 =
 * **IMPROVED**: Refactored edit.js for better maintainability (919 lines → 375 lines, 59% reduction)
