@@ -72,7 +72,7 @@ add_action(
  */
 function inline_context_add_noscript_content( $content ) {
 	// Only run if the noscript support option is enabled and not in the admin.
-	if ( ! get_option( 'inline_context_noscript_support', true ) || is_admin() ) {
+	if ( ! get_option( 'inline_context_noscript_support', false ) || is_admin() ) {
 		return $content;
 	}
 
@@ -86,10 +86,10 @@ function inline_context_add_noscript_content( $content ) {
 	// Suppress warnings from invalid HTML.
 	@$doc->loadHTML( '<?xml encoding="utf-8" ?>' . $content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
 
-	$links             = $doc->getElementsByTagName( 'a' );
-	$notes_to_append   = array();
-	$nodes_to_process  = array();
-	$note_counter      = 1;
+	$links            = $doc->getElementsByTagName( 'a' );
+	$notes_to_append  = array();
+	$nodes_to_process = array();
+	$note_counter     = 1;
 
 	foreach ( $links as $link ) {
 		if ( $link->hasAttribute( 'data-inline-context' ) && $link->hasAttribute( 'data-anchor-id' ) ) {
@@ -104,7 +104,7 @@ function inline_context_add_noscript_content( $content ) {
 	// Process nodes in reverse to avoid issues with live DOM modification.
 	foreach ( array_reverse( $nodes_to_process ) as $link ) {
 		$note_content_html = $link->getAttribute( 'data-inline-context' );
-		$anchor_id         = $link->getAttribute( 'data-anchor-id' ); // This is the unified ID, e.g., "context-note-..."
+		$anchor_id         = $link->getAttribute( 'data-anchor-id' ); // This is the unified ID, e.g., "context-note-...".
 		$trigger_id        = 'trigger-' . $anchor_id;
 
 		// 1. Modify the trigger link for non-JS view to point to the unified anchor.
@@ -125,7 +125,7 @@ function inline_context_add_noscript_content( $content ) {
 	// 3. Create the notes section at the end of the content.
 	$notes_section_html = '';
 	if ( ! empty( $notes_to_append ) ) {
-		$notes_doc = new DOMDocument();
+		$notes_doc     = new DOMDocument();
 		$notes_section = $notes_doc->createElement( 'section' );
 		$notes_section->setAttribute( 'class', 'wp-inline-context-noscript-notes' );
 		$notes_section->setAttribute( 'aria-label', __( 'Context Notes', 'inline-context' ) );
@@ -285,7 +285,7 @@ add_action(
 			'inlineContextData',
 			array(
 				'categories'      => inline_context_get_categories(),
-				'noscriptEnabled' => get_option( 'inline_context_noscript_support', true ),
+				'noscriptEnabled' => get_option( 'inline_context_noscript_support', false ),
 			)
 		);
 

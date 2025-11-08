@@ -83,6 +83,14 @@ Yes. Icons automatically switch between closed and open states when users click 
 
 == Changelog ==
 
+= 1.4.0 =
+* **NEW**: Low-Tech Accessibility & Text-Based Browser Support.
+* **IMPROVED**: The plugin now offers a `<noscript>` fallback, which presents context notes in a clean, ordered list at the end of the content for users without JavaScript.
+* **IMPROVED**: This approach ensures full accessibility and content availability on text-based browsers or where JavaScript is disabled.
+* **NEW**: An "Accessibility" tab has been added to the admin settings, allowing users to enable or disable the `noscript` fallback.
+* **IMPROVED**: Anchor links are now unified between the JavaScript-driven and `noscript` versions, ensuring consistent and shareable URLs.
+* **IMPROVED**: Added print-specific styles to automatically expand and display all context notes when a page is printed.
+
 = 1.3.1 =
 * **IMPROVED**: Refactored PHP code to split front-end and admin code
 * **IMPROVED**: Refactored CSS code for compatibilitybility with themes

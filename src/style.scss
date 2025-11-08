@@ -27,6 +27,32 @@
 		--wp--custom--inline-context--link--scroll-margin,
 		2rem
 	);
+
+	/* SVG chevron icon indicator */
+	&::after {
+		content: '';
+		display: inline-block;
+		width: var(--wp--custom--inline-context--chevron--size, 0.7em);
+		height: var(--wp--custom--inline-context--chevron--size, 0.7em);
+		margin-left: var(
+			--wp--custom--inline-context--chevron--margin-left,
+			0.25em
+		);
+		vertical-align: middle;
+		text-decoration: none;
+		background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23666"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
+		background-repeat: no-repeat;
+		background-size: contain;
+		background-position: center;
+		transition: transform 0.4s ease, background-image 0.2s ease;
+		opacity: var(--wp--custom--inline-context--chevron--opacity, 0.7);
+	}
+
+	&:hover::after,
+	&:focus::after {
+		background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%232271b1"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
+		opacity: var(--wp--custom--inline-context--chevron--hover-opacity, 1);
+	}
 }
 
 /* Category icon styling */
@@ -62,17 +88,6 @@
 		var(--wp--preset--color--primary, #0073aa)
 	);
 }
-
-/* Focus styles for keyboard navigation */
-// .wp-inline-context:focus-visible {
-// 	outline: 2px solid
-// 		var(
-// 			--wp--custom--inline-context--link--focus-border-color,
-// 			var(--wp--preset--color--primary, #0073aa)
-// 		);
-// 	outline-offset: 2px;
-// 	border-radius: 2px;
-// }
 
 .wp-inline-context-inline {
 	display: block;
@@ -176,22 +191,6 @@
 		--wp--custom--inline-context--link--open-color,
 		var(--wp--preset--color--primary, #0073aa)
 	);
-}
-
-/* SVG chevron icon indicator */
-.wp-inline-context::after {
-	content: '\00A0';
-	display: inline-block;
-	width: var(--wp--custom--inline-context--chevron--size, 0.75em);
-	height: var(--wp--custom--inline-context--chevron--size, 0.75em);
-	margin-left: var(
-		--wp--custom--inline-context--chevron--margin-left,
-		0.25em
-	);
-	vertical-align: middle;
-	text-decoration: none;
-	/* Use a subtle gray color by default */
-	background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill
 }
 
 /* Rotate chevron up when expanded */
