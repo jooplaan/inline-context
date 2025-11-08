@@ -3,7 +3,7 @@
  * Plugin Name: Inline Context
  * Plugin URI: https://wordpress.org/plugins/inline-context/
  * Description: Add inline expandable context to selected text in the block editor with direct anchor linking. Click to reveal, click again to hide.
- * Version: 1.4.0
+ * Version: 1.4.1
  * Author: Joop Laan
  * Author URI: https://profiles.wordpress.org/joop/
  * License: GPL-2.0-or-later
@@ -60,19 +60,14 @@ add_action(
 );
 
 /**
- * Filter post content to aggregate notes at the end for non-JS users.
- *
- * This function implements a footnote/endnote pattern for accessibility. It finds all
- * inline context links, moves their content to an ordered list at the end of the post,
- * and updates the trigger links to be standard anchor links. This ensures full
- * accessibility for text-browsers, RSS feeds, and users with JavaScript disabled.
+ * Add noscript content to posts
  *
  * @param string $content The post content.
  * @return string The modified post content.
  */
 function inline_context_add_noscript_content( $content ) {
-	// Only run if the noscript support option is enabled and not in the admin.
-	if ( ! get_option( 'inline_context_noscript_support', false ) || is_admin() ) {
+	// Skip in admin.
+	if ( is_admin() ) {
 		return $content;
 	}
 
@@ -172,7 +167,8 @@ function inline_context_add_noscript_content( $content ) {
 	// Get the modified content and append the notes section.
 	$modified_content = $doc->saveHTML();
 
-	return $modified_content . '<noscript>' . $notes_section_html . '</noscript>';
+	// Don't wrap in <noscript> - let CSS hide by default and JS can toggle visibility.
+	return $modified_content . $notes_section_html;
 }
 add_filter( 'the_content', 'inline_context_add_noscript_content', 1 );
 
@@ -284,8 +280,7 @@ add_action(
 			'jooplaan-inline-context-frontend',
 			'inlineContextData',
 			array(
-				'categories'      => inline_context_get_categories(),
-				'noscriptEnabled' => get_option( 'inline_context_noscript_support', false ),
+				'categories' => inline_context_get_categories(),
 			)
 		);
 

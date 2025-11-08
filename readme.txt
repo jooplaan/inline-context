@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,13 +83,21 @@ Yes. Icons automatically switch between closed and open states when users click 
 
 == Changelog ==
 
+== Changelog ==
+
+= 1.4.1 =
+* **FIX**: Restored proper progressive enhancement - inline notes when JavaScript enabled
+* **FIX**: Endnotes section now correctly hidden when JavaScript is available
+* **IMPROVED**: Simplified architecture - removed unnecessary admin settings
+* **IMPROVED**: Better fallback for no-JS environments with footnotes at bottom
+
 = 1.4.0 =
-* **NEW**: Low-Tech Accessibility & Text-Based Browser Support.
-* **IMPROVED**: The plugin now offers a `<noscript>` fallback, which presents context notes in a clean, ordered list at the end of the content for users without JavaScript.
-* **IMPROVED**: This approach ensures full accessibility and content availability on text-based browsers or where JavaScript is disabled.
-* **NEW**: An "Accessibility" tab has been added to the admin settings, allowing users to enable or disable the `noscript` fallback.
-* **IMPROVED**: Anchor links are now unified between the JavaScript-driven and `noscript` versions, ensuring consistent and shareable URLs.
-* **IMPROVED**: Added print-specific styles to automatically expand and display all context notes when a page is printed.
+* **NEW**: Full accessibility support with server-side rendered endnotes
+* **NEW**: Progressive enhancement for text-based browsers and RSS feeds
+* **NEW**: Notes work in both JavaScript and no-JavaScript environments
+* **NEW**: Print-friendly note display
+* **IMPROVED**: Better WordPress coding standards compliance
+* **FIX**: Updated composer.json version number to match plugin version
 
 = 1.3.1 =
 * **IMPROVED**: Refactored PHP code to split front-end and admin code
