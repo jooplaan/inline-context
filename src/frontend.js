@@ -117,12 +117,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		if ( ! trigger.hasAttribute( 'role' ) ) {
 			trigger.setAttribute( 'role', 'button' );
 		}
-
-		// Add category icon if category is set
-		const categoryId = trigger.dataset.categoryId;
-		if ( categoryId && categories[ categoryId ] ) {
-			addCategoryIcon( trigger, categoryId, false );
-		}
 	}
 
 	// Process links in notes to set appropriate target behavior
@@ -214,7 +208,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const toggleNote = ( trigger ) => {
 		if ( ! trigger ) return;
 
-		// If noscript has already rendered the note, just toggle visibility
+		// If noscript support is on, the note is already in the DOM.
 		if ( noscriptEnabled ) {
 			const note = trigger.nextElementSibling;
 			if ( note?.classList.contains( 'wp-inline-context-inline' ) ) {
@@ -229,10 +223,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 					addCategoryIcon( trigger, categoryId, isHidden );
 				}
 			}
-			return; // Stop here for noscript-enabled environments
+			return; // Always stop here for noscript-enabled environments
 		}
 
-		// If already open, close and clean ARIA state
+		// Standard JS-only behavior (create/destroy note)
 		const existing = trigger.nextElementSibling;
 		if ( existing?.classList.contains( 'wp-inline-context-inline' ) ) {
 			existing.remove();
@@ -353,7 +347,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			} else {
 				// For JS-only, we create the note
 				const existing = trigger.nextElementSibling;
-				if ( ! existing?.classList.contains( 'wp-inline-context-inline' ) ) {
+				if (
+					! existing?.classList.contains( 'wp-inline-context-inline' )
+				) {
 					toggleNote( trigger );
 				}
 			}
