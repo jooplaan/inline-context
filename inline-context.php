@@ -21,8 +21,13 @@ defined( 'ABSPATH' ) || exit;
 
 define( 'INLINE_CONTEXT_VERSION', '1.3.1' );
 
-// Always load admin settings (needed for CSS output on frontend).
-require_once __DIR__ . '/admin-settings.php';
+// Load common functions available on both frontend and admin.
+require_once __DIR__ . '/inline-context-common.php';
+
+// Load admin-specific functionality.
+if ( is_admin() ) {
+	require_once __DIR__ . '/admin-settings.php';
+}
 
 // Load translations.
 add_action(
