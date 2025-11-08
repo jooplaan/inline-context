@@ -77,7 +77,7 @@
 .wp-inline-context-inline {
 	display: block;
 	/* Spacing */
-	margin: var(--wp--custom--inline-context--note--margin-y, 0.75em) 0;
+	margin: var(--wp--custom--inline-context--note--margin-y, 8px) 0;
 	padding: var(--wp--custom--inline-context--note--padding-y, 0.75em)
 		var(--wp--custom--inline-context--note--padding-x, 1em);
 	/* Surface */
@@ -106,24 +106,54 @@
 	/* Progressive enhancement: smooth reveal animation */
 	animation: wp-inline-context-reveal 0.3s ease-out;
 	transform-origin: top left;
-}
 
-@keyframes wp-inline-context-reveal {
-	from {
-		opacity: 0;
-		transform: translateY(-8px);
-		max-height: 0;
-		overflow: hidden;
-	}
-
-	to {
-		opacity: 1;
-		transform: translateY(0);
-		max-height: 500px;
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
 	}
 }
 
-/* Avoid double spacing for content inside the note */
+/* Noscript / Print styles */
+.wp-inline-context-noscript-notes {
+	margin-top: 2em;
+	padding-top: 1.5em;
+	border-top: 2px solid #ccc;
+
+	h2 {
+		font-size: 1.5em;
+		margin-bottom: 1em;
+	}
+
+	ol {
+		padding-left: 20px;
+	}
+
+	li {
+		margin-bottom: 1.5em;
+		padding-left: 5px;
+	}
+
+	.wp-inline-context-back-link {
+		display: inline-block;
+		margin-left: 0.5em;
+		text-decoration: none;
+		font-size: 1.2em;
+		line-height: 1;
+	}
+}
+
+@media print {
+	.wp-inline-context-inline {
+		display: block !important; /* Ensure notes are visible for printing */
+		animation: none;
+		box-shadow: none;
+		border: 1px solid #ccc;
+	}
+
+	.wp-inline-context::after {
+		display: none; /* Hide interactive chevron */
+	}
+}
+
 .wp-inline-context-inline > :first-child {
 	margin-top: 0;
 }
@@ -161,24 +191,7 @@
 	vertical-align: middle;
 	text-decoration: none;
 	/* Use a subtle gray color by default */
-	background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23757575"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
-	background-repeat: no-repeat;
-	background-size: contain;
-	background-position: center;
-	transition: transform 0.4s ease, background-image 0.2s ease;
-	opacity: var(--wp--custom--inline-context--chevron--opacity, 0.7);
-}
-
-/* Hide chevron when category icon is present */
-.wp-inline-context:has(.wp-inline-context-category-icon)::after {
-	display: none;
-}
-
-/* Change chevron color on hover/focus to match primary color */
-.wp-inline-context:hover::after,
-.wp-inline-context:focus::after {
-	background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%230073aa"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
-	opacity: var(--wp--custom--inline-context--chevron--hover-opacity, 1);
+	background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill
 }
 
 /* Rotate chevron up when expanded */
