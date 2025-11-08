@@ -29,6 +29,35 @@ Implemented full styling customization:
 - ✅ Helpful descriptions for each setting
 - ✅ CSS variable integration
 
+## ✅ Completed in v1.4.x
+
+### Low-Tech Accessibility & Text-Based Browser Support ✓
+**Status**: SHIPPED in v1.4.1
+
+Implemented true progressive enhancement:
+- ✅ **Progressive Enhancement**: Server-side rendering with endnotes for no-JS environments
+- ✅ **Text-Based Browsers**: Full support for Lynx, w3m, links, etc. via footnote fallback
+- ✅ **NoScript Fallback**: Endnotes displayed at bottom when JavaScript disabled
+- ✅ **JavaScript Enhancement**: Inline notes when JavaScript is available
+- ✅ **Print-Friendly**: Auto-expand all notes for printing
+- ✅ **RSS Feeds**: Note content included in feed output (always in HTML)
+- ✅ **Graceful Degradation**: Content accessible across all user agents
+- ✅ **Clean Implementation**: CSS-based hiding (.js class) with proper semantic HTML
+
+**Implementation**:
+- PHP filter on `the_content` always renders endnotes section at bottom
+- JavaScript adds `.js` class to body on load
+- CSS rule `.js .wp-inline-context-noscript-notes { display: none }` hides endnotes when JS available
+- JavaScript creates inline notes on click (original v1.3.0 behavior)
+- Zero configuration needed - works automatically
+
+**Benefits**: 
+- Universal accessibility across all browsing environments
+- Respects user choice of technology
+- Better SEO (search engines see all content)
+- Improved accessibility for assistive technologies
+- Content remains useful in email clients, readers, and aggregators
+
 ## High Priority Features
 
 ### 1. Preset Themes
@@ -185,32 +214,6 @@ Automatically optimize for printing:
 - Option to hide notes entirely in print
 
 **Benefits**: Better user experience for readers who print content.
-
-### 11. Low-Tech Accessibility & Text-Based Browser Support
-**Impact**: High | **Effort**: Medium
-
-Ensure inline context notes are accessible in all browsing contexts:
-- **Progressive Enhancement**: Content works without JavaScript
-- **Text-Based Browsers**: Full support for Lynx, w3m, links, etc.
-- **NoScript Fallback**: Display notes inline by default when JavaScript disabled
-- **Print-Friendly**: Auto-expand all notes for printing
-- **RSS Feeds**: Include note content in feed output
-- **Screen Reader Mode**: Option to auto-expand all notes for assistive technology
-- **Graceful Degradation**: Maintain functionality across all user agents
-
-**Implementation Ideas**:
-- Server-side rendering option (notes inline by default, JavaScript progressively enhances to collapse/expand)
-- `<noscript>` tags with expanded content
-- CSS-only expand/collapse using `:target` pseudo-class for anchor links
-- WordPress filter to control default expanded/collapsed state
-- Admin option: "Default state for users without JavaScript"
-
-**Benefits**: 
-- Universal accessibility across all browsing environments
-- Respects user choice of technology
-- Better SEO (search engines see all content)
-- Improved accessibility for assistive technologies
-- Content remains useful in email clients, readers, and aggregators
 
 ## Advanced Features (Future Consideration)
 
