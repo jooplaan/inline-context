@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.3.1
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,18 @@ Yes. Icons automatically switch between closed and open states when users click 
 5. Frontend rendering with category icon
 
 == Changelog ==
+
+= 1.4.0 =
+* **NEW**: Low-Tech Accessibility & Text-Based Browser Support.
+* **IMPROVED**: The plugin now offers a `<noscript>` fallback, which presents context notes in a clean, ordered list at the end of the content for users without JavaScript.
+* **IMPROVED**: This approach ensures full accessibility and content availability on text-based browsers or where JavaScript is disabled.
+* **NEW**: An "Accessibility" tab has been added to the admin settings, allowing users to enable or disable the `noscript` fallback.
+* **IMPROVED**: Anchor links are now unified between the JavaScript-driven and `noscript` versions, ensuring consistent and shareable URLs.
+* **IMPROVED**: Added print-specific styles to automatically expand and display all context notes when a page is printed.
+
+= 1.3.1 =
+* **IMPROVED**: Refactored PHP code to split front-end and admin code
+* **IMPROVED**: Refactored CSS code for compatibilitybility with themes
 
 = 1.3.1 =
 * **IMPROVED**: Refactored edit.js for better maintainability (919 lines → 375 lines, 59% reduction)

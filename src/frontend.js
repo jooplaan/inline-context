@@ -3,8 +3,9 @@ import DOMPurify from 'dompurify';
 document.addEventListener( 'DOMContentLoaded', () => {
 	const { applyFilters } = wp.hooks || { applyFilters: ( name, val ) => val };
 
-	// Get categories from localized data
-	const categories = window.inlineContextData?.categories || {};
+	// Get settings from localized data
+	const { categories = {}, noscriptEnabled = false } =
+		window.inlineContextData || {};
 
 	// Allow developers to customize the CSS class used for revealed notes
 	const revealedClass = applyFilters(
@@ -116,12 +117,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		if ( ! trigger.hasAttribute( 'role' ) ) {
 			trigger.setAttribute( 'role', 'button' );
 		}
-
-		// Add category icon if category is set
-		const categoryId = trigger.dataset.categoryId;
-		if ( categoryId && categories[ categoryId ] ) {
-			addCategoryIcon( trigger, categoryId, false );
-		}
 	}
 
 	// Process links in notes to set appropriate target behavior
@@ -213,7 +208,25 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const toggleNote = ( trigger ) => {
 		if ( ! trigger ) return;
 
-		// If already open, close and clean ARIA state
+		// If noscript support is on, the note is already in the DOM.
+		if ( noscriptEnabled ) {
+			const note = trigger.nextElementSibling;
+			if ( note?.classList.contains( 'wp-inline-context-inline' ) ) {
+				const isHidden = note.style.display === 'none';
+				note.style.display = isHidden ? '' : 'none';
+				trigger.setAttribute( 'aria-expanded', String( isHidden ) );
+				trigger.classList.toggle( revealedClass, isHidden );
+
+				// Update icon state
+				const categoryId = trigger.dataset.categoryId;
+				if ( categoryId && categories[ categoryId ] ) {
+					addCategoryIcon( trigger, categoryId, isHidden );
+				}
+			}
+			return; // Always stop here for noscript-enabled environments
+		}
+
+		// Standard JS-only behavior (create/destroy note)
 		const existing = trigger.nextElementSibling;
 		if ( existing?.classList.contains( 'wp-inline-context-inline' ) ) {
 			existing.remove();
@@ -298,6 +311,15 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		}
 	} );
 
+	// Initial setup for noscript-enabled environments
+	if ( noscriptEnabled ) {
+		document
+			.querySelectorAll( '.wp-inline-context-inline' )
+			.forEach( ( note ) => {
+				note.style.display = 'none'; // Hide all notes initially
+			} );
+	}
+
 	// Auto-open note if URL has a matching anchor hash
 	const autoOpenFromHash = () => {
 		const hash = window.location.hash;
@@ -309,7 +331,29 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		);
 
 		if ( trigger ) {
-			toggleNote( trigger );
+			// For noscript, we need to make sure the note is visible
+			if ( noscriptEnabled ) {
+				const note = trigger.nextElementSibling;
+				if ( note?.classList.contains( 'wp-inline-context-inline' ) ) {
+					note.style.display = '';
+					trigger.setAttribute( 'aria-expanded', 'true' );
+					trigger.classList.add( revealedClass );
+					// Update icon state
+					const categoryId = trigger.dataset.categoryId;
+					if ( categoryId && categories[ categoryId ] ) {
+						addCategoryIcon( trigger, categoryId, true );
+					}
+				}
+			} else {
+				// For JS-only, we create the note
+				const existing = trigger.nextElementSibling;
+				if (
+					! existing?.classList.contains( 'wp-inline-context-inline' )
+				) {
+					toggleNote( trigger );
+				}
+			}
+
 			// Scroll to the trigger element for better user experience
 			setTimeout( () => {
 				trigger.scrollIntoView( {

@@ -30,6 +30,18 @@ add_action( 'admin_menu', 'inline_context_add_settings_page' );
  * Register settings
  */
 function inline_context_register_settings() {
+	// Register accessibility setting.
+	register_setting(
+		'inline_context_accessibility_settings',
+		'inline_context_noscript_support',
+		array(
+			'type'              => 'boolean',
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'default'           => true,
+			'show_in_rest'      => true,
+		)
+	);
+
 	// Register categories setting.
 	register_setting(
 		'inline_context_categories_settings',
@@ -50,6 +62,14 @@ function inline_context_register_settings() {
 			'sanitize_callback' => 'inline_context_sanitize_css_variables',
 			'default'           => inline_context_get_default_css_variables(),
 		)
+	);
+
+	// Accessibility tab section.
+	add_settings_section(
+		'inline_context_accessibility_section',
+		__( 'Accessibility', 'inline-context' ),
+		'inline_context_accessibility_section_callback',
+		'inline-context-settings-accessibility'
 	);
 
 	// Categories tab section.
@@ -342,6 +362,32 @@ function inline_context_sanitize_categories( $input ) {
 /**
  * Section callbacks
  */
+
+/**
+ * Accessibility section callback
+ */
+function inline_context_accessibility_section_callback() {
+	$option = get_option( 'inline_context_noscript_support', true );
+	?>
+	<p><?php esc_html_e( 'Settings to improve support for users without JavaScript, text-based browsers, and RSS feeds.', 'inline-context' ); ?></p>
+	<table class="form-table" role="presentation">
+		<tbody>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Progressive Enhancement', 'inline-context' ); ?></th>
+				<td>
+					<label for="inline_context_noscript_support">
+						<input name="inline_context_noscript_support" type="checkbox" id="inline_context_noscript_support" value="1" <?php checked( $option ); ?>>
+						<?php esc_html_e( 'Enable server-side rendering of notes for accessibility.', 'inline-context' ); ?>
+					</label>
+					<p class="description">
+						<?php esc_html_e( 'When enabled, note content is included directly in the page HTML. This makes it accessible to text-browsers, RSS readers, and users with JavaScript disabled. The content is progressively enhanced for interactive users.', 'inline-context' ); ?>
+					</p>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<?php
+}
 
 /**
  * Categories section callback
@@ -902,8 +948,9 @@ function inline_context_render_settings_page() {
 
 	// Define tabs.
 	$tabs = array(
-		'categories' => __( 'Categories', 'inline-context' ),
-		'styling'    => __( 'Styling', 'inline-context' ),
+		'categories'    => __( 'Categories', 'inline-context' ),
+		'styling'       => __( 'Styling', 'inline-context' ),
+		'accessibility' => __( 'Accessibility', 'inline-context' ),
 	);
 
 	// Get current tab.
@@ -917,7 +964,7 @@ function inline_context_render_settings_page() {
 	if ( '1' === $reset_param ) {
 		if ( 'categories' === $current_tab ) {
 			update_option( 'inline_context_categories', inline_context_get_default_categories() );
-		} else {
+		} elseif ( 'styling' === $current_tab ) {
 			update_option( 'inline_context_css_variables', inline_context_get_default_css_variables() );
 		}
 		wp_safe_redirect( admin_url( 'options-general.php?page=inline-context-settings&tab=' . $current_tab ) );
@@ -979,7 +1026,7 @@ function inline_context_render_settings_page() {
 				</p>
 			</form>
 
-		<?php else : ?>
+		<?php elseif ( 'styling' === $current_tab ) : ?>
 			<p><?php esc_html_e( 'Customize the appearance of inline context notes using CSS custom properties. Changes will affect all notes on your site.', 'inline-context' ); ?></p>
 
 			<form action="options.php" method="post">
@@ -1104,54 +1151,7 @@ function inline_context_render_settings_page() {
 					margin-left: var(--wp--custom--inline-context--chevron--margin-left, 0.25em);
 					vertical-align: middle;
 					text-decoration: none;
-					background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23666"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
-					background-repeat: no-repeat;
-					background-size: contain;
-					background-position: center;
-					transition: transform 0.4s ease, background-image 0.2s ease;
-					opacity: var(--wp--custom--inline-context--chevron--opacity, 0.7);
-				}
-
-				#inline-context-preview-area .wp-inline-context:hover::after,
-				#inline-context-preview-area .wp-inline-context:focus::after {
-					background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%232271b1"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
-					opacity: var(--wp--custom--inline-context--chevron--hover-opacity, 1);
-				}
-
-				#inline-context-preview-area .wp-inline-context[aria-expanded='true']::after,
-				#inline-context-preview-area .wp-inline-context--open::after {
-					transform: rotate(180deg);
-				}
-
-				#inline-context-preview-area .wp-inline-context-inline {
-					display: block;
-					margin: var(--wp--custom--inline-context--note--margin-y, 8px) 0;
-					padding: var(--wp--custom--inline-context--note--padding-y, 12px) var(--wp--custom--inline-context--note--padding-x, 16px);
-					background: var(--wp--custom--inline-context--note--background, #f9f9f9);
-					border: 1px solid var(--wp--custom--inline-context--note--border-color, #e0e0e0);
-					border-left: var(--wp--custom--inline-context--note--accent-width, 4px) solid var(--wp--custom--inline-context--note--accent-color, #2271b1);
-					border-radius: var(--wp--custom--inline-context--note--radius, 4px);
-					box-shadow: var(--wp--custom--inline-context--note--shadow, 0 2px 4px rgba(0,0,0,0.1));
-					font-size: var(--wp--custom--inline-context--note--font-size, 0.95em);
-					animation: wp-inline-context-reveal 0.3s ease-out;
-					transform-origin: top left;
-				}
-
-				@keyframes wp-inline-context-reveal {
-					from {
-						opacity: 0;
-						transform: translateY(-8px);
-					}
-					to {
-						opacity: 1;
-						transform: translateY(0);
-					}
-				}
-
-				#inline-context-preview-area .wp-inline-context-inline > :first-child {
-					margin-top: 0;
-				}
-
+					background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill=
 				#inline-context-preview-area .wp-inline-context-inline > :last-child {
 					margin-bottom: 0;
 				}
@@ -1161,6 +1161,14 @@ function inline_context_render_settings_page() {
 					text-decoration: var(--wp--custom--inline-context--note--link-underline, underline);
 				}
 			</style>
+		<?php else : // Accessibility tab. ?>
+			<form action="options.php" method="post">
+				<?php
+				settings_fields( 'inline_context_accessibility_settings' );
+				do_settings_sections( 'inline-context-settings-accessibility' );
+				submit_button();
+				?>
+			</form>
 		<?php endif; ?>
 	</div>
 	<?php
