@@ -1,10 +1,13 @@
 # Inline Context
 
-Add categorized "click to reveal" notes inline with your text. Perfect for short explanations, definitions, and asides with custom icons and full styling control.
+Add categorized "click to reveal" notes inline with your text. Create reusable notes via Custom Post Type and manage them centrally. Perfect for short explanations, definitions, and asides with custom icons and full styling control.
 
 ## What it does
 
 - Lets you attach a brief note to any piece of text in the block editor
+- **Create reusable notes** that can be used across multiple posts (v1.5)
+- **Search and insert** existing notes instantly from the editor (v1.5)
+- **Track usage** to see where each note is used on your site (v1.5)
 - Organize notes with custom categories (Internal Article, External Article, Definition, Tip, etc.)
 - Each category has distinct icons for closed/open states
 - Readers click the highlighted text to show the note inline, and click again to hide it
@@ -13,7 +16,18 @@ Add categorized "click to reveal" notes inline with your text. Perfect for short
 
 ## Key Features
 
+### Reusable Notes System (v1.5)
+
+- **Custom Post Type**: Notes stored as `inline_context_note` CPT for centralized management
+- **Live Search**: Quickly find and insert existing notes from the editor popover
+- **Create or Reuse**: Choose to create new notes or select from existing library
+- **Usage Tracking**: See which posts use each note with enhanced list view
+- **Filter by Type**: Filter notes marked as reusable in the admin list
+- **Delete Protection**: Warnings when attempting to delete actively used notes
+- **Cached Performance**: Notes cached in content for optimal frontend speed
+
 ### Category Management
+
 - **Custom Categories**: Create unlimited categories to organize your notes
 - **Icon Selection**: Choose from 30 curated Dashicons or use any of 300+ available
 - **Visual Icon Picker**: Accessible modal with keyboard navigation (Esc, Tab, Enter)
@@ -21,12 +35,14 @@ Add categorized "click to reveal" notes inline with your text. Perfect for short
 - **Color Coding**: Assign colors to each category for visual distinction
 
 ### Styling Controls
+
 - **Tabbed Interface**: Clean admin settings with Categories and Styling tabs
 - **Comprehensive Options**: Control colors, spacing, borders, shadows for every element
 - **Live Preview**: Interactive preview shows exactly how notes will appear
 - **Helpful Descriptions**: Every setting includes clear explanation of its purpose
 
 ### Rich Features
+
 - **Direct Anchor Links**: Every note gets a unique URL anchor for easy sharing (#context-note-xxx)
 - **Auto-Opening**: Notes automatically open when accessed via direct link
 - **Smart Link Behavior**: Internal links stay in same tab, external links open in new tab with security
@@ -36,6 +52,14 @@ Add categorized "click to reveal" notes inline with your text. Perfect for short
 
 ## How to use
 
+### Managing notes library (v1.5)
+
+1. Go to Inline Context > All Notes in WordPress admin
+2. Create new notes or edit existing ones
+3. Mark notes as "Reusable" to use them across multiple posts
+4. View usage statistics to see where each note is used
+5. Use the filter dropdown to show only reusable notes
+
 ### Setting up categories
 1. Go to Settings > Inline Context
 2. Click the Categories tab
@@ -44,11 +68,13 @@ Add categorized "click to reveal" notes inline with your text. Perfect for short
 5. Save your settings
 
 ### Adding notes in the editor
+
 1. Select the text you want to explain
 2. Click the "Inline Context" button in the formatting toolbar
-3. Choose a category (optional)
-4. Type your note content
-5. Save and view your page
+3. **NEW in v1.5**: Use the Search tab to find existing notes, or Create tab for new ones
+4. Choose a category (optional)
+5. Type your note content (or select from search results)
+6. Save and view your page
 
 ### Customizing appearance
 1. Go to Settings > Inline Context > Styling tab
