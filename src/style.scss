@@ -14,21 +14,21 @@
 	text-align: inherit;
 	text-decoration: none;
 	color: inherit;
-	/* Keep text and trailing chevron together */
+	/* Allow text to wrap naturally */
 	white-space: normal;
 	overflow-wrap: anywhere;
 	word-break: break-word;
 	/* Smooth color transition for hover/focus states */
 	transition: color 0.2s ease;
-	/* Improve anchor scrolling behavior */
-	display: inline-block;
+	/* Use inline to allow text wrapping, but keep icon with last word via ::after */
+	display: inline;
 	// Add scroll margin for smooth anchor navigation
 	scroll-margin-top: var(
 		--wp--custom--inline-context--link--scroll-margin,
 		2rem
 	);
 
-	/* SVG chevron icon indicator */
+	/* SVG chevron icon indicator - inline-block keeps it with last word */
 	&::after {
 		content: '';
 		display: inline-block;
