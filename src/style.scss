@@ -69,6 +69,11 @@
 	text-decoration: none;
 }
 
+/* Hide default chevron when category icon is present */
+.wp-inline-context:has(.wp-inline-context-category-icon)::after {
+	display: none;
+}
+
 /* Subtle scale effect on hover */
 .wp-inline-context:hover .wp-inline-context-category-icon,
 .wp-inline-context:focus-visible .wp-inline-context-category-icon {

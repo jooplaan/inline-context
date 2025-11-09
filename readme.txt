@@ -4,16 +4,20 @@ Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.4.1
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Add inline expandable context notes with direct anchor linking. Features category management, customizable icons, and comprehensive styling controls.
+Add inline expandable context notes with direct anchor linking. Features reusable notes via Custom Post Type, category management, and comprehensive styling controls.
 
 == Description ==
-Inline Context lets you enrich content with expandable context notes that maintain optimal reading flow. Organize notes with custom categories, each with distinct icons and colors. Full styling control through tabbed admin interface.
+Inline Context lets you enrich content with expandable context notes that maintain optimal reading flow. Create reusable notes via Custom Post Type, organize with custom categories (each with distinct icons and colors), and control all styling through a tabbed admin interface.
 
 = Key Features =
+* **Reusable Notes (NEW v1.5)**: Create notes as Custom Post Type entries and reuse them across multiple posts
+* **Notes Library (NEW v1.5)**: Centralized management of all notes with usage tracking
+* **Quick Search (NEW v1.5)**: Find and insert existing notes instantly from the editor
+* **Usage Tracking (NEW v1.5)**: See where each note is used across your site
 * **Category Management**: Organize notes with custom categories (Internal Article, External Article, Definition, Tip, etc.)
 * **Custom Icons**: Choose from 30 curated Dashicons or use any of 300+ available icons
 * **Icon States**: Different icons for closed/open states provide visual feedback
@@ -28,6 +32,16 @@ Inline Context lets you enrich content with expandable context notes that mainta
 * **Security First**: Content sanitized with DOMPurify before frontend display
 * **Accessibility**: Full ARIA support, keyboard navigation, and focus management
 * **WordPress Integration**: Clean toolbar button in Rich Text format controls
+
+= Reusable Notes System (v1.5) =
+Create and manage notes efficiently:
+* **Custom Post Type**: Notes stored as `inline_context_note` CPT
+* **Search Interface**: Live search in editor popover to find existing notes
+* **Create or Select**: Choose to create new notes or reuse existing ones
+* **Usage Overview**: Enhanced list view shows usage count and which posts use each note
+* **Filter by Reusability**: Filter notes marked as reusable in the admin list
+* **Delete Protection**: Warnings when deleting notes that are actively used
+* **Cached Performance**: Notes cached in content for fast frontend performance
 
 = Category System =
 Create custom categories with:
@@ -84,6 +98,25 @@ Yes. Icons automatically switch between closed and open states when users click 
 == Changelog ==
 
 == Changelog ==
+
+= 1.5.0 =
+* **NEW**: Custom Post Type for reusable notes - create once, use everywhere
+* **NEW**: Notes Library admin page with enhanced list view and filtering
+* **NEW**: Live search in editor popover to find and insert existing notes
+* **NEW**: Usage tracking - see which posts use each note
+* **NEW**: Custom columns in CPT list (Reusable: Yes/No, Usage Count, Used In)
+* **NEW**: Filter dropdown to show only reusable notes
+* **NEW**: Delete warnings when removing notes that are actively used (3 locations)
+* **NEW**: Comprehensive uninstall system with content cleanup options
+* **NEW**: QuillEditor component for rich text editing with keyboard navigation
+* **IMPROVED**: Editor popover with tabbed interface (Create/Search modes)
+* **IMPROVED**: REST API endpoints for note search and usage tracking
+* **IMPROVED**: Enhanced CPT editor with category taxonomy integration
+* **IMPROVED**: Cached content architecture for optimal frontend performance
+* **IMPROVED**: WordPress coding standards compliance (JavaScript and PHP)
+* **FIX**: All JavaScript linting errors resolved (Prettier, ESLint)
+* **FIX**: All PHP linting errors in new code resolved (PHPCS)
+* **FIX**: DOMNode property snake_case warnings properly handled
 
 = 1.4.1 =
 * **FIX**: Restored proper progressive enhancement - inline notes when JavaScript enabled
