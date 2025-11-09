@@ -7,6 +7,7 @@ import { RichTextToolbarButton } from '@wordpress/block-editor';
 import { Popover, Button } from '@wordpress/components';
 import { applyFormat, removeFormat } from '@wordpress/rich-text';
 import { __ } from '@wordpress/i18n';
+import apiFetch from '@wordpress/api-fetch';
 
 // Utils
 import { ensureUniqueAnchorId } from './utils/anchor';
@@ -27,6 +28,7 @@ import CategorySelector from './components/CategorySelector';
 import QuillEditor from './components/QuillEditor';
 import LinkControl from './components/LinkControl';
 import PopoverActions from './components/PopoverActions';
+import NoteSearch from './components/NoteSearch';
 
 // Quill keyboard navigation utilities
 import { useQuillKeyboardNav } from './hooks/useQuillKeyboardNav';
@@ -42,6 +44,8 @@ export default function Edit( { isActive, value, onChange } ) {
 	const [ linkUrl, setLinkUrl ] = useState( '' );
 	const [ linkText, setLinkText ] = useState( '' );
 	const [ isSourceMode, setIsSourceMode ] = useState( false );
+	const [ noteId, setNoteId ] = useState( null );
+	const [ showNoteSearch, setShowNoteSearch ] = useState( false );
 
 	// Refs
 	const prevFocusRef = useRef( null );
@@ -92,27 +96,193 @@ export default function Edit( { isActive, value, onChange } ) {
 		setTimeout( () => prevFocusRef.current?.focus?.(), 0 );
 	}, [ onChange, value ] );
 
-	const apply = useCallback( () => {
+	const saveNoteToCPT = useCallback(
+		async ( noteContent, currentNoteId = null ) => {
+			try {
+				const postData = {
+					content: noteContent,
+					status: 'publish',
+				};
+
+				// Only set title when creating a new note, not when updating
+				if ( ! currentNoteId ) {
+					postData.title =
+						linkedText || __( 'Untitled Note', 'inline-context' );
+				}
+
+				// Always set category (even if empty to clear it)
+				const cats = window.inlineContextData?.categories || {};
+				if ( categoryId ) {
+					// categoryId can be either a slug (string) or term ID (number/string number)
+					// Find by both slug and ID to handle both cases
+					const category = Object.values( cats ).find(
+						( cat ) =>
+							cat.slug === categoryId ||
+							cat.id.toString() === categoryId.toString()
+					);
+
+					if ( category && category.id ) {
+						postData.inline_context_category = [ category.id ];
+					} else {
+						postData.inline_context_category = [];
+					}
+				} else {
+					// No category selected, send empty array to clear
+					postData.inline_context_category = [];
+				}
+
+				let savedNoteId = currentNoteId;
+				let shouldCreateNew = false;
+
+				// If reusing an existing note, check if content or category changed
+				if ( currentNoteId ) {
+					try {
+						const existingNote = await apiFetch( {
+							path: `/wp/v2/inline_context_note/${ currentNoteId }`,
+						} );
+
+						// Get existing category
+						const existingCategoryIds =
+							existingNote.inline_context_category || [];
+						const newCategoryIds =
+							postData.inline_context_category || [];
+
+						// Normalize content for comparison (remove extra whitespace/newlines)
+						const normalizeContent = ( content ) => {
+							return content
+								? content.replace( /\s+/g, ' ' ).trim()
+								: '';
+						};
+
+						const existingContent = normalizeContent(
+							existingNote.content?.rendered || ''
+						);
+						const newContent = normalizeContent( noteContent );
+
+						// Check if content or category changed
+						const contentChanged = existingContent !== newContent;
+						const categoryChanged =
+							JSON.stringify( existingCategoryIds.sort() ) !==
+							JSON.stringify( newCategoryIds.sort() );
+
+						if ( contentChanged || categoryChanged ) {
+							// Content or category changed - create a new note instead of updating
+							shouldCreateNew = true;
+							savedNoteId = null;
+							// Set title for the new note
+							postData.title =
+								linkedText ||
+								__( 'Untitled Note', 'inline-context' );
+						}
+					} catch ( error ) {
+						// If we can't fetch the existing note, create a new one
+						// eslint-disable-next-line no-console
+						console.warn(
+							'Could not fetch existing note, creating new:',
+							error
+						);
+						shouldCreateNew = true;
+						savedNoteId = null;
+						postData.title =
+							linkedText ||
+							__( 'Untitled Note', 'inline-context' );
+					}
+				}
+
+				if ( savedNoteId && ! shouldCreateNew ) {
+					// Update existing note (only if content and category unchanged)
+					await apiFetch( {
+						path: `/wp/v2/inline_context_note/${ savedNoteId }`,
+						method: 'POST',
+						data: postData,
+					} );
+				} else {
+					// Create new note
+					const response = await apiFetch( {
+						path: '/wp/v2/inline_context_note',
+						method: 'POST',
+						data: postData,
+					} );
+					savedNoteId = response.id;
+				}
+
+				// Track usage - add current post to the note's used_in_posts meta
+				if (
+					savedNoteId &&
+					window.wp?.data?.select( 'core/editor' )?.getCurrentPostId
+				) {
+					const currentPostId = window.wp.data
+						.select( 'core/editor' )
+						.getCurrentPostId();
+					if ( currentPostId ) {
+						try {
+							// Use custom endpoint to track usage
+							await apiFetch( {
+								path: `/inline-context/v1/notes/${ savedNoteId }/track-usage`,
+								method: 'POST',
+								data: {
+									post_id: currentPostId,
+								},
+							} );
+						} catch ( trackingError ) {
+							// Non-critical - don't fail if tracking fails
+							// eslint-disable-next-line no-console
+							console.warn(
+								'Could not track note usage:',
+								trackingError
+							);
+						}
+					}
+				}
+				return savedNoteId;
+			} catch ( error ) {
+				// eslint-disable-next-line no-console
+				console.error( 'Error saving note to CPT:', error );
+				return currentNoteId;
+			}
+		},
+		[ linkedText, categoryId ]
+	);
+
+	const apply = useCallback( async () => {
 		const proposedId = activeFormat?.attributes?.[ 'data-anchor-id' ];
 		const anchorId = ensureUniqueAnchorId( proposedId );
+
+		// Save to CPT first
+		const savedNoteId = await saveNoteToCPT( text, noteId );
+
+		const formatAttributes = {
+			'data-inline-context': text,
+			'data-anchor-id': anchorId,
+			'data-category-id': categoryId || '',
+			href: `#${ anchorId }`,
+			id: `trigger-${ anchorId }`,
+			role: 'button',
+			'aria-expanded': 'false',
+		};
+
+		// Add note ID if available
+		if ( savedNoteId ) {
+			formatAttributes[ 'data-note-id' ] = String( savedNoteId );
+		}
 
 		onChange(
 			applyFormat( value, {
 				type: FORMAT_TYPE,
-				attributes: {
-					'data-inline-context': text,
-					'data-anchor-id': anchorId,
-					'data-category-id': categoryId || '',
-					href: `#${ anchorId }`,
-					id: `trigger-${ anchorId }`,
-					role: 'button',
-					'aria-expanded': 'false',
-				},
+				attributes: formatAttributes,
 			} )
 		);
 		setIsOpen( false );
 		setTimeout( () => prevFocusRef.current?.focus?.(), 0 );
-	}, [ onChange, text, categoryId, value, activeFormat ] );
+	}, [
+		onChange,
+		text,
+		categoryId,
+		noteId,
+		value,
+		activeFormat,
+		saveNoteToCPT,
+	] );
 
 	const toggle = useCallback( () => {
 		if ( ! isOpen ) {
@@ -127,10 +297,41 @@ export default function Edit( { isActive, value, onChange } ) {
 				);
 				setText( fmt?.attributes?.[ 'data-inline-context' ] || '' );
 				setCategoryId( fmt?.attributes?.[ 'data-category-id' ] || '' );
+				setNoteId( fmt?.attributes?.[ 'data-note-id' ] || null );
+				// Always start in create mode (search is secondary workflow)
+				setShowNoteSearch( false );
 			}
 			return next;
 		} );
 	}, [ isOpen, value ] );
+
+	const handleSelectNote = useCallback( ( note ) => {
+		setNoteId( note.id );
+		setText( note.content );
+
+		// Load the category from the note's taxonomy
+		if (
+			note.inline_context_category &&
+			note.inline_context_category.length > 0
+		) {
+			// Find the category slug from the term ID
+			const cats = window.inlineContextData?.categories || {};
+			const category = Object.values( cats ).find(
+				( cat ) => cat.id === note.inline_context_category[ 0 ]
+			);
+			if ( category ) {
+				setCategoryId( category.slug );
+			}
+		}
+
+		setShowNoteSearch( false );
+	}, [] );
+
+	const handleCreateNewNote = useCallback( () => {
+		setNoteId( null );
+		setText( '' );
+		setShowNoteSearch( false );
+	}, [] );
 
 	const handleClose = useCallback( () => {
 		setIsOpen( false );
@@ -260,100 +461,165 @@ export default function Edit( { isActive, value, onChange } ) {
 							) : null }
 						</div>
 
-						<CategorySelector
-							value={ categoryId }
-							onChange={ setCategoryId }
-							categories={ categories }
-						/>
+						{ showNoteSearch ? (
+							<>
+								<NoteSearch
+									onSelectNote={ handleSelectNote }
+									onCreateNew={ handleCreateNewNote }
+								/>
 
-						<QuillEditor
-							value={ text }
-							onChange={ setText }
-							isSourceMode={ isSourceMode }
-							onSourceModeToggle={ setIsSourceMode }
-							quillRef={ quillRef }
-							sourceTextareaRef={ sourceTextareaRef }
-							onKeyDownCapture={ handleEditorKeyDownCapture }
-							isOpen={ isOpen }
-						/>
-
-						<LinkControl
-							isVisible={ showLinkInput }
-							linkUrl={ linkUrl }
-							linkText={ linkText }
-							onUrlChange={ setLinkUrl }
-							onTextChange={ setLinkText }
-							onInsert={ insertLink }
-							onCancel={ handleCancelLink }
-							urlInputRef={ urlInputRef }
-							linkTextInputRef={ linkTextInputRef }
-							insertButtonRef={ insertLinkButtonRef }
-							cancelButtonRef={ linkCancelButtonRef }
-							onKeyDown={ handleActionButtonsKeyDown }
-						/>
-
-						<div className="wp-reveal-quill-actions">
-							<Button
-								ref={ addLinkButtonRef }
-								variant="secondary"
-								size="small"
-								onClick={ () =>
-									setShowLinkInput( ! showLinkInput )
-								}
-								onKeyDown={ ( e ) =>
-									handleActionButtonsKeyDown(
-										e,
-										addLinkButtonRef
-									)
-								}
-							>
-								{ showLinkInput
-									? __( 'Hide Link Form', 'inline-context' )
-									: __( 'Add Link', 'inline-context' ) }
-							</Button>
-
-							{ activeFormat?.attributes?.[
-								'data-anchor-id'
-							] && (
-								<Button
-									ref={ copyLinkButtonRef }
-									variant="link"
-									size="small"
-									onClick={ handleCopyLink }
-									disabled={ copyLinkStatus === 'copying' }
-									onKeyDown={ ( e ) =>
-										handleActionButtonsKeyDown(
-											e,
-											copyLinkButtonRef
-										)
-									}
+								<div
+									className="wp-reveal-quill-actions"
 									style={ {
-										marginLeft: '8px',
-										textDecoration:
-											copyLinkStatus === 'idle'
-												? 'underline'
-												: 'none',
+										marginTop: '12px',
+										paddingTop: '12px',
+										borderTop: '1px solid #ddd',
 									} }
 								>
-									{ copyLinkStatus === 'copied' &&
-										__( 'Link copied', 'inline-context' ) }
-									{ copyLinkStatus === 'copying' &&
-										__( 'Copying…', 'inline-context' ) }
-									{ copyLinkStatus === 'idle' &&
-										__(
-											'Copy link to this note',
+									<Button
+										variant="link"
+										size="small"
+										onClick={ () =>
+											setShowNoteSearch( false )
+										}
+									>
+										{ __(
+											'← Create new note instead',
 											'inline-context'
 										) }
-								</Button>
-							) }
-						</div>
+									</Button>
+								</div>
+							</>
+						) : (
+							<>
+								<CategorySelector
+									value={ categoryId }
+									onChange={ setCategoryId }
+									categories={ categories }
+								/>
 
-						<div className="wp-reveal-quill-help">
-							{ __(
-								'Use the toolbar to format your inline context with bold, italic, links, and lists. Use "Add Link" for WordPress internal links, or click the code icon (&lt;/&gt;) to edit HTML source.',
-								'inline-context'
-							) }
-						</div>
+								<QuillEditor
+									value={ text }
+									onChange={ setText }
+									isSourceMode={ isSourceMode }
+									onSourceModeToggle={ setIsSourceMode }
+									quillRef={ quillRef }
+									sourceTextareaRef={ sourceTextareaRef }
+									onKeyDownCapture={
+										handleEditorKeyDownCapture
+									}
+									isOpen={ isOpen }
+								/>
+
+								<LinkControl
+									isVisible={ showLinkInput }
+									linkUrl={ linkUrl }
+									linkText={ linkText }
+									onUrlChange={ setLinkUrl }
+									onTextChange={ setLinkText }
+									onInsert={ insertLink }
+									onCancel={ handleCancelLink }
+									urlInputRef={ urlInputRef }
+									linkTextInputRef={ linkTextInputRef }
+									insertButtonRef={ insertLinkButtonRef }
+									cancelButtonRef={ linkCancelButtonRef }
+									onKeyDown={ handleActionButtonsKeyDown }
+								/>
+
+								<div className="wp-reveal-quill-actions">
+									<Button
+										ref={ addLinkButtonRef }
+										variant="secondary"
+										size="small"
+										onClick={ () =>
+											setShowLinkInput( ! showLinkInput )
+										}
+										onKeyDown={ ( e ) =>
+											handleActionButtonsKeyDown(
+												e,
+												addLinkButtonRef
+											)
+										}
+									>
+										{ showLinkInput
+											? __(
+													'Hide Link Form',
+													'inline-context'
+											  )
+											: __(
+													'Add Link',
+													'inline-context'
+											  ) }
+									</Button>
+
+									{ activeFormat?.attributes?.[
+										'data-anchor-id'
+									] && (
+										<Button
+											ref={ copyLinkButtonRef }
+											variant="link"
+											size="small"
+											onClick={ handleCopyLink }
+											disabled={
+												copyLinkStatus === 'copying'
+											}
+											onKeyDown={ ( e ) =>
+												handleActionButtonsKeyDown(
+													e,
+													copyLinkButtonRef
+												)
+											}
+											style={ {
+												marginLeft: '8px',
+												textDecoration:
+													copyLinkStatus === 'idle'
+														? 'underline'
+														: 'none',
+											} }
+										>
+											{ copyLinkStatus === 'copied' &&
+												__(
+													'Link copied',
+													'inline-context'
+												) }
+											{ copyLinkStatus === 'copying' &&
+												__(
+													'Copying…',
+													'inline-context'
+												) }
+											{ copyLinkStatus === 'idle' &&
+												__(
+													'Copy link to this note',
+													'inline-context'
+												) }
+										</Button>
+									) }
+								</div>
+
+								<div className="wp-reveal-quill-help">
+									{ __(
+										'Use the toolbar to format your inline context with bold, italic, links, and lists. Use "Add Link" for WordPress internal links, or click the code icon (&lt;/&gt;) to edit HTML source.',
+										'inline-context'
+									) }
+									<Button
+										variant="link"
+										size="small"
+										onClick={ () =>
+											setShowNoteSearch( true )
+										}
+										style={ {
+											marginLeft: '8px',
+											textDecoration: 'underline',
+										} }
+									>
+										{ __(
+											'Or search existing notes…',
+											'inline-context'
+										) }
+									</Button>
+								</div>
+							</>
+						) }
 					</div>
 
 					<PopoverActions

@@ -2,16 +2,53 @@
 
 ## Architecture Overview
 
-This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expandable context functionality with direct anchor linking. The plugin extends the WordPress block editor toolbar rather than creating a standalone block.
+This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expandable context functionality with direct anchor linking and reusable notes via Custom Post Type. The plugin extends the WordPress block editor toolbar rather than creating a standalone block.
 
 ### Key Components
 
 - **Rich Text Format Registration** (`src/index.js`): Registers `jooplaan/inline-context` format type with WordPress
-- **Editor Interface** (`src/edit.js`): React component with ReactQuill rich text editor and popover interface
+- **Editor Interface** (`src/edit.js`): React component with tabbed interface (Create/Search), QuillEditor, and category selector
+- **Note Search Component** (`src/components/NoteSearch.js`): Live search interface for finding existing CPT notes
+- **QuillEditor Component** (`src/components/QuillEditor.js`): Rich text editor with keyboard navigation
+- **CPT Editor Enhancement** (`src/cpt-editor.js`): QuillEditor integration for inline_context_note CPT edit screen
 - **Frontend Interaction** (`src/frontend.js`): Vanilla JS with DOMPurify for secure HTML rendering and anchor navigation
-- **Asset Management** (`inline-context.php`): WordPress coding standards compliant PHP with proper asset enqueuing
+- **Asset Management** (`inline-context.php`): WordPress coding standards compliant PHP with CPT registration, REST API, and asset enqueuing
+- **Uninstall System** (`uninstall.php`): Comprehensive cleanup with content removal options
 
 ## Development Patterns
+
+### Custom Post Type Architecture (v1.5.0)
+
+The plugin uses a **dual-storage approach** combining CPT management with cached content for performance:
+
+**Custom Post Type: `inline_context_note`**
+- Title: Note identifier/name for searching
+- Content: Rich text note content (ReactQuill HTML)
+- Taxonomy: `inline_context_category` (replaces old meta-based categories)
+- Meta fields:
+  - `is_reusable`: Boolean flag (default: false)
+  - `used_in_posts`: Array of post IDs using this note
+  - `usage_count`: Number of times used
+
+**Data Storage Strategy:**
+```html
+<a class="wp-inline-context" 
+   data-note-id="123"
+   data-inline-context="<p>Cached HTML content</p>"
+   data-anchor-id="context-note-abc"
+   href="#context-note-abc">link text</a>
+```
+
+- `data-note-id`: CPT post ID (enables reusability)
+- `data-inline-context`: Cached HTML content (frontend performance)
+- `data-anchor-id`: Unique anchor for direct linking
+- `href`: Proper anchor link for accessibility
+
+**Why Dual Storage?**
+1. **Performance**: Frontend uses cached `data-inline-context` (zero database queries)
+2. **Reusability**: CPT enables search, tracking, and centralized management
+3. **Backward Compatibility**: Notes without `data-note-id` still work
+4. **Graceful Degradation**: If CPT is deleted, cached content remains functional
 
 ### WordPress Rich Text Format Structure
 
@@ -32,11 +69,62 @@ registerFormatType('jooplaan/inline-context', {
 
 ### State Management Pattern
 
-- Uses React `useState` for popover visibility and ReactQuill content
+- Uses React `useState` for popover visibility, tab mode (Create/Search), and QuillEditor content
 - Leverages WordPress `toggleFormat` API for applying/removing formatting
 - Finds active format from `value.activeFormats` array to populate existing content
 - Generates unique anchor IDs using timestamp + random for new content
 - Preserves existing anchor IDs when editing
+- **v1.5.0**: Tracks CPT note ID via `data-note-id` attribute for reusability
+- **v1.5.0**: Caches note content in `data-inline-context` for frontend performance
+
+### Editor Popover Interface (v1.5.0)
+
+The editor popover has two tabbed modes:
+
+**Create Tab:**
+- QuillEditor for rich text input
+- Category selector dropdown
+- Creates new CPT note on save
+- Caches content in `data-inline-context`
+- Assigns `data-note-id` from created CPT post
+
+**Search Tab:**
+- Live search input (queries CPT by title via REST API)
+- Displays results with title and excerpt
+- Click to select existing note
+- Loads CPT content into cache
+- Reuses existing `data-note-id`
+
+### REST API Endpoints (v1.5.0)
+
+**`/wp-json/inline-context/v1/notes/search`**
+- Method: GET
+- Params: `s` (search term)
+- Returns: Array of notes with ID, title, content, excerpt
+
+**`/wp-json/inline-context/v1/notes/{id}/track-usage`**
+- Method: POST
+- Params: `post_id` (current post ID)
+- Updates: `used_in_posts` array and `usage_count`
+- Non-blocking: Failures don't prevent saving
+
+### CPT List View Enhancements (v1.5.0)
+
+**Custom Columns:**
+- **Title**: Default WordPress column
+- **Reusable**: "Yes" or "No" (from `is_reusable` meta)
+- **Usage Count**: Number from `usage_count` meta (sortable)
+- **Used In**: Linked list of posts using this note
+
+**Custom Filter:**
+- Dropdown: "All Notes" / "Reusable Notes Only"
+- Filters by `is_reusable` meta value
+
+**Delete Protection:**
+- Warning in post list bulk/quick actions
+- Warning in trash/delete links
+- Warning on single post delete screen
+- Shows which posts will be affected
 
 ### Frontend Interaction Pattern
 
@@ -131,6 +219,34 @@ add_action('wp_enqueue_scripts', function() {
 ## Internationalization
 
 Uses WordPress i18n functions: `__('Text', 'inline-context')` with 'inline-context' text domain.
+
+## Uninstall System (v1.5.0)
+
+### Content Cleanup Strategy
+
+The plugin provides comprehensive cleanup via `uninstall.php`:
+
+**CPT Deletion:**
+- Deletes all `inline_context_note` CPT posts
+- Removes associated taxonomy terms (`inline_context_category`)
+- Cleans up post meta (`is_reusable`, `used_in_posts`, `usage_count`)
+
+**Content Removal (Optional):**
+- Option: Remove inline context links from all posts/pages
+- Replaces `<a class="wp-inline-context">` with plain text
+- Uses DOMDocument to safely parse and modify HTML
+- Preserves link text, removes all data attributes
+- Handles edge cases (malformed HTML, empty content)
+
+**Settings Cleanup:**
+- Removes all plugin options from database
+- Cleans up transients and cached data
+
+**Safety Features:**
+- Warning message before uninstall
+- Non-blocking cleanup (failures logged, not thrown)
+- Batch processing for large sites
+- Respects WordPress multisite boundaries
 
 ## Version 1.0 Architecture Decisions
 

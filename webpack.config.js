@@ -6,6 +6,7 @@ module.exports = {
 	entry: {
 		index: path.resolve( process.cwd(), 'src', 'index.js' ),
 		frontend: path.resolve( process.cwd(), 'src', 'frontend.js' ),
+		'cpt-editor': path.resolve( process.cwd(), 'src', 'cpt-editor.js' ),
 	},
 	// Performance: Suppress size warnings for editor bundle
 	// The index.js bundle (~245 KB) includes ReactQuill, which is necessary for rich text editing.

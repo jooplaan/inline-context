@@ -21,7 +21,7 @@ export default function CategorySelector( { value, onChange, categories } ) {
 				},
 				...Object.values( categories ).map( ( cat ) => ( {
 					label: cat.name,
-					value: cat.id,
+					value: cat.slug,
 				} ) ),
 			] }
 			onChange={ onChange }
