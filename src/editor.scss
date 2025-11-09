@@ -163,7 +163,8 @@
 	color: #d4d4d4;
 	border-radius: 4px;
 	padding: 12px;
-	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro',
+		monospace;
 	font-size: 12px;
 	line-height: 1.5;
 	overflow-x: auto;
@@ -229,7 +230,8 @@
 	border: 1px solid #8c8f94;
 	border-top: none;
 	border-radius: 0 0 2px 2px;
-	font-family: Monaco, Menlo, 'Ubuntu Mono', Consolas, 'Courier New', monospace;
+	font-family: Monaco, Menlo, 'Ubuntu Mono', Consolas, 'Courier New',
+		monospace;
 	font-size: 13px;
 	line-height: 1.6;
 	background-color: #1e1e1e;
@@ -266,4 +268,77 @@
 .wp-inline-context::after {
 	content: '\00A0'; // + existing icon content
 	white-space: nowrap;
+}
+
+/* Note Search Component Styles */
+.wp-inline-context-note-search {
+	margin: 12px 0;
+}
+
+.wp-inline-context-note-search-header {
+	margin-bottom: 12px;
+}
+
+.wp-inline-context-note-results {
+	max-height: 300px;
+	overflow-y: auto;
+	border: 1px solid #e0e0e0;
+	border-radius: 4px;
+	padding: 8px;
+	background-color: #f9f9f9;
+}
+
+.wp-inline-context-note-loading,
+.wp-inline-context-note-empty {
+	padding: 24px;
+	text-align: center;
+	color: #757575;
+	font-style: italic;
+}
+
+.wp-inline-context-note-loading {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+}
+
+.wp-inline-context-note-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.wp-inline-context-note-list li {
+	border-bottom: 1px solid #e0e0e0;
+
+	&:last-child {
+		border-bottom: none;
+	}
+}
+
+.wp-inline-context-note-item {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	padding: 12px;
+	width: 100%;
+	text-align: left;
+	text-decoration: none;
+
+	&:hover {
+		background-color: #f0f0f0;
+	}
+
+	strong {
+		font-size: 13px;
+		color: #1e1e1e;
+		margin-bottom: 4px;
+	}
+}
+
+.wp-inline-context-note-excerpt {
+	font-size: 12px;
+	color: #757575;
+	line-height: 1.4;
 }

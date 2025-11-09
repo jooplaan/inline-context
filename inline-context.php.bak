@@ -3,7 +3,7 @@
  * Plugin Name: Inline Context
  * Plugin URI: https://wordpress.org/plugins/inline-context/
  * Description: Add inline expandable context to selected text in the block editor with direct anchor linking. Click to reveal, click again to hide.
- * Version: 1.5.0
+ * Version: 1.4.1
  * Author: Joop Laan
  * Author URI: https://profiles.wordpress.org/joop/
  * License: GPL-2.0-or-later
@@ -19,7 +19,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'INLINE_CONTEXT_VERSION', '1.5.0' );
+define( 'INLINE_CONTEXT_VERSION', '1.4.0' );
 
 // Load common functions available on both frontend and admin.
 require_once __DIR__ . '/inline-context-common.php';
@@ -92,7 +92,7 @@ add_action(
 		register_post_type(
 			'inline_context_note',
 			array(
-				'labels'          => array(
+				'labels'       => array(
 					'name'          => __( 'Inline Notes', 'inline-context' ),
 					'singular_name' => __( 'Note', 'inline-context' ),
 					'add_new'       => __( 'Add New Note', 'inline-context' ),
@@ -103,15 +103,15 @@ add_action(
 					'search_items'  => __( 'Search Notes', 'inline-context' ),
 					'not_found'     => __( 'No notes found', 'inline-context' ),
 				),
-				'public'          => false,
-				'show_ui'         => true,
-				'show_in_menu'    => true,
-				'supports'        => array( 'title', 'editor', 'revisions' ), // Need 'editor' for REST API content field.
-				'taxonomies'      => array( 'inline_context_category' ),
-				'show_in_rest'    => true, // Keep for REST API access.
-				'menu_icon'       => 'dashicons-info',
+				'public'       => false,
+				'show_ui'      => true,
+				'show_in_menu' => true,
+				'supports'     => array( 'title', 'editor', 'revisions' ), // Need 'editor' for REST API content field.
+				'taxonomies'   => array( 'inline_context_category' ),
+				'show_in_rest' => true, // Keep for REST API access.
+				'menu_icon'    => 'dashicons-info',
 				'capability_type' => 'post',
-				'map_meta_cap'    => true,
+				'map_meta_cap' => true,
 			)
 		);
 
@@ -142,9 +142,8 @@ add_filter(
 		foreach ( $columns as $key => $value ) {
 			$new_columns[ $key ] = $value;
 			if ( 'title' === $key ) {
-				$new_columns['reusable']    = __( 'Marked as reusable', 'inline-context' );
 				$new_columns['usage_count'] = __( 'Usage Count', 'inline-context' );
-				$new_columns['used_in']     = __( 'Used In', 'inline-context' );
+				$new_columns['used_in']      = __( 'Used In', 'inline-context' );
 			}
 		}
 		return $new_columns;
@@ -158,12 +157,6 @@ add_action(
 	'manage_inline_context_note_posts_custom_column',
 	function ( $column, $post_id ) {
 		switch ( $column ) {
-			case 'reusable':
-				$is_reusable = (bool) get_post_meta( $post_id, 'is_reusable', true );
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped by esc_html__().
-				echo $is_reusable ? esc_html__( 'Yes', 'inline-context' ) : esc_html__( 'No', 'inline-context' );
-				break;
-
 			case 'usage_count':
 				$usage_count = (int) get_post_meta( $post_id, 'usage_count', true );
 				echo esc_html( $usage_count );
@@ -307,6 +300,396 @@ add_filter(
 );
 
 /**
+ * Add reusable indicator to post title
+ */
+add_filter(
+	'the_title',
+	function ( $title, $post_id ) {
+		global $pagenow;
+
+		// Only on the edit.php admin page for our CPT.
+		if ( ! is_admin() || 'edit.php' !== $pagenow ) {
+			return $title;
+		}
+
+		$post = get_post( $post_id );
+		if ( ! $post || 'inline_context_note' !== $post->post_type ) {
+			return $title;
+		}
+
+		$is_reusable = (bool) get_post_meta( $post_id, 'is_reusable', true );
+		if ( $is_reusable ) {
+			$title .= ' <span style="color: #2271b1; font-size: 0.9em; margin-left: 5px;" title="' . esc_attr__( 'Marked as reusable', 'inline-context' ) . '">♻️</span>';
+		}
+
+		return $title;
+	},
+	10,
+	2
+);
+
+/**
+ * Add custom meta box for QuillEditor content
+ */
+add_action(
+	'add_meta_boxes',
+	function () {
+		// Remove the default editor.
+		remove_post_type_support( 'inline_context_note', 'editor' );
+		$action = sanitize_text_field( wp_unslash( $_POST['action'] ) );
+		$notes  = array_map( 'intval', (array) $_POST['notes'] );
+
+		if ( 'delete' === $action ) {
+			$deleted_count = 0;
+			$in_use_count  = 0;
+
+			foreach ( $notes as $note_id ) {
+				$usage_count = (int) get_post_meta( $note_id, 'usage_count', true );
+
+				// Always delete, but track if they were in use.
+				if ( $usage_count > 0 ) {
+					$in_use_count++;
+				}
+
+				wp_delete_post( $note_id, true );
+				$deleted_count++;
+			}
+
+			$message = sprintf(
+				/* translators: %d: number of notes deleted */
+				_n( '%d note deleted.', '%d notes deleted.', $deleted_count, 'inline-context' ),
+				$deleted_count
+			);
+
+			if ( $in_use_count > 0 ) {
+				$message .= ' ' . sprintf(
+					/* translators: %d: number of notes that were in use */
+					_n( '%d of them was in use in posts.', '%d of them were in use in posts.', $in_use_count, 'inline-context' ),
+					$in_use_count
+				);
+			}
+
+			echo '<div class="notice notice-success"><p>' . esc_html( $message ) . '</p></div>';
+		} elseif ( 'change_category' === $action && isset( $_POST['new_category'] ) ) {
+			$category_id = intval( $_POST['new_category'] );
+			foreach ( $notes as $note_id ) {
+				if ( $category_id > 0 ) {
+					wp_set_post_terms( $note_id, array( $category_id ), 'inline_context_category', false );
+				} else {
+					wp_set_post_terms( $note_id, array(), 'inline_context_category', false );
+				}
+			}
+			echo '<div class="notice notice-success"><p>' . esc_html__( 'Category updated for selected notes.', 'inline-context' ) . '</p></div>';
+		}
+	}
+
+	// Get filter parameters.
+	$search_query = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+	$category_filter = isset( $_GET['category'] ) ? intval( $_GET['category'] ) : 0;
+	$paged = isset( $_GET['paged'] ) ? intval( $_GET['paged'] ) : 1;
+
+	// Build query args.
+	$args = array(
+		'post_type'      => 'inline_context_note',
+		'posts_per_page' => 20,
+		'paged'          => $paged,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+	);
+
+	if ( $search_query ) {
+		$args['s'] = $search_query;
+	}
+
+	if ( $category_filter > 0 ) {
+		$args['tax_query'] = array(
+			array(
+				'taxonomy' => 'inline_context_category',
+				'field'    => 'term_id',
+				'terms'    => $category_filter,
+			),
+		);
+	}
+
+	$notes_query = new WP_Query( $args );
+
+	// Get all categories for filter dropdown.
+	$categories = get_terms(
+		array(
+			'taxonomy'   => 'inline_context_category',
+			'hide_empty' => false,
+		)
+	);
+
+	?>
+	<div class="wrap">
+		<h1 class="wp-heading-inline"><?php esc_html_e( 'Notes Library', 'inline-context' ); ?></h1>
+		<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=inline_context_note' ) ); ?>" class="page-title-action">
+			<?php esc_html_e( 'Add New', 'inline-context' ); ?>
+		</a>
+		<hr class="wp-header-end">
+
+		<!-- Search and Filter -->
+		<div class="tablenav top">
+			<form method="get" action="">
+				<input type="hidden" name="post_type" value="inline_context_note">
+				<input type="hidden" name="page" value="inline-context-notes-library">
+
+				<div class="alignleft actions">
+					<label class="screen-reader-text" for="category-filter"><?php esc_html_e( 'Filter by category', 'inline-context' ); ?></label>
+					<select name="category" id="category-filter">
+						<option value="0"><?php esc_html_e( 'All Categories', 'inline-context' ); ?></option>
+						<?php if ( ! is_wp_error( $categories ) && ! empty( $categories ) ) : ?>
+							<?php foreach ( $categories as $category ) : ?>
+								<option value="<?php echo esc_attr( $category->term_id ); ?>" <?php selected( $category_filter, $category->term_id ); ?>>
+									<?php echo esc_html( $category->name ); ?>
+								</option>
+							<?php endforeach; ?>
+						<?php endif; ?>
+					</select>
+					<input type="submit" class="button" value="<?php esc_attr_e( 'Filter', 'inline-context' ); ?>">
+				</div>
+
+				<div class="alignleft actions">
+					<label class="screen-reader-text" for="search-input"><?php esc_html_e( 'Search notes', 'inline-context' ); ?></label>
+					<input type="search" id="search-input" name="s" value="<?php echo esc_attr( $search_query ); ?>" placeholder="<?php esc_attr_e( 'Search notes...', 'inline-context' ); ?>">
+					<input type="submit" class="button" value="<?php esc_attr_e( 'Search', 'inline-context' ); ?>">
+				</div>
+			</form>
+		</div>
+
+		<!-- Bulk Actions Form -->
+		<form method="post" action="">
+			<?php wp_nonce_field( 'bulk-notes' ); ?>
+
+			<div class="tablenav top">
+				<div class="alignleft actions bulkactions">
+					<label for="bulk-action-selector-top" class="screen-reader-text"><?php esc_html_e( 'Select bulk action', 'inline-context' ); ?></label>
+					<select name="action" id="bulk-action-selector-top">
+						<option value="-1"><?php esc_html_e( 'Bulk Actions', 'inline-context' ); ?></option>
+						<option value="delete"><?php esc_html_e( 'Delete', 'inline-context' ); ?></option>
+						<option value="change_category"><?php esc_html_e( 'Change Category', 'inline-context' ); ?></option>
+					</select>
+
+					<select name="new_category" id="new-category-selector" style="display:none;">
+						<option value="0"><?php esc_html_e( 'No category', 'inline-context' ); ?></option>
+						<?php if ( ! is_wp_error( $categories ) && ! empty( $categories ) ) : ?>
+							<?php foreach ( $categories as $category ) : ?>
+								<option value="<?php echo esc_attr( $category->term_id ); ?>">
+									<?php echo esc_html( $category->name ); ?>
+								</option>
+							<?php endforeach; ?>
+						<?php endif; ?>
+					</select>
+
+					<input type="submit" class="button action" value="<?php esc_attr_e( 'Apply', 'inline-context' ); ?>">
+				</div>
+			</div>
+
+			<!-- Notes Table -->
+			<table class="wp-list-table widefat fixed striped table-view-list">
+				<thead>
+					<tr>
+						<td class="manage-column column-cb check-column">
+							<input type="checkbox" id="cb-select-all">
+						</td>
+						<th scope="col" class="manage-column column-title column-primary"><?php esc_html_e( 'Title', 'inline-context' ); ?></th>
+						<th scope="col" class="manage-column"><?php esc_html_e( 'Category', 'inline-context' ); ?></th>
+						<th scope="col" class="manage-column"><?php esc_html_e( 'Usage Count', 'inline-context' ); ?></th>
+						<th scope="col" class="manage-column"><?php esc_html_e( 'Used In', 'inline-context' ); ?></th>
+						<th scope="col" class="manage-column"><?php esc_html_e( 'Date', 'inline-context' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php if ( $notes_query->have_posts() ) : ?>
+						<?php while ( $notes_query->have_posts() ) : ?>
+							<?php
+							$notes_query->the_post();
+							$note_id       = get_the_ID();
+							$usage_count   = get_post_meta( $note_id, 'usage_count', true ) ?: 0;
+							$used_in       = get_post_meta( $note_id, 'used_in_posts', true ) ?: array();
+							$is_reusable   = (bool) get_post_meta( $note_id, 'is_reusable', true );
+							$note_cats     = wp_get_post_terms( $note_id, 'inline_context_category' );
+							$category_name = ! empty( $note_cats ) && ! is_wp_error( $note_cats ) ? $note_cats[0]->name : '—';
+							?>
+							<tr>
+								<th scope="row" class="check-column">
+									<input type="checkbox" name="notes[]" value="<?php echo esc_attr( $note_id ); ?>">
+								</th>
+								<td class="title column-title column-primary" data-colname="<?php esc_attr_e( 'Title', 'inline-context' ); ?>">
+									<strong>
+										<a href="<?php echo esc_url( get_edit_post_link( $note_id ) ); ?>">
+											<?php echo esc_html( get_the_title() ); ?>
+										</a>
+										<?php if ( $is_reusable ) : ?>
+											<span style="color: #2271b1; font-size: 0.9em; margin-left: 5px;" title="<?php esc_attr_e( 'Marked as reusable', 'inline-context' ); ?>">♻️</span>
+										<?php endif; ?>
+									</strong>
+									<div class="row-actions">
+										<span class="edit">
+											<a href="<?php echo esc_url( get_edit_post_link( $note_id ) ); ?>">
+												<?php esc_html_e( 'Edit', 'inline-context' ); ?>
+											</a>
+										</span>
+										|
+										<span class="trash">
+											<a href="<?php echo esc_url( get_delete_post_link( $note_id ) ); ?>" class="submitdelete">
+												<?php esc_html_e( 'Delete', 'inline-context' ); ?>
+											</a>
+										</span>
+									</div>
+								</td>
+								<td data-colname="<?php esc_attr_e( 'Category', 'inline-context' ); ?>">
+									<?php echo esc_html( $category_name ); ?>
+								</td>
+								<td data-colname="<?php esc_attr_e( 'Usage Count', 'inline-context' ); ?>">
+									<?php echo esc_html( $usage_count ); ?>
+								</td>
+								<td data-colname="<?php esc_attr_e( 'Used In', 'inline-context' ); ?>">
+									<?php if ( ! empty( $used_in ) ) : ?>
+										<?php
+										$post_links = array();
+										foreach ( array_slice( $used_in, 0, 3 ) as $post_id ) {
+											$post = get_post( $post_id );
+											if ( $post ) {
+												$post_links[] = '<a href="' . esc_url( get_edit_post_link( $post_id ) ) . '">' . esc_html( get_the_title( $post_id ) ) . '</a>';
+											}
+										}
+										echo wp_kses_post( implode( ', ', $post_links ) );
+										if ( count( $used_in ) > 3 ) {
+											echo ' <span style="color: #666;">(' . esc_html( sprintf( __( '+%d more', 'inline-context' ), count( $used_in ) - 3 ) ) . ')</span>';
+										}
+										?>
+									<?php else : ?>
+										—
+									<?php endif; ?>
+								</td>
+								<td data-colname="<?php esc_attr_e( 'Date', 'inline-context' ); ?>">
+									<?php echo esc_html( get_the_date() ); ?>
+								</td>
+							</tr>
+						<?php endwhile; ?>
+						<?php wp_reset_postdata(); ?>
+					<?php else : ?>
+						<tr>
+							<td colspan="6" style="text-align: center; padding: 20px;">
+								<?php esc_html_e( 'No notes found.', 'inline-context' ); ?>
+							</td>
+						</tr>
+					<?php endif; ?>
+				</tbody>
+			</table>
+
+			<!-- Pagination -->
+			<?php if ( $notes_query->max_num_pages > 1 ) : ?>
+				<div class="tablenav bottom">
+					<div class="tablenav-pages">
+						<?php
+						$page_links = paginate_links(
+							array(
+								'base'      => add_query_arg( 'paged', '%#%' ),
+								'format'    => '',
+								'prev_text' => __( '&laquo;', 'inline-context' ),
+								'next_text' => __( '&raquo;', 'inline-context' ),
+								'total'     => $notes_query->max_num_pages,
+								'current'   => $paged,
+							)
+						);
+						echo wp_kses_post( $page_links );
+						?>
+					</div>
+				</div>
+			<?php endif; ?>
+		</form>
+
+		<!-- JavaScript for bulk actions -->
+		<script>
+		jQuery(document).ready(function($) {
+			// Store usage data for each note
+			var noteUsage = {};
+			<?php
+			// Output usage data for JavaScript
+			if ( $notes_query->have_posts() ) {
+				$notes_query->rewind_posts();
+				while ( $notes_query->have_posts() ) {
+					$notes_query->the_post();
+					$note_id = get_the_ID();
+					$usage   = (int) get_post_meta( $note_id, 'usage_count', true );
+					if ( $usage > 0 ) {
+						echo 'noteUsage[' . esc_js( $note_id ) . '] = ' . esc_js( $usage ) . ';' . "\n";
+					}
+				}
+				wp_reset_postdata();
+			}
+			?>
+
+			// Show category selector when "Change Category" is selected
+			$('#bulk-action-selector-top').on('change', function() {
+				if ($(this).val() === 'change_category') {
+					$('#new-category-selector').show();
+				} else {
+					$('#new-category-selector').hide();
+				}
+			});
+
+			// Select all checkboxes
+			$('#cb-select-all').on('click', function() {
+				$('input[name="notes[]"]').prop('checked', this.checked);
+			});
+
+			// Confirm bulk delete
+			$('form').on('submit', function(e) {
+				var action = $('#bulk-action-selector-top').val();
+				if (action === 'delete') {
+					var checkedNotes = $('input[name="notes[]"]:checked');
+					var inUseCount = 0;
+					var totalCount = checkedNotes.length;
+
+					checkedNotes.each(function() {
+						var noteId = $(this).val();
+						if (noteUsage[noteId] && noteUsage[noteId] > 0) {
+							inUseCount++;
+						}
+					});
+
+					if (totalCount > 0) {
+						var message = 'Are you sure you want to delete ' + totalCount + ' note(s)?';
+						if (inUseCount > 0) {
+							message += '\n\n' + inUseCount + ' of them ' + (inUseCount === 1 ? 'is' : 'are') + ' currently in use in posts.';
+						}
+						if (!confirm(message)) {
+							e.preventDefault();
+							return false;
+						}
+					}
+				}
+			});
+
+			// Confirm individual delete (trash link)
+			$('a.submitdelete').on('click', function(e) {
+				var row = $(this).closest('tr');
+				var checkbox = row.find('input[name="notes[]"]');
+				if (checkbox.length) {
+					var noteId = checkbox.val();
+					var usage = noteUsage[noteId];
+
+					if (usage && usage > 0) {
+						var message = 'This note is currently used in ' + usage + ' post(s). Are you sure you want to delete it?\n\n';
+						message += 'Deleting will not remove it from the post(s), but the note will no longer appear in search results.';
+						if (!confirm(message)) {
+							e.preventDefault();
+							return false;
+						}
+					}
+				}
+			});
+		});
+		</script>
+	</div>
+	<?php
+}
+
+/**
  * Add custom meta box for QuillEditor content
  */
 add_action(
@@ -343,7 +726,7 @@ add_action(
 			__( 'Note Category', 'inline-context' ),
 			function ( $post ) {
 				// Get current category.
-				$terms           = wp_get_post_terms( $post->ID, 'inline_context_category' );
+				$terms          = wp_get_post_terms( $post->ID, 'inline_context_category' );
 				$current_term_id = ! empty( $terms ) && ! is_wp_error( $terms ) ? $terms[0]->term_id : 0;
 
 				// Get all categories.

@@ -30,17 +30,6 @@ add_action( 'admin_menu', 'inline_context_add_settings_page' );
  * Register settings
  */
 function inline_context_register_settings() {
-	// Register categories setting.
-	register_setting(
-		'inline_context_categories_settings',
-		'inline_context_categories',
-		array(
-			'type'              => 'array',
-			'sanitize_callback' => 'inline_context_sanitize_categories',
-			'default'           => inline_context_get_default_categories(),
-		)
-	);
-
 	// Register CSS variables setting.
 	register_setting(
 		'inline_context_styling_settings',
@@ -52,12 +41,15 @@ function inline_context_register_settings() {
 		)
 	);
 
-	// Categories tab section.
-	add_settings_section(
-		'inline_context_categories_section',
-		__( 'Note Categories', 'inline-context' ),
-		'inline_context_categories_section_callback',
-		'inline-context-settings-categories'
+	// Register uninstall setting.
+	register_setting(
+		'inline_context_uninstall_settings',
+		'inline_context_cleanup_on_uninstall',
+		array(
+			'type'              => 'boolean',
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'default'           => false,
+		)
 	);
 
 	// Styling tab sections.
@@ -309,523 +301,6 @@ function inline_context_sanitize_css_variables( $input ) {
 }
 
 /**
- * Sanitize categories
- *
- * @param array $input The input array of categories to sanitize.
- * @return array The sanitized categories.
- */
-function inline_context_sanitize_categories( $input ) {
-	if ( ! is_array( $input ) ) {
-		return inline_context_get_default_categories();
-	}
-
-	$sanitized = array();
-
-	foreach ( $input as $id => $category ) {
-		if ( ! is_array( $category ) ) {
-			continue;
-		}
-
-		$sanitized_id               = sanitize_key( $id );
-		$sanitized[ $sanitized_id ] = array(
-			'id'          => $sanitized_id,
-			'name'        => isset( $category['name'] ) ? sanitize_text_field( $category['name'] ) : '',
-			'icon_closed' => isset( $category['icon_closed'] ) ? sanitize_text_field( $category['icon_closed'] ) : 'dashicons-admin-links',
-			'icon_open'   => isset( $category['icon_open'] ) ? sanitize_text_field( $category['icon_open'] ) : 'dashicons-admin-links',
-			'color'       => isset( $category['color'] ) ? sanitize_hex_color( $category['color'] ) : '#2271b1',
-		);
-	}
-
-	return ! empty( $sanitized ) ? $sanitized : inline_context_get_default_categories();
-}
-
-/**
- * Section callbacks
- */
-
-/**
- * Categories section callback
- */
-function inline_context_categories_section_callback() {
-	?>
-	<p><?php esc_html_e( 'Define categories for your inline context notes. Each category can have distinct icons for closed and open states.', 'inline-context' ); ?></p>
-	<div class="notice notice-info inline">
-		<p>
-			<strong><?php esc_html_e( 'How to use icons:', 'inline-context' ); ?></strong><br>
-			<?php
-			printf(
-				/* translators: 1: Opening link tag to Dashicons, 2: Closing link tag */
-				esc_html__( 'Use WordPress %1$sDashicons%2$s class names (e.g., %3$s, %4$s, %5$s). Click the icon button next to each field to browse 30 commonly used icons, or type any dashicon class name directly for access to all 300+ icons.', 'inline-context' ),
-				'<a href="https://developer.wordpress.org/resource/dashicons/" target="_blank" rel="noopener noreferrer">',
-				'</a>',
-				'<code>dashicons-book</code>',
-				'<code>dashicons-external</code>',
-				'<code>dashicons-lightbulb</code>'
-			);
-			?>
-		</p>
-		<p>
-			<strong><?php esc_html_e( 'Icon picker shows:', 'inline-context' ); ?></strong>
-			<?php esc_html_e( 'Links, books, lightbulb, info, warning, help, location, flag, documents, portfolio, analytics, charts, stars, sticky, edit, money, calendar, arrows, download, share, tag, and category icons.', 'inline-context' ); ?>
-		</p>
-	</div>
-	<div id="inline-context-categories-editor">
-		<?php inline_context_render_categories_editor(); ?>
-	</div>
-	<?php
-}
-
-/**
- * Render categories editor
- */
-function inline_context_render_categories_editor() {
-	$categories = inline_context_get_categories();
-
-	// Enqueue Dashicons for icon preview.
-	wp_enqueue_style( 'dashicons' );
-
-	// Common Dashicons for inline context use.
-	$common_icons = array(
-		'dashicons-admin-links',
-		'dashicons-external',
-		'dashicons-book',
-		'dashicons-book-alt',
-		'dashicons-lightbulb',
-		'dashicons-info',
-		'dashicons-warning',
-		'dashicons-editor-help',
-		'dashicons-location',
-		'dashicons-location-alt',
-		'dashicons-flag',
-		'dashicons-media-document',
-		'dashicons-media-text',
-		'dashicons-portfolio',
-		'dashicons-analytics',
-		'dashicons-chart-area',
-		'dashicons-chart-bar',
-		'dashicons-star-filled',
-		'dashicons-star-empty',
-		'dashicons-sticky',
-		'dashicons-edit',
-		'dashicons-money',
-		'dashicons-calendar',
-		'dashicons-arrow-right-alt',
-		'dashicons-arrow-down-alt',
-		'dashicons-download',
-		'dashicons-share',
-		'dashicons-tag',
-		'dashicons-category',
-	);
-	?>
-	<style>
-		.category-item {
-			background: #fff;
-			border: 1px solid #ccd0d4;
-			padding: 15px;
-			margin-bottom: 10px;
-			border-radius: 4px;
-		}
-		.category-item h4 {
-			margin-top: 0;
-			display: flex;
-			align-items: center;
-			gap: 10px;
-		}
-		.category-fields {
-			display: grid;
-			grid-template-columns: 2fr 2fr 2fr 1fr;
-			gap: 15px;
-			margin: 10px 0;
-		}
-		.category-field label {
-			display: block;
-			margin-bottom: 5px;
-			font-weight: 600;
-		}
-		.category-field input[type="text"],
-		.category-field input[type="color"] {
-			width: 100%;
-		}
-		.category-icon-preview {
-			width: 20px;
-			height: 20px;
-		}
-		.category-actions {
-			margin-top: 10px;
-		}
-		.icon-field-wrapper {
-			position: relative;
-		}
-		.icon-picker-button {
-			margin-top: 5px;
-			display: inline-flex;
-			align-items: center;
-			gap: 5px;
-		}
-		.icon-picker-modal {
-			display: none;
-			position: fixed;
-			z-index: 100000;
-			left: 0;
-			top: 0;
-			width: 100%;
-			height: 100%;
-			background-color: rgba(0,0,0,0.5);
-		}
-		.icon-picker-modal.active {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-		}
-		.icon-picker-content {
-			background-color: #fff;
-			padding: 20px;
-			border-radius: 8px;
-			max-width: 600px;
-			max-height: 80vh;
-			overflow-y: auto;
-			box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-		}
-		.icon-picker-header {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			margin-bottom: 15px;
-			padding-bottom: 10px;
-			border-bottom: 1px solid #ddd;
-		}
-		.icon-picker-grid {
-			display: grid;
-			grid-template-columns: repeat(8, 1fr);
-			gap: 10px;
-		}
-		.icon-picker-item {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			padding: 10px;
-			border: 2px solid #ddd;
-			border-radius: 4px;
-			cursor: pointer;
-			transition: all 0.2s;
-		}
-		.icon-picker-item:hover {
-			border-color: #2271b1;
-			background-color: #f0f6fc;
-		}
-		.icon-picker-item .dashicons {
-			font-size: 20px;
-		}
-		.add-category-btn {
-			margin-top: 15px;
-		}
-	</style>
-
-	<div class="categories-list">
-		<?php foreach ( $categories as $id => $category ) : ?>
-			<div class="category-item" data-category-id="<?php echo esc_attr( $id ); ?>">
-				<h4>
-					<span class="dashicons <?php echo esc_attr( $category['icon_closed'] ); ?> category-icon-preview" style="color: <?php echo esc_attr( $category['color'] ); ?>;"></span>
-					<?php echo esc_html( $category['name'] ); ?>
-				</h4>
-				<div class="category-fields">
-					<div class="category-field">
-						<label><?php esc_html_e( 'Category Name', 'inline-context' ); ?></label>
-						<input type="text"
-							name="inline_context_categories[<?php echo esc_attr( $id ); ?>][name]"
-							value="<?php echo esc_attr( $category['name'] ); ?>"
-							required />
-					</div>
-					<div class="category-field">
-						<label><?php esc_html_e( 'Icon (Closed)', 'inline-context' ); ?></label>
-						<div class="icon-field-wrapper">
-							<input type="text"
-								class="icon-input"
-								name="inline_context_categories[<?php echo esc_attr( $id ); ?>][icon_closed]"
-								value="<?php echo esc_attr( $category['icon_closed'] ); ?>"
-								placeholder="dashicons-admin-links" />
-							<button type="button" class="button button-small icon-picker-button" data-target="icon_closed_<?php echo esc_attr( $id ); ?>">
-								<span class="dashicons dashicons-art"></span>
-								<?php esc_html_e( 'Choose Icon', 'inline-context' ); ?>
-							</button>
-						</div>
-					</div>
-					<div class="category-field">
-						<label><?php esc_html_e( 'Icon (Open)', 'inline-context' ); ?></label>
-						<div class="icon-field-wrapper">
-							<input type="text"
-								class="icon-input"
-								name="inline_context_categories[<?php echo esc_attr( $id ); ?>][icon_open]"
-								value="<?php echo esc_attr( $category['icon_open'] ); ?>"
-								placeholder="dashicons-book-alt" />
-							<button type="button" class="button button-small icon-picker-button" data-target="icon_open_<?php echo esc_attr( $id ); ?>">
-								<span class="dashicons dashicons-art"></span>
-								<?php esc_html_e( 'Choose Icon', 'inline-context' ); ?>
-							</button>
-						</div>
-					</div>
-					<div class="category-field">
-						<label><?php esc_html_e( 'Color', 'inline-context' ); ?></label>
-						<input type="color"
-							name="inline_context_categories[<?php echo esc_attr( $id ); ?>][color]"
-							value="<?php echo esc_attr( $category['color'] ); ?>" />
-					</div>
-				</div>
-				<input type="hidden"
-					name="inline_context_categories[<?php echo esc_attr( $id ); ?>][id]"
-					value="<?php echo esc_attr( $id ); ?>" />
-				<div class="category-actions">
-					<button type="button" class="button button-secondary button-small delete-category" data-category-id="<?php echo esc_attr( $id ); ?>">
-						<?php esc_html_e( 'Delete Category', 'inline-context' ); ?>
-					</button>
-				</div>
-			</div>
-		<?php endforeach; ?>
-	</div>
-
-	<button type="button" class="button button-secondary add-category-btn" id="add-new-category">
-		<?php esc_html_e( '+ Add New Category', 'inline-context' ); ?>
-	</button>
-
-	<!-- Icon Picker Modal -->
-	<div id="icon-picker-modal" class="icon-picker-modal" role="dialog" aria-modal="true" aria-labelledby="icon-picker-title">
-		<div class="icon-picker-content">
-			<div class="icon-picker-header">
-				<h3 id="icon-picker-title"><?php esc_html_e( 'Choose an Icon', 'inline-context' ); ?></h3>
-				<button type="button" class="button" id="close-icon-picker" aria-label="<?php esc_attr_e( 'Close icon picker', 'inline-context' ); ?>">
-					<span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
-				</button>
-			</div>
-			<div class="icon-picker-grid" role="list">
-				<?php foreach ( $common_icons as $icon_class ) : ?>
-					<button type="button" class="icon-picker-item" data-icon="<?php echo esc_attr( $icon_class ); ?>" role="listitem" aria-label="<?php echo esc_attr( str_replace( array( 'dashicons-', '-' ), array( '', ' ' ), $icon_class ) ); ?>">
-						<span class="dashicons <?php echo esc_attr( $icon_class ); ?>" aria-hidden="true"></span>
-					</button>
-				<?php endforeach; ?>
-			</div>
-		</div>
-	</div>
-
-	<script>
-		(function() {
-			let categoryCounter = <?php echo count( $categories ); ?>;
-			let currentTargetInput = null;
-			let focusedElementBeforeModal = null;
-
-			// Icon picker functionality
-			const modal = document.getElementById('icon-picker-modal');
-			const closeBtn = document.getElementById('close-icon-picker');
-			const iconPickerContent = modal.querySelector('.icon-picker-content');
-			const iconItems = modal.querySelectorAll('.icon-picker-item');
-			const firstIconItem = iconItems[0];
-			const lastIconItem = iconItems[iconItems.length - 1];
-
-			// Get all focusable elements in modal
-			function getFocusableElements() {
-				return modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-			}
-
-			// Open icon picker
-			document.addEventListener('click', function(e) {
-				if (e.target.closest('.icon-picker-button')) {
-					e.preventDefault();
-					const button = e.target.closest('.icon-picker-button');
-					const wrapper = button.closest('.icon-field-wrapper');
-					currentTargetInput = wrapper.querySelector('.icon-input');
-
-					// Store currently focused element
-					focusedElementBeforeModal = document.activeElement;
-
-					// Open modal
-					modal.classList.add('active');
-
-					// Focus on close button when modal opens
-					setTimeout(() => {
-						closeBtn.focus();
-					}, 100);
-				}
-			});
-
-			// Close icon picker function
-			function closeModal() {
-				modal.classList.remove('active');
-				currentTargetInput = null;
-
-				// Restore focus to the button that opened the modal
-				if (focusedElementBeforeModal) {
-					focusedElementBeforeModal.focus();
-					focusedElementBeforeModal = null;
-				}
-			}
-
-			// Close button click
-			closeBtn.addEventListener('click', function() {
-				closeModal();
-			});
-
-			// Close on outside click
-			modal.addEventListener('click', function(e) {
-				if (e.target === modal) {
-					closeModal();
-				}
-			});
-
-			// Close on Escape key
-			modal.addEventListener('keydown', function(e) {
-				if (e.key === 'Escape' || e.key === 'Esc') {
-					closeModal();
-				}
-			});
-
-			// Trap focus within modal
-			modal.addEventListener('keydown', function(e) {
-				if (e.key !== 'Tab') return;
-
-				const focusableElements = getFocusableElements();
-				const firstElement = focusableElements[0];
-				const lastElement = focusableElements[focusableElements.length - 1];
-
-				if (e.shiftKey) {
-					// Shift + Tab
-					if (document.activeElement === firstElement) {
-						e.preventDefault();
-						lastElement.focus();
-					}
-				} else {
-					// Tab
-					if (document.activeElement === lastElement) {
-						e.preventDefault();
-						firstElement.focus();
-					}
-				}
-			});
-
-			// Select icon with click or keyboard
-			iconItems.forEach(function(item) {
-				item.addEventListener('click', function() {
-					selectIcon(this.dataset.icon);
-				});
-			});
-
-			function selectIcon(iconClass) {
-				if (currentTargetInput) {
-					currentTargetInput.value = iconClass;
-					// Update preview in category header if visible
-					const categoryItem = currentTargetInput.closest('.category-item');
-					if (categoryItem) {
-						const preview = categoryItem.querySelector('.category-icon-preview');
-						if (preview) {
-							preview.className = 'dashicons ' + iconClass + ' category-icon-preview';
-						}
-					}
-				}
-				closeModal();
-			}
-
-			// Add new category
-			document.getElementById('add-new-category').addEventListener('click', function() {
-				const newId = 'category-' + Date.now();
-				const newCategoryHtml = `
-					<div class="category-item" data-category-id="${newId}">
-						<h4>
-							<span class="dashicons dashicons-admin-links category-icon-preview" style="color: #2271b1;"></span>
-							<?php echo esc_js( __( 'New Category', 'inline-context' ) ); ?>
-						</h4>
-						<div class="category-fields">
-							<div class="category-field">
-								<label><?php echo esc_js( __( 'Category Name', 'inline-context' ) ); ?></label>
-								<input type="text"
-									name="inline_context_categories[${newId}][name]"
-									value="<?php echo esc_js( __( 'New Category', 'inline-context' ) ); ?>"
-									required />
-							</div>
-							<div class="category-field">
-								<label><?php echo esc_js( __( 'Icon (Closed)', 'inline-context' ) ); ?></label>
-								<input type="text"
-									name="inline_context_categories[${newId}][icon_closed]"
-									value="dashicons-admin-links"
-									placeholder="dashicons-admin-links" />
-								<div class="dashicons-examples">
-									<?php
-									echo wp_kses(
-										__(
-											'Examples: <code>dashicons-book</code>, <code>dashicons-external</code>, <code>dashicons-lightbulb</code>',
-											'inline-context'
-										),
-										array(
-											'code' => array(),
-										)
-									);
-									?>
-								</div>
-							</div>
-							<div class="category-field">
-								<label><?php echo esc_js( __( 'Icon (Open)', 'inline-context' ) ); ?></label>
-								<input type="text"
-									name="inline_context_categories[${newId}][icon_open]"
-									value="dashicons-admin-links"
-									placeholder="dashicons-book-alt" />
-								<div class="dashicons-examples">
-									<?php
-									echo wp_kses(
-										__(
-											'See <a href="https://developer.wordpress.org/resource/dashicons/" target="_blank">all dashicons</a>',
-											'inline-context'
-										),
-										array(
-											'a' => array(
-												'href'   => array(),
-												'target' => array(),
-											),
-										)
-									);
-									?>
-								</div>
-							</div>
-							<div class="category-field">
-								<label><?php echo esc_js( __( 'Color', 'inline-context' ) ); ?></label>
-								<input type="color"
-									name="inline_context_categories[${newId}][color]"
-									value="#2271b1" />
-							</div>
-						</div>
-						<input type="hidden" name="inline_context_categories[${newId}][id]" value="${newId}" />
-						<div class="category-actions">
-							<button type="button" class="button button-secondary button-small delete-category" data-category-id="${newId}">
-								<?php echo esc_js( __( 'Delete Category', 'inline-context' ) ); ?>
-							</button>
-						</div>
-					</div>
-				`;
-
-				document.querySelector('.categories-list').insertAdjacentHTML('beforeend', newCategoryHtml);
-				categoryCounter++;
-				attachDeleteListeners();
-			});
-
-			// Delete category
-			function attachDeleteListeners() {
-				document.querySelectorAll('.delete-category').forEach(function(btn) {
-					btn.replaceWith(btn.cloneNode(true)); // Remove old listeners
-				});
-
-				document.querySelectorAll('.delete-category').forEach(function(btn) {
-					btn.addEventListener('click', function() {
-						if (confirm('<?php echo esc_js( __( 'Are you sure you want to delete this category?', 'inline-context' ) ); ?>')) {
-							const categoryItem = this.closest('.category-item');
-							categoryItem.remove();
-						}
-					});
-				});
-			}
-
-			attachDeleteListeners();
-		})();
-	</script>
-	<?php
-}
-
-/**
  * Section callbacks
  */
 
@@ -902,27 +377,14 @@ function inline_context_render_settings_page() {
 
 	// Define tabs.
 	$tabs = array(
-		'categories' => __( 'Categories', 'inline-context' ),
-		'styling'    => __( 'Styling', 'inline-context' ),
+		'styling'   => __( 'Styling', 'inline-context' ),
+		'uninstall' => __( 'Uninstall', 'inline-context' ),
 	);
 
 	// Get current tab.
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WordPress handles nonce for settings page.
-	$tab_param   = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'categories';
-	$current_tab = isset( $tabs[ $tab_param ] ) ? $tab_param : 'categories';
-
-	// Handle reset for current tab.
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WordPress handles nonce for settings page.
-	$reset_param = isset( $_GET['reset'] ) ? sanitize_key( wp_unslash( $_GET['reset'] ) ) : '';
-	if ( '1' === $reset_param ) {
-		if ( 'categories' === $current_tab ) {
-			update_option( 'inline_context_categories', inline_context_get_default_categories() );
-		} elseif ( 'styling' === $current_tab ) {
-			update_option( 'inline_context_css_variables', inline_context_get_default_css_variables() );
-		}
-		wp_safe_redirect( admin_url( 'options-general.php?page=inline-context-settings&tab=' . $current_tab ) );
-		exit;
-	}
+	$tab_param   = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'styling';
+	$current_tab = isset( $tabs[ $tab_param ] ) ? $tab_param : 'styling';
 
 	// WordPress Settings API automatically shows success message, no need to add it manually.
 	settings_errors( 'inline_context_messages' );
@@ -951,35 +413,7 @@ function inline_context_render_settings_page() {
 			?>
 		</nav>
 
-		<?php if ( 'categories' === $current_tab ) : ?>
-			<p><?php esc_html_e( 'Manage categories for your inline context notes. Each category can have its own icon and color.', 'inline-context' ); ?></p>
-
-			<form action="options.php" method="post">
-				<?php
-				settings_fields( 'inline_context_categories_settings' );
-				do_settings_sections( 'inline-context-settings-categories' );
-				?>
-
-				<p class="submit">
-					<input type="submit" name="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 'inline-context' ); ?>">
-					<a href="
-					<?php
-					echo esc_url(
-						add_query_arg(
-							array(
-								'reset' => '1',
-								'tab'   => 'categories',
-							)
-						)
-					);
-					?>
-								" class="button" onclick="return confirm('<?php esc_attr_e( 'Are you sure you want to reset categories to defaults?', 'inline-context' ); ?>');">
-						<?php esc_html_e( 'Reset to Defaults', 'inline-context' ); ?>
-					</a>
-				</p>
-			</form>
-
-		<?php elseif ( 'styling' === $current_tab ) : ?>
+		<?php if ( 'styling' === $current_tab ) : ?>
 			<p><?php esc_html_e( 'Customize the appearance of inline context notes using CSS custom properties. Changes will affect all notes on your site.', 'inline-context' ); ?></p>
 
 			<form action="options.php" method="post">
@@ -988,31 +422,17 @@ function inline_context_render_settings_page() {
 				do_settings_sections( 'inline-context-settings-styling' );
 				?>
 
-				<p class="submit">
-					<input type="submit" name="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 'inline-context' ); ?>">
-					<a href="
-					<?php
-					echo esc_url(
-						add_query_arg(
-							array(
-								'reset' => '1',
-								'tab'   => 'styling',
-							)
-						)
-					);
-					?>
-								" class="button" onclick="return confirm('<?php esc_attr_e( 'Are you sure you want to reset styling to defaults?', 'inline-context' ); ?>');">
-						<?php esc_html_e( 'Reset to Defaults', 'inline-context' ); ?>
-					</a>
-				</p>
-			</form>
+			<p class="submit">
+				<input type="submit" name="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 'inline-context' ); ?>">
+			</p>
+		</form>
 
-			<hr>
+		<hr>
 
-			<h2><?php esc_html_e( 'Live Preview', 'inline-context' ); ?></h2>
-			<p><?php esc_html_e( 'See how your styling looks in action. Hover over the link and click it to reveal the note.', 'inline-context' ); ?></p>
+		<h2><?php esc_html_e( 'Live Preview', 'inline-context' ); ?></h2>
+		<p><?php esc_html_e( 'See how your styling looks in action. Hover over the link and click it to reveal the note.', 'inline-context' ); ?></p>
 
-			<div id="inline-context-preview-area" style="padding: 30px; background: #fff; border: 1px solid #ccd0d4; border-radius: 4px; margin-top: 10px; box-shadow: 0 1px 1px rgba(0,0,0,0.04);">
+		<div id="inline-context-preview-area" style="padding: 30px; background: #fff; border: 1px solid #ccd0d4; border-radius: 4px; margin-top: 10px; box-shadow: 0 1px 1px rgba(0,0,0,0.04);">
 				<h3 style="margin-top: 0; color: #1d2327;"><?php esc_html_e( 'Example Article', 'inline-context' ); ?></h3>
 				<p style="line-height: 1.6; color: #2c3338;">
 					<?php esc_html_e( 'WordPress is a popular content management system. You can add', 'inline-context' ); ?>
@@ -1109,19 +529,149 @@ function inline_context_render_settings_page() {
 					margin-bottom: 0;
 				}
 
-				#inline-context-preview-area .wp-inline-context-inline a {
-					color: var(--wp--custom--inline-context--note--link-color, #2271b1);
-					text-decoration: var(--wp--custom--inline-context--note--link-underline, underline);
-				}
-			</style>
-		<?php endif; ?>
+			#inline-context-preview-area .wp-inline-context-inline a {
+				color: var(--wp--custom--inline-context--note--link-color, #2271b1);
+				text-decoration: var(--wp--custom--inline-context--note--link-underline, underline);
+			}
+		</style>
+
+	<?php elseif ( 'uninstall' === $current_tab ) : ?>
+		<?php inline_context_render_uninstall_tab(); ?>
+	<?php endif; ?>
 	</div>
 	<?php
-}
+}/**
+  * Render the Uninstall tab content
+  */
+function inline_context_render_uninstall_tab() {
+	// Count posts with inline context links.
+	global $wpdb;
+	$posts_with_links = $wpdb->get_var(
+		"SELECT COUNT(DISTINCT ID)
+		FROM {$wpdb->posts}
+		WHERE post_content LIKE '%data-inline-context%'
+		AND post_status != 'trash'"
+	);
 
-/**
- * Handle reset request
- */
-function inline_context_handle_reset() {
-	// Reset is now handled within each page's render function.
+	// Count total notes.
+	$notes_count = wp_count_posts( 'inline_context_note' );
+	$total_notes = $notes_count->publish + $notes_count->draft + $notes_count->pending + $notes_count->private;
+
+	$cleanup_content = get_option( 'inline_context_cleanup_on_uninstall', false );
+	?>
+
+	<div class="notice notice-warning">
+		<p>
+			<strong><?php esc_html_e( 'Important:', 'inline-context' ); ?></strong>
+			<?php esc_html_e( 'These settings determine what happens when you delete this plugin from WordPress.', 'inline-context' ); ?>
+		</p>
+	</div>
+
+	<form action="options.php" method="post">
+		<?php settings_fields( 'inline_context_uninstall_settings' ); ?>
+
+		<table class="form-table" role="presentation">
+			<tbody>
+				<tr>
+					<th scope="row">
+						<?php esc_html_e( 'Current Usage', 'inline-context' ); ?>
+					</th>
+					<td>
+						<p>
+							<strong><?php echo esc_html( number_format_i18n( $total_notes ) ); ?></strong>
+							<?php echo esc_html( _n( 'note', 'notes', $total_notes, 'inline-context' ) ); ?>
+						</p>
+						<p>
+							<strong><?php echo esc_html( number_format_i18n( $posts_with_links ) ); ?></strong>
+							<?php echo esc_html( _n( 'post with inline context links', 'posts with inline context links', $posts_with_links, 'inline-context' ) ); ?>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<?php esc_html_e( 'When Plugin is Deleted', 'inline-context' ); ?>
+					</th>
+					<td>
+						<p><?php esc_html_e( 'The following will always be removed:', 'inline-context' ); ?></p>
+						<ul style="list-style: disc; margin-left: 25px;">
+							<li><?php esc_html_e( 'All stored notes (Custom Post Type data)', 'inline-context' ); ?></li>
+							<li><?php esc_html_e( 'All note categories', 'inline-context' ); ?></li>
+							<li><?php esc_html_e( 'Plugin settings and options', 'inline-context' ); ?></li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<label for="inline_context_cleanup_on_uninstall">
+							<?php esc_html_e( 'Clean Up Post Content', 'inline-context' ); ?>
+						</label>
+					</th>
+					<td>
+						<fieldset>
+							<label>
+								<input type="checkbox"
+									name="inline_context_cleanup_on_uninstall"
+									id="inline_context_cleanup_on_uninstall"
+									value="1"
+									<?php checked( $cleanup_content, true ); ?>>
+								<?php esc_html_e( 'Remove inline context links from post content', 'inline-context' ); ?>
+							</label>
+							<p class="description">
+								<?php
+								esc_html_e(
+									'If checked, when the plugin is deleted, all inline context links will be converted to plain text in your posts. The link text will remain, but the expandable functionality will be removed.',
+									'inline-context'
+								);
+								?>
+							</p>
+							<?php if ( $posts_with_links > 0 ) : ?>
+								<p class="description" style="color: #d63638;">
+									<strong><?php esc_html_e( 'Warning:', 'inline-context' ); ?></strong>
+									<?php
+									printf(
+										/* translators: %s: number of posts */
+										esc_html(
+											_n(
+												'This will modify %s post in your database.',
+												'This will modify %s posts in your database.',
+												$posts_with_links,
+												'inline-context'
+											)
+										),
+										'<strong>' . esc_html( number_format_i18n( $posts_with_links ) ) . '</strong>'
+									);
+									?>
+								</p>
+							<?php endif; ?>
+							<p class="description">
+								<?php esc_html_e( 'If unchecked, the links will remain in your content but will no longer be functional since the plugin code will be removed.', 'inline-context' ); ?>
+							</p>
+						</fieldset>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<p class="submit">
+			<input type="submit" name="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Uninstall Settings', 'inline-context' ); ?>">
+		</p>
+	</form>
+
+	<hr>
+
+	<h2><?php esc_html_e( 'How Uninstall Works', 'inline-context' ); ?></h2>
+	<ol>
+		<li><?php esc_html_e( 'Configure the settings above to choose whether to clean up post content.', 'inline-context' ); ?></li>
+		<li><?php esc_html_e( 'Deactivate the plugin (Plugins → Deactivate).', 'inline-context' ); ?></li>
+		<li><?php esc_html_e( 'Delete the plugin (Plugins → Delete).', 'inline-context' ); ?></li>
+		<li><?php esc_html_e( 'WordPress will automatically run the cleanup based on your settings above.', 'inline-context' ); ?></li>
+	</ol>
+
+	<div class="notice notice-info inline" style="margin-top: 20px;">
+		<p>
+			<strong><?php esc_html_e( 'Recommendation:', 'inline-context' ); ?></strong>
+			<?php esc_html_e( 'Before deleting the plugin, we recommend exporting your content as a backup. Go to Tools → Export in your WordPress admin.', 'inline-context' ); ?>
+		</p>
+	</div>
+	<?php
 }
