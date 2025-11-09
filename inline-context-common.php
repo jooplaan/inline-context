@@ -46,13 +46,35 @@ function inline_context_get_default_categories() {
 }
 
 /**
- * Get categories (default or custom).
+ * Get categories (from taxonomy).
  *
  * @return array Categories.
  */
 function inline_context_get_categories() {
-	$categories = get_option( 'inline_context_categories', inline_context_get_default_categories() );
-	return is_array( $categories ) ? $categories : inline_context_get_default_categories();
+	$terms = get_terms(
+		array(
+			'taxonomy'   => 'inline_context_category',
+			'hide_empty' => false,
+		)
+	);
+
+	if ( is_wp_error( $terms ) || empty( $terms ) ) {
+		return array();
+	}
+
+	$categories = array();
+	foreach ( $terms as $term ) {
+		$categories[ $term->slug ] = array(
+			'id'          => $term->term_id,
+			'slug'        => $term->slug,
+			'name'        => $term->name,
+			'icon_closed' => get_term_meta( $term->term_id, 'icon_closed', true ) ?: 'dashicons-info',
+			'icon_open'   => get_term_meta( $term->term_id, 'icon_open', true ) ?: 'dashicons-info',
+			'color'       => get_term_meta( $term->term_id, 'color', true ) ?: '#2271b1',
+		);
+	}
+
+	return $categories;
 }
 
 /**

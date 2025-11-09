@@ -96,18 +96,57 @@ Alternative display style as hoverable tooltips:
 
 **Benefits**: Many users expect tooltip-style functionality. Provides cleaner design for certain use cases.
 
-### 4. Context Library (Global/Reusable Notes via CPT)
-**Impact**: High | **Effort**: High
+### 4. Auto-Sync for Reusable Notes (Phase 3)
+**Impact**: High | **Effort**: Medium
 
-Create a "Context Library" of reusable notes powered by a dedicated Custom Post Type (CPT).
-- **Centralized Management**: Manage all reusable notes from a single "Context Library" screen in the WP admin.
-- **Custom Post Type**: Store notes in a dedicated `inline_context` CPT for robustness and compatibility.
-- **Insert from Library**: Insert existing notes from the library via a searchable dropdown in the editor popover.
-- **Update Once, Reflect Everywhere**: Edit a note in the library, and the changes automatically apply to all instances.
-- **Track Usage**: See which posts and pages use a specific note.
-- **Import/Export**: Allow bulk import/export of notes via CSV or JSON for easy migration and backup.
+Automatic synchronization when reusable notes are updated:
+- Hook into CPT save to update all posts using it
+- Background job to prevent timeout on high-usage notes
+- Option: "Update on save" vs "Manual refresh"
+- Bulk refresh tool in admin
 
-**Benefits**: Transforms the plugin into a powerful knowledge management tool. Huge time-saver for repeated information (product specs, author bios, legal disclaimers).
+**Benefits**: Completes the "edit once, update everywhere" vision. Currently notes use cached content for performance.
+
+## ✅ Completed in v1.5.0
+
+### Context Library (Notes as Custom Post Type) ✓
+**Status**: SHIPPED in v1.5.0
+
+Implemented complete reusable notes system powered by Custom Post Type:
+
+**Phase 1: Basic CPT Infrastructure** ✓
+- ✅ Custom Post Type (`inline_context_note`) with title and rich content
+- ✅ Category Taxonomy (`inline_context_category`) replacing meta-based system
+- ✅ Editor popup with live search (AJAX query CPT by title)
+- ✅ Two modes: Create new note / Select existing note
+- ✅ Dual data storage: `data-note-id` + cached `data-inline-context`
+- ✅ Frontend uses cached content (zero performance penalty)
+- ✅ Usage tracking via REST API (non-blocking)
+- ✅ Backward compatible (existing notes continue working)
+
+**Phase 2: Reusability Features** ✓
+- ✅ CPT Post Meta: `used_in_posts`, `is_reusable`, `usage_count`
+- ✅ Enhanced CPT list view with custom columns
+  - ✅ Reusable column (Yes/No instead of emoji)
+  - ✅ Usage Count column (sortable)
+  - ✅ Used In column (linked posts)
+- ✅ Filter dropdown for reusable notes
+- ✅ Delete warnings in 3 locations (post list, quick edit, single post delete)
+- ✅ QuillEditor component integration
+- ✅ Comprehensive uninstall system with content cleanup
+
+**Benefits Delivered:**
+- ✅ True reusability (edit once, update everywhere via cached content)
+- ✅ Built-in WordPress features (search, revisions, taxonomy)
+- ✅ Scalable (handles thousands of notes)
+- ✅ No frontend performance penalty
+- ✅ Graceful degradation (works even if CPT deleted)
+
+**Future Enhancements (Phase 3):**
+- Auto-Update System: Background job to refresh cached content in all posts
+- Advanced Search: Filter by content, category, usage count
+- Import/Export: Bulk operations via CSV/JSON
+- Version History UI: Compare and restore with usage updates
 
 ## Medium Priority Features
 
