@@ -878,6 +878,21 @@ add_action(
 );
 
 /**
+ * Add is_reusable field to REST API response for inline_context_note
+ */
+add_filter(
+	'rest_prepare_inline_context_note',
+	function ( $response, $post, $request ) {
+		$data = $response->get_data();
+		$data['is_reusable'] = (bool) get_post_meta( $post->ID, 'is_reusable', true );
+		$response->set_data( $data );
+		return $response;
+	},
+	10,
+	3
+);
+
+/**
  * Register REST API endpoint for searching notes
  */
 add_action(
