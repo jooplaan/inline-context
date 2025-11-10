@@ -106,7 +106,7 @@ add_action(
 				'public'          => false,
 				'show_ui'         => true,
 				'show_in_menu'    => true,
-				'supports'        => array( 'title', 'editor', 'revisions' ), // Need 'editor' for REST API content field.
+				'supports'        => array( 'title', 'editor', 'revisions', 'custom-fields' ), // Need 'editor' for REST API content field.
 				'taxonomies'      => array( 'inline_context_category' ),
 				'show_in_rest'    => true, // Keep for REST API access.
 				'menu_icon'       => 'dashicons-info',
@@ -725,6 +725,8 @@ add_action(
 
 			$category_id = intval( $_POST['inline_context_category_id'] );
 
+			error_log( 'Save handler: Setting category to ' . $category_id . ' for post ' . $post_id );
+
 			if ( $category_id > 0 ) {
 				// Set single category.
 				wp_set_post_terms( $post_id, array( $category_id ), 'inline_context_category', false );
@@ -732,6 +734,8 @@ add_action(
 				// Remove all categories.
 				wp_set_post_terms( $post_id, array(), 'inline_context_category', false );
 			}
+			
+			error_log( 'Save handler: wp_set_post_terms completed' );
 		}
 
 		// Save the "is_reusable" flag (verify nonce).
@@ -889,6 +893,316 @@ add_filter(
 		return $response;
 	},
 	10,
+	3
+);
+
+/**
+ * Update all instances of a reusable note when it's updated
+ */
+add_action(
+	'post_updated',
+	function ( $post_id, $post_after, $post_before ) {
+		// Static variable to track if we're already processing this post (avoid infinite loops).
+		static $processing = array();
+		
+		if ( isset( $processing[ $post_id ] ) ) {
+			return;
+		}
+		
+		// Only process inline_context_note CPT.
+		if ( 'inline_context_note' !== get_post_type( $post_id ) ) {
+			return;
+		}
+
+		// Skip if this is an autosave or revision.
+		if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
+			return;
+		}
+
+		// Only process if the note is marked as reusable.
+		$is_reusable = get_post_meta( $post_id, 'is_reusable', true );
+		if ( ! $is_reusable ) {
+			return;
+		}
+
+		// Check if content changed.
+		$content_changed = $post_before->post_content !== $post_after->post_content;
+		
+		// Don't check category here - it's not saved yet during post_updated.
+		// Category sync will be handled by save_post hook which runs later.
+		
+		// Debug logging.
+		error_log( 'Inline Context Sync - Post ID: ' . $post_id );
+		error_log( 'Content changed: ' . ( $content_changed ? 'yes' : 'no' ) );
+
+		// Only update if content changed.
+		if ( ! $content_changed ) {
+			error_log( 'No content changes detected, exiting' );
+			return;
+		}
+
+		// Get the list of posts using this note.
+		$used_in_posts = get_post_meta( $post_id, 'used_in_posts', true );
+		if ( empty( $used_in_posts ) || ! is_array( $used_in_posts ) ) {
+			return;
+		}
+
+		// Mark as processing.
+		$processing[ $post_id ] = true;
+
+		// Get the updated content.
+		$updated_content = $post_after->post_content;
+
+		// Update each post that uses this note.
+		foreach ( $used_in_posts as $using_post_id ) {
+			// Get the post.
+			$using_post = get_post( $using_post_id );
+			if ( ! $using_post || 'publish' !== $using_post->post_status ) {
+				continue;
+			}
+
+			// Update all instances of this note in the post content.
+			$post_content = $using_post->post_content;
+
+			if ( empty( $post_content ) ) {
+				continue;
+			}
+
+			// Find all anchor tags with this note ID and update content only.
+			$pattern = '/<a\s+([^>]*?)data-note-id="' . preg_quote( $post_id, '/' ) . '"([^>]*?)>/i';
+			
+			$updated_html = preg_replace_callback(
+				$pattern,
+				function ( $matches ) use ( $updated_content ) {
+					$tag = $matches[0];
+					
+					// Update data-inline-context attribute.
+					$tag = preg_replace(
+						'/data-inline-context="[^"]*"/',
+						'data-inline-context="' . esc_attr( $updated_content ) . '"',
+						$tag
+					);
+					
+					return $tag;
+				},
+				$post_content,
+				-1,
+				$count
+			);
+
+			// Save the updated post if changes were made.
+			if ( $count > 0 && $updated_html !== $post_content ) {
+				wp_update_post(
+					array(
+						'ID'           => $using_post_id,
+						'post_content' => $updated_html,
+					)
+				);
+			}
+		}
+		
+		// Unmark as processing.
+		unset( $processing[ $post_id ] );
+	},
+	10,
+	3
+);
+
+/**
+ * Track category changes by comparing before/after
+ * Captures category from $_POST since wp_set_post_terms hasn't run yet
+ */
+add_action(
+	'edit_post',
+	function ( $post_id ) {
+		// Only track inline_context_note CPT.
+		if ( 'inline_context_note' !== get_post_type( $post_id ) ) {
+			return;
+		}
+		
+		// Store what category is being SUBMITTED (from $_POST), not what's in the DB.
+		$submitted_category = null;
+		if ( isset( $_POST['inline_context_category_nonce_field'] ) &&
+			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['inline_context_category_nonce_field'] ) ), 'inline_context_category_nonce' ) &&
+			isset( $_POST['inline_context_category_id'] ) ) {
+			
+			$submitted_category = intval( $_POST['inline_context_category_id'] );
+		}
+		
+		// Store both the current DB state AND what's being submitted.
+		$current_terms = wp_get_object_terms( $post_id, 'inline_context_category', array( 'fields' => 'ids' ) );
+		if ( ! is_wp_error( $current_terms ) ) {
+			set_transient(
+				'inline_context_pre_terms_' . $post_id,
+				array(
+					'old_terms' => $current_terms,
+					'new_category' => $submitted_category,
+				),
+				60
+			);
+			error_log( 'edit_post: Stored pre-update terms for post ' . $post_id . ': ' . print_r( $current_terms, true ) );
+			error_log( 'edit_post: Submitted category: ' . ( $submitted_category !== null ? $submitted_category : 'NULL' ) );
+		}
+	},
+	1
+);
+
+/**
+ * Detect category changes and trigger sync AFTER taxonomies are saved
+ * Using saved_{taxonomy} hook which fires after term relationships are saved
+ */
+add_action(
+	'saved_inline_context_category',
+	function ( $term_id, $tt_id, $update, $args ) {
+		error_log( 'saved_inline_context_category fired for term_id: ' . $term_id . ', tt_id: ' . $tt_id );
+		
+		// Get all posts with this term.
+		$posts_with_term = get_posts(
+			array(
+				'post_type'      => 'inline_context_note',
+				'posts_per_page' => -1,
+				'tax_query'      => array(
+					array(
+						'taxonomy' => 'inline_context_category',
+						'field'    => 'term_id',
+						'terms'    => $term_id,
+					),
+				),
+				'fields'         => 'ids',
+			)
+		);
+		
+		error_log( 'Posts with this term: ' . print_r( $posts_with_term, true ) );
+	},
+	10,
+	4
+);
+
+/**
+ * Alternative: Use save_post hook with late priority to catch taxonomy changes
+ */
+add_action(
+	'save_post_inline_context_note',
+	function ( $post_id, $post, $update ) {
+		// Skip autosave.
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+		
+		// Only for updates, not new posts.
+		if ( ! $update ) {
+			return;
+		}
+		
+		// Check if this is a reusable note.
+		$is_reusable = get_post_meta( $post_id, 'is_reusable', true );
+		if ( ! $is_reusable ) {
+			return;
+		}
+		
+		error_log( 'save_post_inline_context_note fired for post ' . $post_id );
+		
+		// Compare with pre-update terms from transient.
+		$stored_data = get_transient( 'inline_context_pre_terms_' . $post_id );
+		if ( false === $stored_data ) {
+			error_log( 'No pre-update terms stored for post ' . $post_id );
+			return;
+		}
+		
+		$old_terms = $stored_data['old_terms'];
+		$submitted_category = $stored_data['new_category'];
+		
+		// Build what the new terms SHOULD be based on what was submitted.
+		$expected_new_terms = array();
+		if ( $submitted_category !== null && $submitted_category > 0 ) {
+			$expected_new_terms = array( $submitted_category );
+		}
+		
+		// Sort both for comparison.
+		$old_sorted = $old_terms;
+		$new_sorted = $expected_new_terms;
+		sort( $old_sorted );
+		sort( $new_sorted );
+		
+		error_log( 'save_post: Comparing old ' . print_r( $old_sorted, true ) . ' to submitted ' . print_r( $new_sorted, true ) );
+		
+		if ( $old_sorted === $new_sorted ) {
+			error_log( 'save_post: No category change detected' );
+			delete_transient( 'inline_context_pre_terms_' . $post_id );
+			return;
+		}
+		
+		error_log( 'save_post: Category changed! Triggering sync...' );
+		
+		// Get the new category ID (use what was submitted).
+		$updated_category_id = ! empty( $expected_new_terms ) ? $expected_new_terms[0] : '';
+		error_log( 'save_post: New category ID: ' . $updated_category_id );
+		
+		// Get posts using this note.
+		$used_in_posts = get_post_meta( $post_id, 'used_in_posts', true );
+		if ( empty( $used_in_posts ) || ! is_array( $used_in_posts ) ) {
+			error_log( 'save_post: No posts using this note' );
+			unset( $inline_context_pre_update_terms[ $post_id ] );
+			return;
+		}
+		
+		error_log( 'save_post: Updating ' . count( $used_in_posts ) . ' posts' );
+		
+		// Update each post that uses this note.
+		foreach ( $used_in_posts as $using_post_id ) {
+			$using_post = get_post( $using_post_id );
+			if ( ! $using_post ) {
+				continue;
+			}
+			
+			$post_content = $using_post->post_content;
+			$updated_html = $post_content;
+			
+			// Update category in all instances of this note.
+			$pattern = '/<a\s+class="wp-inline-context"[^>]*data-note-id="' . preg_quote( $post_id, '/' ) . '"[^>]*>/i';
+			$updated_html = preg_replace_callback(
+				$pattern,
+				function ( $matches ) use ( $updated_category_id ) {
+					$tag = $matches[0];
+					
+					// Update or add data-category-id.
+					if ( preg_match( '/data-category-id="[^"]*"/', $tag ) ) {
+						// Replace existing.
+						$tag = preg_replace(
+							'/data-category-id="[^"]*"/',
+							'data-category-id="' . esc_attr( $updated_category_id ) . '"',
+							$tag
+						);
+					} else {
+						// Add new attribute before the closing >.
+						$tag = preg_replace(
+							'/>$/',
+							' data-category-id="' . esc_attr( $updated_category_id ) . '">',
+							$tag
+						);
+					}
+					
+					return $tag;
+				},
+				$updated_html
+			);
+			
+			// Save if changed.
+			if ( $updated_html !== $post_content ) {
+				error_log( 'save_post: Updating category in post ' . $using_post_id );
+				wp_update_post(
+					array(
+						'ID'           => $using_post_id,
+						'post_content' => $updated_html,
+					)
+				);
+			}
+		}
+		
+		// Clean up transient.
+		delete_transient( 'inline_context_pre_terms_' . $post_id );
+	},
+	999,
 	3
 );
 

@@ -287,10 +287,22 @@ export default function Edit( { isActive, value, onChange } ) {
 			}
 		}
 
+		// Convert category slug to ID for storage in HTML attribute
+		let categoryIdForHtml = '';
+		if ( categoryId ) {
+			const cats = window.inlineContextData?.categories || {};
+			const category = Object.values( cats ).find(
+				( cat ) => cat.slug === categoryId || cat.id.toString() === categoryId.toString()
+			);
+			if ( category && category.id ) {
+				categoryIdForHtml = String( category.id );
+			}
+		}
+
 		const formatAttributes = {
 			'data-inline-context': text,
 			'data-anchor-id': anchorId,
-			'data-category-id': categoryId || '',
+			'data-category-id': categoryIdForHtml,
 			href: `#${ anchorId }`,
 			id: `trigger-${ anchorId }`,
 			role: 'button',
@@ -333,7 +345,24 @@ export default function Edit( { isActive, value, onChange } ) {
 					( f ) => f.type === FORMAT_TYPE
 				);
 				setText( fmt?.attributes?.[ 'data-inline-context' ] || '' );
-				setCategoryId( fmt?.attributes?.[ 'data-category-id' ] || '' );
+				
+				// Convert category ID from HTML to slug for CategorySelector
+				const categoryIdFromHtml = fmt?.attributes?.[ 'data-category-id' ] || '';
+				if ( categoryIdFromHtml ) {
+					const cats = window.inlineContextData?.categories || {};
+					const category = Object.values( cats ).find(
+						( cat ) => cat.id.toString() === categoryIdFromHtml.toString()
+					);
+					if ( category ) {
+						setCategoryId( category.slug );
+					} else {
+						// Fallback: might be an old slug-based value
+						setCategoryId( categoryIdFromHtml );
+					}
+				} else {
+					setCategoryId( '' );
+				}
+				
 				const existingNoteId = fmt?.attributes?.[ 'data-note-id' ] || null;
 				setNoteId( existingNoteId );
 				setIsReusedNote( false ); // Will be set to true by useEffect if note is reusable
