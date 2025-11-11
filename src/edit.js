@@ -30,6 +30,9 @@ import LinkControl from './components/LinkControl';
 import PopoverActions from './components/PopoverActions';
 import NoteSearch from './components/NoteSearch';
 
+// API
+import { handleNoteRemoval } from './api/note-actions';
+
 // Quill keyboard navigation utilities
 import { useQuillKeyboardNav } from './hooks/useQuillKeyboardNav';
 
@@ -48,6 +51,7 @@ export default function Edit( { isActive, value, onChange } ) {
 	const [ showNoteSearch, setShowNoteSearch ] = useState( false );
 	const [ isReusedNote, setIsReusedNote ] = useState( false );
 	const [ selectedNote, setSelectedNote ] = useState( null );
+	const [ isReusable, setIsReusable ] = useState( false );
 
 	// Refs
 	const prevFocusRef = useRef( null );
@@ -94,17 +98,29 @@ export default function Edit( { isActive, value, onChange } ) {
 
 	// Handlers
 	const remove = useCallback( () => {
+		const noteIdToRemove = activeFormat?.attributes?.[ 'data-note-id' ];
+		const currentPostId =
+			window.wp?.data?.select( 'core/editor' )?.getCurrentPostId();
+
+		if ( noteIdToRemove && currentPostId ) {
+			// Fire and forget call to backend to update usage count
+			handleNoteRemoval( currentPostId, [ parseInt( noteIdToRemove, 10 ) ] );
+		}
+
 		onChange( removeFormat( value, FORMAT_TYPE ) );
 		setIsOpen( false );
 		setTimeout( () => prevFocusRef.current?.focus?.(), 0 );
-	}, [ onChange, value ] );
+	}, [ onChange, value, activeFormat ] );
 
 	const saveNoteToCPT = useCallback(
-		async ( noteContent, currentNoteId = null ) => {
+		async ( noteContent, currentNoteId = null, isReusableFlag = false ) => {
 			try {
 				const postData = {
 					content: noteContent,
 					status: 'publish',
+					meta: {
+						is_reusable: isReusableFlag,
+					},
 				};
 
 				// Only set title when creating a new note, not when updating
@@ -256,7 +272,7 @@ export default function Edit( { isActive, value, onChange } ) {
 		// Only save to CPT if this is NOT a reused note, or if the user modified it
 		if ( ! isReusedNote || noteId === null ) {
 			// This is a new note or a modified note - save to CPT
-			savedNoteId = await saveNoteToCPT( text, noteId );
+			savedNoteId = await saveNoteToCPT( text, noteId, isReusable );
 		} else {
 			// This is a reused note - just track usage, don't modify the CPT
 			if (
@@ -327,6 +343,7 @@ export default function Edit( { isActive, value, onChange } ) {
 		text,
 		categoryId,
 		noteId,
+		isReusable,
 		isReusedNote,
 		value,
 		activeFormat,
@@ -367,6 +384,7 @@ export default function Edit( { isActive, value, onChange } ) {
 				setNoteId( existingNoteId );
 				setIsReusedNote( false ); // Will be set to true by useEffect if note is reusable
 				setSelectedNote( null ); // Will be populated by useEffect
+				setIsReusable( false ); // Default to not reusable for new notes
 
 				// Always start in create mode (search is secondary workflow)
 				setShowNoteSearch( false );
@@ -393,9 +411,9 @@ export default function Edit( { isActive, value, onChange } ) {
 			.then( ( note ) => {
 				// Check if the note is marked as reusable
 				// The is_reusable field is now directly in the response (via REST API filter)
-				const isReusable = note.is_reusable || false;
+				const isReusableFlag = note.is_reusable || false;
 				
-				if ( note && isReusable ) {
+				if ( note && isReusableFlag ) {
 					// Set flag to prevent popover from closing during state update
 					isSettingReusableNoteRef.current = true;
 					setIsReusedNote( true );
@@ -403,9 +421,10 @@ export default function Edit( { isActive, value, onChange } ) {
 						id: note.id,
 						title: note.title?.rendered || '',
 						content: note.content?.rendered || '',
-						is_reusable: isReusable,
+						is_reusable: isReusableFlag,
 						inline_context_category: note.inline_context_category || [],
 					} );
+					setIsReusable( isReusableFlag );
 					// Clear flag after a short delay to allow render to complete
 					setTimeout( () => {
 						isSettingReusableNoteRef.current = false;
@@ -424,6 +443,7 @@ export default function Edit( { isActive, value, onChange } ) {
 		setText( note.content );
 		setIsReusedNote( true ); // Mark as reused note (don't modify CPT)
 		setSelectedNote( note ); // Store the full note object
+		setIsReusable( note.is_reusable || false );
 
 		// Load the category from the note's taxonomy
 		if (
@@ -448,6 +468,7 @@ export default function Edit( { isActive, value, onChange } ) {
 		setText( '' );
 		setIsReusedNote( false );
 		setSelectedNote( null );
+		setIsReusable( false );
 		setShowNoteSearch( false );
 	}, [] );
 
@@ -820,6 +841,9 @@ export default function Edit( { isActive, value, onChange } ) {
 						removeRef={ removeRef }
 						cancelRef={ cancelRef }
 						saveRef={ saveRef }
+						isReusable={ isReusable }
+						onReusableChange={ setIsReusable }
+						isReusableDisabled={ isReusedNote }
 					/>
 				</Popover>
 			) }

@@ -173,14 +173,32 @@ add_action(
 				$used_in = get_post_meta( $post_id, 'used_in_posts', true );
 				if ( ! empty( $used_in ) && is_array( $used_in ) ) {
 					$post_links = array();
-					foreach ( array_slice( $used_in, 0, 3 ) as $used_post_id ) {
+					// Limit to showing the first 3 posts for brevity.
+					foreach ( array_slice( $used_in, 0, 3 ) as $usage_data ) {
+						$used_post_id = $usage_data['post_id'] ?? 0;
+						$count        = $usage_data['count'] ?? 1;
+
+						if ( ! $used_post_id ) {
+							continue;
+						}
+
 						$post = get_post( $used_post_id );
 						if ( $post ) {
-							$post_links[] = sprintf(
-								'<a href="%s">%s</a>',
-								esc_url( get_edit_post_link( $used_post_id ) ),
-								esc_html( get_the_title( $used_post_id ) )
-							);
+							if ( $count > 1 ) {
+								$post_links[] = sprintf(
+									'<a href="%s">%s</a> (×%d)',
+									esc_url( get_edit_post_link( $used_post_id ) ),
+									esc_html( get_the_title( $used_post_id ) ),
+									esc_html( $count )
+								);
+							} else {
+								$post_links[] = sprintf(
+									'<a href="%s">%s</a>',
+									esc_url( get_edit_post_link( $used_post_id ) ),
+									esc_html( get_the_title( $used_post_id ) )
+								);
+							}
+						} else {
 						}
 					}
 					echo wp_kses(
@@ -405,8 +423,12 @@ add_action(
 					$used_in_posts = array();
 				}
 
-				// Sync usage_count with actual array length (in case they got out of sync).
-				$actual_usage_count = count( $used_in_posts );
+				// Calculate actual usage count by summing all counts.
+				$actual_usage_count = 0;
+				foreach ( $used_in_posts as $usage_data ) {
+					$actual_usage_count += $usage_data['count'] ?? 1;
+				}
+				
 				$stored_usage_count = (int) get_post_meta( $post->ID, 'usage_count', true );
 
 				if ( $actual_usage_count !== $stored_usage_count ) {
@@ -435,7 +457,14 @@ add_action(
 					echo '<p style="margin: 0 0 10px 0; font-weight: 600;">' . esc_html__( 'Used in these posts:', 'inline-context' ) . '</p>';
 					echo '<ul style="margin: 0; padding-left: 20px;">';
 
-					foreach ( $used_in_posts as $used_post_id ) {
+					foreach ( $used_in_posts as $usage_data ) {
+						$used_post_id = $usage_data['post_id'] ?? 0;
+						$count        = $usage_data['count'] ?? 1;
+
+						if ( ! $used_post_id ) {
+							continue;
+						}
+
 						$used_post = get_post( $used_post_id );
 						if ( $used_post ) {
 							$edit_link = get_edit_post_link( $used_post_id );
@@ -446,6 +475,9 @@ add_action(
 							echo esc_html( get_the_title( $used_post_id ) );
 							echo '</a>';
 							echo ' <span style="color: #666;">(' . esc_html( get_post_type( $used_post_id ) ) . ')</span>';
+							if ( $count > 1 ) {
+								echo ' <span style="color: #2271b1; font-weight: 600;">×' . esc_html( $count ) . '</span>';
+							}
 							if ( 'publish' === $used_post->post_status ) {
 								echo ' <a href="' . esc_url( $view_link ) . '" target="_blank" style="font-size: 0.9em;">↗</a>';
 							}
@@ -718,24 +750,22 @@ add_action(
 			);
 		}
 
+		$submitted_category_id = null;
+
 		// Save the category (verify separate nonce).
 		if ( isset( $_POST['inline_context_category_nonce_field'] ) &&
 			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['inline_context_category_nonce_field'] ) ), 'inline_context_category_nonce' ) &&
 			isset( $_POST['inline_context_category_id'] ) ) {
 
-			$category_id = intval( $_POST['inline_context_category_id'] );
+			$submitted_category_id = intval( $_POST['inline_context_category_id'] );
 
-			error_log( 'Save handler: Setting category to ' . $category_id . ' for post ' . $post_id );
-
-			if ( $category_id > 0 ) {
+			if ( $submitted_category_id > 0 ) {
 				// Set single category.
-				wp_set_post_terms( $post_id, array( $category_id ), 'inline_context_category', false );
+				wp_set_post_terms( $post_id, array( $submitted_category_id ), 'inline_context_category', false );
 			} else {
 				// Remove all categories.
 				wp_set_post_terms( $post_id, array(), 'inline_context_category', false );
 			}
-			
-			error_log( 'Save handler: wp_set_post_terms completed' );
 		}
 
 		// Save the "is_reusable" flag (verify nonce).
@@ -746,11 +776,105 @@ add_action(
 			update_post_meta( $post_id, 'is_reusable', $is_reusable );
 		}
 
+		$assigned_terms     = wp_get_post_terms( $post_id, 'inline_context_category', array( 'fields' => 'ids' ) );
+		$current_category_id = ( ! is_wp_error( $assigned_terms ) && ! empty( $assigned_terms ) ) ? (int) $assigned_terms[0] : 0;
+
+		inline_context_sync_note_category_attribute( $post_id, $current_category_id );
+
 		$is_saving = false;
 	},
 	10,
 	1
 );
+
+/**
+ * Update the data-category-id attribute for all usages of a note.
+ *
+ * @param int $note_id Note post ID.
+ * @param int $category_id Category term ID (0 when uncategorized).
+ * @return void
+ */
+function inline_context_sync_note_category_attribute( $note_id, $category_id ) {
+	$used_in_posts = get_post_meta( $note_id, 'used_in_posts', true );
+
+	if ( empty( $used_in_posts ) || ! is_array( $used_in_posts ) ) {
+		return;
+	}
+
+	$category_id     = absint( $category_id );
+	$attribute_value = $category_id ? esc_attr( (string) $category_id ) : '';
+
+	foreach ( $used_in_posts as $usage_data ) {
+		$using_post_id = $usage_data['post_id'] ?? 0;
+		
+		if ( ! $using_post_id ) {
+			continue;
+		}
+
+		$using_post = get_post( $using_post_id );
+		if ( ! $using_post ) {
+			continue;
+		}
+
+		// Only touch published posts to mirror content sync behaviour.
+		if ( 'publish' !== $using_post->post_status ) {
+			continue;
+		}
+
+		$post_content = $using_post->post_content;
+		if ( empty( $post_content ) ) {
+			continue;
+		}
+
+		$pattern = '/<a\b[^>]*class="[^"]*\bwp-inline-context\b[^"]*"[^>]*data-note-id="' . preg_quote( $note_id, '/' ) . '"[^>]*>/i';
+
+		$updated_html = preg_replace_callback(
+			$pattern,
+			function ( $matches ) use ( $category_id, $attribute_value ) {
+				$original_tag = $matches[0];
+				$updated_tag  = $original_tag;
+
+				if ( $category_id ) {
+					if ( preg_match( '/\sdata-category-id="[^"]*"/', $updated_tag ) ) {
+						$updated_tag = preg_replace(
+							'/\sdata-category-id="[^"]*"/',
+							' data-category-id="' . $attribute_value . '"',
+							$updated_tag
+						);
+					} else {
+						$updated_tag = rtrim( $updated_tag );
+						if ( '>' === substr( $updated_tag, -1 ) ) {
+							$updated_tag = substr_replace(
+								$updated_tag,
+								' data-category-id="' . $attribute_value . '"',
+								-1,
+								0
+							);
+						} else {
+							$updated_tag .= ' data-category-id="' . $attribute_value . '"';
+						}
+					}
+				} else {
+					$updated_tag = preg_replace( '/\sdata-category-id="[^"]*"/', '', $updated_tag );
+				}
+
+				return $updated_tag;
+			},
+			$post_content,
+			-1,
+			$count
+		);
+
+		if ( $count > 0 && $updated_html !== $post_content ) {
+			wp_update_post(
+				array(
+					'ID'           => $using_post_id,
+					'post_content' => $updated_html,
+				)
+			);
+		}
+	}
+}
 
 /**
  * Migrate meta-based categories to taxonomy terms (runs once)
@@ -840,13 +964,27 @@ add_action(
 					if ( ! is_array( $value ) ) {
 						return array();
 					}
-					return array_map( 'absint', $value );
+					// Sanitize array of objects: [['post_id' => int, 'count' => int], ...]
+					$sanitized = array();
+					foreach ( $value as $usage_data ) {
+						if ( is_array( $usage_data ) && isset( $usage_data['post_id'] ) ) {
+							$sanitized[] = array(
+								'post_id' => absint( $usage_data['post_id'] ),
+								'count'   => absint( $usage_data['count'] ?? 1 ),
+							);
+						}
+					}
+					return $sanitized;
 				},
 				'show_in_rest'      => array(
 					'schema' => array(
 						'type'  => 'array',
 						'items' => array(
-							'type' => 'integer',
+							'type'       => 'object',
+							'properties' => array(
+								'post_id' => array( 'type' => 'integer' ),
+								'count'   => array( 'type' => 'integer' ),
+							),
 						),
 					),
 				),
@@ -902,309 +1040,321 @@ add_filter(
 add_action(
 	'post_updated',
 	function ( $post_id, $post_after, $post_before ) {
-		// Static variable to track if we're already processing this post (avoid infinite loops).
-		static $processing = array();
-		
-		if ( isset( $processing[ $post_id ] ) ) {
-			return;
-		}
-		
-		// Only process inline_context_note CPT.
-		if ( 'inline_context_note' !== get_post_type( $post_id ) ) {
-			return;
-		}
+		// Sync usage when a regular post/page is updated.
+		inline_context_sync_note_usage_on_post_save( $post_id, $post_after, $post_before );
 
-		// Skip if this is an autosave or revision.
-		if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
-			return;
-		}
-
-		// Only process if the note is marked as reusable.
-		$is_reusable = get_post_meta( $post_id, 'is_reusable', true );
-		if ( ! $is_reusable ) {
-			return;
-		}
-
-		// Check if content changed.
-		$content_changed = $post_before->post_content !== $post_after->post_content;
-		
-		// Don't check category here - it's not saved yet during post_updated.
-		// Category sync will be handled by save_post hook which runs later.
-		
-		// Debug logging.
-		error_log( 'Inline Context Sync - Post ID: ' . $post_id );
-		error_log( 'Content changed: ' . ( $content_changed ? 'yes' : 'no' ) );
-
-		// Only update if content changed.
-		if ( ! $content_changed ) {
-			error_log( 'No content changes detected, exiting' );
-			return;
-		}
-
-		// Get the list of posts using this note.
-		$used_in_posts = get_post_meta( $post_id, 'used_in_posts', true );
-		if ( empty( $used_in_posts ) || ! is_array( $used_in_posts ) ) {
-			return;
-		}
-
-		// Mark as processing.
-		$processing[ $post_id ] = true;
-
-		// Get the updated content.
-		$updated_content = $post_after->post_content;
-
-		// Update each post that uses this note.
-		foreach ( $used_in_posts as $using_post_id ) {
-			// Get the post.
-			$using_post = get_post( $using_post_id );
-			if ( ! $using_post || 'publish' !== $using_post->post_status ) {
-				continue;
-			}
-
-			// Update all instances of this note in the post content.
-			$post_content = $using_post->post_content;
-
-			if ( empty( $post_content ) ) {
-				continue;
-			}
-
-			// Find all anchor tags with this note ID and update content only.
-			$pattern = '/<a\s+([^>]*?)data-note-id="' . preg_quote( $post_id, '/' ) . '"([^>]*?)>/i';
-			
-			$updated_html = preg_replace_callback(
-				$pattern,
-				function ( $matches ) use ( $updated_content ) {
-					$tag = $matches[0];
-					
-					// Update data-inline-context attribute.
-					$tag = preg_replace(
-						'/data-inline-context="[^"]*"/',
-						'data-inline-context="' . esc_attr( $updated_content ) . '"',
-						$tag
-					);
-					
-					return $tag;
-				},
-				$post_content,
-				-1,
-				$count
-			);
-
-			// Save the updated post if changes were made.
-			if ( $count > 0 && $updated_html !== $post_content ) {
-				wp_update_post(
-					array(
-						'ID'           => $using_post_id,
-						'post_content' => $updated_html,
-					)
-				);
-			}
-		}
-		
-		// Unmark as processing.
-		unset( $processing[ $post_id ] );
+		// Sync reusable note content when the note itself is updated.
+		inline_context_sync_reusable_note_content( $post_id, $post_after, $post_before );
 	},
 	10,
 	3
 );
 
 /**
- * Track category changes by comparing before/after
- * Captures category from $_POST since wp_set_post_terms hasn't run yet
+ * Syncs the usage count of notes when a post is saved.
+ *
+ * @param int      $post_id      The ID of the post being saved.
+ * @param \WP_Post $post_after   The post object after the update.
+ * @param \WP_Post $post_before  The post object before the update.
  */
-add_action(
-	'edit_post',
-	function ( $post_id ) {
-		// Only track inline_context_note CPT.
-		if ( 'inline_context_note' !== get_post_type( $post_id ) ) {
-			return;
+function inline_context_sync_note_usage_on_post_save( $post_id, $post_after, $post_before ) {
+	// Static variable to prevent infinite loops when wp_update_post triggers this hook again.
+	static $processing = array();
+
+	if ( isset( $processing[ $post_id ] ) ) {
+		return;
+	}
+
+	// Only run on specific post types, exclude our own CPT.
+	$supported_post_types = apply_filters( 'inline_context_supported_post_types', array( 'post', 'page' ) );
+	if ( ! in_array( $post_after->post_type, $supported_post_types, true ) ) {
+		return;
+	}
+
+	// Don't run on autosave or revisions.
+	if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
+		return;
+	}
+
+	// Mark as processing to prevent infinite loops.
+	$processing[ $post_id ] = true;
+
+	// Get note IDs from the current (after) content and count occurrences.
+	preg_match_all( '/data-note-id="(\d+)"/i', $post_after->post_content, $matches_after );
+	$notes_after_raw = ! empty( $matches_after[1] ) ? array_map( 'intval', $matches_after[1] ) : array();
+	
+	// Count occurrences of each note in the current content.
+	$notes_after_counts = array();
+	foreach ( $notes_after_raw as $note_id ) {
+		if ( ! isset( $notes_after_counts[ $note_id ] ) ) {
+			$notes_after_counts[ $note_id ] = 0;
 		}
-		
-		// Store what category is being SUBMITTED (from $_POST), not what's in the DB.
-		$submitted_category = null;
-		if ( isset( $_POST['inline_context_category_nonce_field'] ) &&
-			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['inline_context_category_nonce_field'] ) ), 'inline_context_category_nonce' ) &&
-			isset( $_POST['inline_context_category_id'] ) ) {
-			
-			$submitted_category = intval( $_POST['inline_context_category_id'] );
-		}
-		
-		// Store both the current DB state AND what's being submitted.
-		$current_terms = wp_get_object_terms( $post_id, 'inline_context_category', array( 'fields' => 'ids' ) );
-		if ( ! is_wp_error( $current_terms ) ) {
-			set_transient(
-				'inline_context_pre_terms_' . $post_id,
+		$notes_after_counts[ $note_id ]++;
+	}
+
+	// Get note IDs from the previous (before) content.
+	preg_match_all( '/data-note-id="(\d+)"/i', $post_before->post_content, $matches_before );
+	$notes_before = ! empty( $matches_before[1] ) ? array_unique( array_map( 'intval', $matches_before[1] ) ) : array();
+
+	// Get unique note IDs from after content.
+	$notes_after = array_keys( $notes_after_counts );
+
+	// Determine which notes were added and removed.
+	$notes_added   = array_diff( $notes_after, $notes_before );
+	$notes_removed = array_diff( $notes_before, $notes_after );
+	$notes_updated = array_intersect( $notes_after, $notes_before );
+
+	// Additional validation: Check all notes in the database that claim to be used in this post.
+	// This catches cases where notes were removed outside of normal editing (manual HTML edits, etc.).
+	$all_notes = get_posts(
+		array(
+			'post_type'      => 'inline_context_note',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'meta_query'     => array(
 				array(
-					'old_terms' => $current_terms,
-					'new_category' => $submitted_category,
+					'key'     => 'used_in_posts',
+					'value'   => sprintf( '"post_id";i:%d', $post_id ),
+					'compare' => 'LIKE',
 				),
-				60
-			);
-			error_log( 'edit_post: Stored pre-update terms for post ' . $post_id . ': ' . print_r( $current_terms, true ) );
-			error_log( 'edit_post: Submitted category: ' . ( $submitted_category !== null ? $submitted_category : 'NULL' ) );
-		}
-	},
-	1
-);
+			),
+		)
+	);
 
-/**
- * Detect category changes and trigger sync AFTER taxonomies are saved
- * Using saved_{taxonomy} hook which fires after term relationships are saved
- */
-add_action(
-	'saved_inline_context_category',
-	function ( $term_id, $tt_id, $update, $args ) {
-		error_log( 'saved_inline_context_category fired for term_id: ' . $term_id . ', tt_id: ' . $tt_id );
-		
-		// Get all posts with this term.
-		$posts_with_term = get_posts(
-			array(
-				'post_type'      => 'inline_context_note',
-				'posts_per_page' => -1,
-				'tax_query'      => array(
-					array(
-						'taxonomy' => 'inline_context_category',
-						'field'    => 'term_id',
-						'terms'    => $term_id,
-					),
-				),
-				'fields'         => 'ids',
-			)
-		);
-		
-		error_log( 'Posts with this term: ' . print_r( $posts_with_term, true ) );
-	},
-	10,
-	4
-);
+	foreach ( $all_notes as $note_id ) {
+		// If this note is NOT in the current content but claims to be used here, mark it for removal.
+		if ( ! in_array( $note_id, $notes_after, true ) && ! in_array( $note_id, $notes_removed, true ) ) {
+			$notes_removed[] = $note_id;
+		}
+	}
 
-/**
- * Alternative: Use save_post hook with late priority to catch taxonomy changes
- */
-add_action(
-	'save_post_inline_context_note',
-	function ( $post_id, $post, $update ) {
-		// Skip autosave.
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-			return;
+	// Process removed notes.
+	foreach ( $notes_removed as $note_id ) {
+		if ( ! $note_id ) {
+			continue;
 		}
 		
-		// Only for updates, not new posts.
-		if ( ! $update ) {
-			return;
+		$used_in = get_post_meta( $note_id, 'used_in_posts', true );
+		if ( ! is_array( $used_in ) ) {
+			$used_in = array();
 		}
-		
-		// Check if this is a reusable note.
-		$is_reusable = get_post_meta( $post_id, 'is_reusable', true );
-		if ( ! $is_reusable ) {
-			return;
-		}
-		
-		error_log( 'save_post_inline_context_note fired for post ' . $post_id );
-		
-		// Compare with pre-update terms from transient.
-		$stored_data = get_transient( 'inline_context_pre_terms_' . $post_id );
-		if ( false === $stored_data ) {
-			error_log( 'No pre-update terms stored for post ' . $post_id );
-			return;
-		}
-		
-		$old_terms = $stored_data['old_terms'];
-		$submitted_category = $stored_data['new_category'];
-		
-		// Build what the new terms SHOULD be based on what was submitted.
-		$expected_new_terms = array();
-		if ( $submitted_category !== null && $submitted_category > 0 ) {
-			$expected_new_terms = array( $submitted_category );
-		}
-		
-		// Sort both for comparison.
-		$old_sorted = $old_terms;
-		$new_sorted = $expected_new_terms;
-		sort( $old_sorted );
-		sort( $new_sorted );
-		
-		error_log( 'save_post: Comparing old ' . print_r( $old_sorted, true ) . ' to submitted ' . print_r( $new_sorted, true ) );
-		
-		if ( $old_sorted === $new_sorted ) {
-			error_log( 'save_post: No category change detected' );
-			delete_transient( 'inline_context_pre_terms_' . $post_id );
-			return;
-		}
-		
-		error_log( 'save_post: Category changed! Triggering sync...' );
-		
-		// Get the new category ID (use what was submitted).
-		$updated_category_id = ! empty( $expected_new_terms ) ? $expected_new_terms[0] : '';
-		error_log( 'save_post: New category ID: ' . $updated_category_id );
-		
-		// Get posts using this note.
-		$used_in_posts = get_post_meta( $post_id, 'used_in_posts', true );
-		if ( empty( $used_in_posts ) || ! is_array( $used_in_posts ) ) {
-			error_log( 'save_post: No posts using this note' );
-			unset( $inline_context_pre_update_terms[ $post_id ] );
-			return;
-		}
-		
-		error_log( 'save_post: Updating ' . count( $used_in_posts ) . ' posts' );
-		
-		// Update each post that uses this note.
-		foreach ( $used_in_posts as $using_post_id ) {
-			$using_post = get_post( $using_post_id );
-			if ( ! $using_post ) {
-				continue;
+
+		// Clean up corrupted data (integers instead of arrays with post_id/count).
+		$needs_cleanup = false;
+		foreach ( $used_in as $usage_data ) {
+			if ( ! is_array( $usage_data ) ) {
+				$needs_cleanup = true;
+				break;
 			}
-			
-			$post_content = $using_post->post_content;
-			$updated_html = $post_content;
-			
-			// Update category in all instances of this note.
-			$pattern = '/<a\s+class="wp-inline-context"[^>]*data-note-id="' . preg_quote( $post_id, '/' ) . '"[^>]*>/i';
-			$updated_html = preg_replace_callback(
-				$pattern,
-				function ( $matches ) use ( $updated_category_id ) {
-					$tag = $matches[0];
-					
-					// Update or add data-category-id.
-					if ( preg_match( '/data-category-id="[^"]*"/', $tag ) ) {
-						// Replace existing.
-						$tag = preg_replace(
-							'/data-category-id="[^"]*"/',
-							'data-category-id="' . esc_attr( $updated_category_id ) . '"',
-							$tag
-						);
-					} else {
-						// Add new attribute before the closing >.
-						$tag = preg_replace(
-							'/>$/',
-							' data-category-id="' . esc_attr( $updated_category_id ) . '">',
-							$tag
-						);
-					}
-					
-					return $tag;
-				},
-				$updated_html
+		}
+		
+		if ( $needs_cleanup ) {
+			$used_in = array();
+		}
+
+		// Find and remove this post from the usage list.
+		$updated_usage = array();
+		foreach ( $used_in as $usage_data ) {
+			$stored_post_id = $usage_data['post_id'] ?? 0;
+			if ( $stored_post_id !== $post_id ) {
+				$updated_usage[] = $usage_data;
+			}
+		}
+
+		update_post_meta( $note_id, 'used_in_posts', $updated_usage );
+		
+		// Recalculate total usage count.
+		$total_count = 0;
+		foreach ( $updated_usage as $usage_data ) {
+			$total_count += $usage_data['count'] ?? 1;
+		}
+		update_post_meta( $note_id, 'usage_count', $total_count );
+
+		// If a non-reusable note has no more usages, delete it.
+		$is_reusable = (bool) get_post_meta( $note_id, 'is_reusable', true );
+		if ( ! $is_reusable && empty( $updated_usage ) ) {
+			wp_delete_post( $note_id, true ); // Force delete.
+		}
+	}
+
+	// Process added and updated notes.
+	$notes_to_update = array_merge( $notes_added, $notes_updated );
+	foreach ( $notes_to_update as $note_id ) {
+		if ( ! $note_id ) {
+			continue;
+		}
+		
+		$count_in_post = $notes_after_counts[ $note_id ] ?? 0;
+		if ( $count_in_post <= 0 ) {
+			continue;
+		}
+
+		$used_in = get_post_meta( $note_id, 'used_in_posts', true );
+		if ( ! is_array( $used_in ) ) {
+			$used_in = array();
+		}
+
+		// Clean up corrupted data (integers instead of arrays with post_id/count).
+		$needs_cleanup = false;
+		foreach ( $used_in as $usage_data ) {
+			if ( ! is_array( $usage_data ) ) {
+				$needs_cleanup = true;
+				break;
+			}
+		}
+		
+		if ( $needs_cleanup ) {
+			$used_in = array();
+		}
+
+		// Find if this post is already in the usage list and update the count.
+		$found = false;
+		foreach ( $used_in as $key => $usage_data ) {
+			$stored_post_id = $usage_data['post_id'] ?? 0;
+			if ( $stored_post_id === $post_id ) {
+				$used_in[ $key ]['count'] = $count_in_post;
+				$found = true;
+				break;
+			}
+		}
+
+		// If not found, add it.
+		if ( ! $found ) {
+			$used_in[] = array(
+				'post_id' => $post_id,
+				'count'   => $count_in_post,
 			);
-			
-			// Save if changed.
-			if ( $updated_html !== $post_content ) {
-				error_log( 'save_post: Updating category in post ' . $using_post_id );
-				wp_update_post(
-					array(
-						'ID'           => $using_post_id,
-						'post_content' => $updated_html,
-					)
+		}
+
+		update_post_meta( $note_id, 'used_in_posts', $used_in );
+		
+		// Recalculate total usage count from all posts.
+		$total_count = 0;
+		foreach ( $used_in as $usage_data ) {
+			$total_count += $usage_data['count'] ?? 1;
+		}
+		update_post_meta( $note_id, 'usage_count', $total_count );
+	}
+
+	// Unmark as processing.
+	unset( $processing[ $post_id ] );
+}
+
+/**
+ * Update all instances of a reusable note when it's updated
+ *
+ * @param int      $post_id      The ID of the post being saved.
+ * @param \WP_Post $post_after   The post object after the update.
+ * @param \WP_Post $post_before  The post object before the update.
+ */
+function inline_context_sync_reusable_note_content( $post_id, $post_after, $post_before ) {
+	// Static variable to track if we're already processing this post (avoid infinite loops).
+	static $processing = array();
+
+	if ( isset( $processing[ $post_id ] ) ) {
+		return;
+	}
+
+	// Only process inline_context_note CPT.
+	if ( 'inline_context_note' !== get_post_type( $post_id ) ) {
+		return;
+	}
+
+	// Skip if this is an autosave or revision.
+	if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
+		return;
+	}
+
+	// Only process if the note is marked as reusable.
+	$is_reusable = get_post_meta( $post_id, 'is_reusable', true );
+	if ( ! $is_reusable ) {
+		return;
+	}
+
+	// Check if content changed.
+	$content_changed = $post_before->post_content !== $post_after->post_content;
+
+	// Don't check category here - it's not saved yet during post_updated.
+	// Category sync will be handled by save_post hook which runs later.
+
+	// Debug logging.
+	error_log( 'Inline Context Sync - Post ID: ' . $post_id );
+	error_log( 'Content changed: ' . ( $content_changed ? 'yes' : 'no' ) );
+
+	// Only update if content changed.
+	if ( ! $content_changed ) {
+		error_log( 'No content changes detected, exiting' );
+		return;
+	}
+
+	// Get the list of posts using this note.
+	$used_in_posts = get_post_meta( $post_id, 'used_in_posts', true );
+	if ( empty( $used_in_posts ) || ! is_array( $used_in_posts ) ) {
+		return;
+	}
+
+	// Mark as processing.
+	$processing[ $post_id ] = true;
+
+	// Get the updated content.
+	$updated_content = $post_after->post_content;
+
+	// Update each post that uses this note.
+	foreach ( $used_in_posts as $usage_data ) {
+		$using_post_id = $usage_data['post_id'] ?? 0;
+		if ( ! $using_post_id ) {
+			continue;
+		}
+		
+		// Get the post.
+		$using_post = get_post( $using_post_id );
+		if ( ! $using_post || 'publish' !== $using_post->post_status ) {
+			continue;
+		}
+
+		// Update all instances of this note in the post content.
+		$post_content = $using_post->post_content;
+
+		if ( empty( $post_content ) ) {
+			continue;
+		}
+
+		// Find all anchor tags with this note ID and update content only.
+		$pattern = '/<a\s+([^>]*?)data-note-id="' . preg_quote( $post_id, '/' ) . '"([^>]*?)>/i';
+
+		$updated_html = preg_replace_callback(
+			$pattern,
+			function ( $matches ) use ( $updated_content ) {
+				$tag = $matches[0];
+
+				// Update data-inline-context attribute.
+				$tag = preg_replace(
+					'/data-inline-context="[^"]*"/',
+					'data-inline-context="' . esc_attr( $updated_content ) . '"',
+					$tag
 				);
-			}
+
+				return $tag;
+			},
+			$post_content,
+			-1,
+			$count
+		);
+
+		// Save the updated post if changes were made.
+		if ( $count > 0 && $updated_html !== $post_content ) {
+			wp_update_post(
+				array(
+					'ID'           => $using_post_id,
+					'post_content' => $updated_html,
+				)
+			);
 		}
-		
-		// Clean up transient.
-		delete_transient( 'inline_context_pre_terms_' . $post_id );
-	},
-	999,
-	3
-);
+	}
+
+	// Unmark as processing.
+	unset( $processing[ $post_id ] );
+}
 
 /**
  * Register REST API endpoint for searching notes
@@ -1319,24 +1469,28 @@ add_action(
 						return new WP_Error( 'forbidden', 'You do not have permission to edit this post', array( 'status' => 403 ) );
 					}
 
-					// Get current usage.
+					// NOTE: This endpoint is now a no-op.
+					// Actual usage tracking is handled by the post_updated hook which
+					// accurately counts all note occurrences when the post is saved.
+					// This prevents duplicate/incorrect tracking from multiple JavaScript calls.
+
+					// Get current usage for response (read-only).
 					$used_in_posts = get_post_meta( $note_id, 'used_in_posts', true );
 					if ( ! is_array( $used_in_posts ) ) {
 						$used_in_posts = array();
 					}
 
-					// Add post if not already tracked.
-					if ( ! in_array( $post_id, $used_in_posts, true ) ) {
-						$used_in_posts[] = $post_id;
-						update_post_meta( $note_id, 'used_in_posts', $used_in_posts );
-						update_post_meta( $note_id, 'usage_count', count( $used_in_posts ) );
+					// Calculate total usage count from the data structure.
+					$total_count = 0;
+					foreach ( $used_in_posts as $usage_data ) {
+						$total_count += $usage_data['count'] ?? 1;
 					}
 
 					return new WP_REST_Response(
 						array(
 							'success'       => true,
 							'used_in_posts' => $used_in_posts,
-							'usage_count'   => count( $used_in_posts ),
+							'usage_count'   => $total_count,
 						),
 						200
 					);
@@ -1363,6 +1517,109 @@ add_action(
 						'validate_callback' => function ( $param ) {
 							return is_numeric( $param );
 						},
+					),
+				),
+			)
+		);
+
+		// Handle note removals endpoint.
+		register_rest_route(
+			'inline-context/v1',
+			'/notes/handle-removals',
+			array(
+				'methods'             => 'POST',
+				'callback'            => function ( $request ) {
+					$post_id  = $request->get_param( 'post_id' );
+					$note_ids = $request->get_param( 'note_ids' );
+
+					if ( empty( $post_id ) || ! is_numeric( $post_id ) ) {
+						return new WP_Error( 'invalid_post_id', 'A valid post ID is required.', array( 'status' => 400 ) );
+					}
+
+					if ( empty( $note_ids ) || ! is_array( $note_ids ) ) {
+						return new WP_Error( 'invalid_note_ids', 'An array of note IDs is required.', array( 'status' => 400 ) );
+					}
+
+					// Verify user can edit the post from which notes are being removed.
+					if ( ! current_user_can( 'edit_post', $post_id ) ) {
+						return new WP_Error( 'forbidden', 'You do not have permission to edit this post.', array( 'status' => 403 ) );
+					}
+
+					$results = array();
+
+					foreach ( $note_ids as $note_id ) {
+						$note_id = absint( $note_id );
+						if ( ! $note_id || 'inline_context_note' !== get_post_type( $note_id ) ) {
+							$results[ $note_id ] = 'invalid_note';
+							continue;
+						}
+
+						// Get current usage.
+						$used_in_posts = get_post_meta( $note_id, 'used_in_posts', true );
+						if ( ! is_array( $used_in_posts ) ) {
+							$used_in_posts = array();
+						}
+
+						// Find and remove this post from the usage list.
+						$updated_usage = array();
+						$found         = false;
+						foreach ( $used_in_posts as $usage_data ) {
+							$stored_post_id = $usage_data['post_id'] ?? 0;
+							if ( $stored_post_id !== $post_id ) {
+								$updated_usage[] = $usage_data;
+							} else {
+								$found = true;
+							}
+						}
+
+						if ( $found ) {
+							// Update meta.
+							update_post_meta( $note_id, 'used_in_posts', $updated_usage );
+							
+							// Recalculate total usage count.
+							$total_count = 0;
+							foreach ( $updated_usage as $usage_data ) {
+								$total_count += $usage_data['count'] ?? 1;
+							}
+							update_post_meta( $note_id, 'usage_count', $total_count );
+
+							// Check if non-reusable note should be deleted.
+							$is_reusable = (bool) get_post_meta( $note_id, 'is_reusable', true );
+							if ( ! $is_reusable && empty( $updated_usage ) ) {
+								// Force delete, skipping trash.
+								$deleted = wp_delete_post( $note_id, true );
+								if ( $deleted ) {
+									$results[ $note_id ] = 'deleted';
+								} else {
+									$results[ $note_id ] = 'delete_failed';
+								}
+							} else {
+								$results[ $note_id ] = 'usage_updated';
+							}
+						} else {
+							$results[ $note_id ] = 'not_found_in_usage';
+						}
+					}
+
+					return new WP_REST_Response( array( 'success' => true, 'results' => $results ), 200 );
+				},
+				'permission_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+				'args'                => array(
+					'post_id'  => array(
+						'description'       => 'The ID of the post from which the notes were removed.',
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+					'note_ids' => array(
+						'description' => 'An array of note IDs to process.',
+						'type'        => 'array',
+						'required'    => true,
+						'items'       => array(
+							'type' => 'integer',
+						),
 					),
 				),
 			)
@@ -1612,5 +1869,132 @@ add_action(
 				? filemtime( __DIR__ . '/build/style-index.css' )
 				: INLINE_CONTEXT_VERSION
 		);
+	}
+);
+
+/**
+ * One-time cleanup function to rebuild usage data for all notes.
+ * This fixes corrupted data from the old data structure.
+ * 
+ * To use: Add ?inline_context_rebuild=1 to any admin URL while logged in as admin.
+ * Example: wp-admin/edit.php?post_type=inline_context_note&inline_context_rebuild=1
+ */
+add_action(
+	'admin_init',
+	function () {
+		if ( ! isset( $_GET['inline_context_rebuild'] ) || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+
+	// Reset all note usage data - use direct DB delete to avoid cache issues.
+	$all_notes = get_posts(
+		array(
+			'post_type'      => 'inline_context_note',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+		)
+	);
+
+
+	global $wpdb;
+	foreach ( $all_notes as $note_id ) {
+		// Delete from database directly to avoid cache issues.
+		$wpdb->delete(
+			$wpdb->postmeta,
+			array(
+				'post_id'  => $note_id,
+				'meta_key' => 'used_in_posts',
+			)
+		);
+		$wpdb->delete(
+			$wpdb->postmeta,
+			array(
+				'post_id'  => $note_id,
+				'meta_key' => 'usage_count',
+			)
+		);
+		// Clear the cache for this post.
+		wp_cache_delete( $note_id, 'post_meta' );
+	}
+
+	// Scan all posts and pages to rebuild usage data.
+	$all_posts = get_posts(
+		array(
+			'post_type'      => array( 'post', 'page' ),
+			'post_status'    => 'any',
+			'posts_per_page' => -1,
+		)
+	);
+
+	// Build usage data structure: note_id => [['post_id' => X, 'count' => Y], ...]
+	$all_usage_data = array();
+
+	foreach ( $all_posts as $post ) {
+		// Get note IDs from content and count occurrences.
+		preg_match_all( '/data-note-id="(\d+)"/i', $post->post_content, $matches );
+		$notes_raw = ! empty( $matches[1] ) ? array_map( 'intval', $matches[1] ) : array();
+		
+		// Count occurrences of each note.
+		$notes_counts = array();
+		foreach ( $notes_raw as $note_id ) {
+			if ( ! isset( $notes_counts[ $note_id ] ) ) {
+				$notes_counts[ $note_id ] = 0;
+			}
+			$notes_counts[ $note_id ]++;
+		}
+
+		// Accumulate usage data for each note.
+		foreach ( $notes_counts as $note_id => $count ) {
+			if ( ! isset( $all_usage_data[ $note_id ] ) ) {
+				$all_usage_data[ $note_id ] = array();
+			}
+
+			$all_usage_data[ $note_id ][] = array(
+				'post_id' => $post->ID,
+				'count'   => $count,
+			);
+		}
+	}
+
+	// Now save all the accumulated usage data.
+	foreach ( $all_usage_data as $note_id => $used_in ) {
+		update_post_meta( $note_id, 'used_in_posts', $used_in );
+		
+		// Recalculate total usage count.
+		$total_count = 0;
+		foreach ( $used_in as $usage_data ) {
+			$total_count += $usage_data['count'] ?? 1;
+		}
+		update_post_meta( $note_id, 'usage_count', $total_count );
+	}
+
+	// Redirect to notes list with success message.
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'post_type' => 'inline_context_note',
+					'rebuilt'   => '1',
+				),
+				admin_url( 'edit.php' )
+			)
+		);
+		exit;
+	}
+);
+
+/**
+ * Show success message after rebuild.
+ */
+add_action(
+	'admin_notices',
+	function () {
+		if ( isset( $_GET['rebuilt'] ) && $_GET['rebuilt'] === '1' && isset( $_GET['post_type'] ) && $_GET['post_type'] === 'inline_context_note' ) {
+			echo '<div class="notice notice-success is-dismissible">';
+			echo '<p><strong>' . esc_html__( 'Success!', 'inline-context' ) . '</strong> ';
+			echo esc_html__( 'Usage data has been rebuilt for all inline context notes.', 'inline-context' );
+			echo '</p>';
+			echo '</div>';
+		}
 	}
 );

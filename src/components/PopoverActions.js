@@ -2,7 +2,7 @@
  * Popover action buttons component
  */
 
-import { Button, Flex, FlexItem } from '@wordpress/components';
+import { Button, Flex, FlexItem, CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 export default function PopoverActions( {
@@ -14,6 +14,9 @@ export default function PopoverActions( {
 	removeRef,
 	cancelRef,
 	saveRef,
+	isReusable,
+	onReusableChange,
+	isReusableDisabled,
 } ) {
 	return (
 		<Flex justify="space-between" align="center">
@@ -31,7 +34,13 @@ export default function PopoverActions( {
 				) }
 			</FlexItem>
 			<FlexItem>
-				<Flex gap={ 2 }>
+				<Flex gap={ 3 } align="center">
+					<CheckboxControl
+						label={ __( 'Reusable', 'inline-context' ) }
+						checked={ isReusable }
+						onChange={ onReusableChange }
+						disabled={ isReusableDisabled }
+					/>
 					<Button
 						ref={ cancelRef }
 						variant="secondary"
