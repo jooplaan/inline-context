@@ -36,7 +36,7 @@ export default function PopoverActions( {
 			<FlexItem>
 				<Flex gap={ 3 } align="center">
 					<CheckboxControl
-						label={ __( 'Reusable', 'inline-context' ) }
+						label={ __( 'Use as reusable note', 'inline-context' ) }
 						checked={ isReusable }
 						onChange={ onReusableChange }
 						disabled={ isReusableDisabled }
