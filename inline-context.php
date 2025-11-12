@@ -176,7 +176,7 @@ add_action(
 					if ( ! is_array( $value ) ) {
 						return array();
 					}
-					// Sanitize array of objects: [['post_id' => int, 'count' => int], ...]
+					// Sanitize array of objects: [['post_id' => int, 'count' => int], ...].
 					$sanitized = array();
 					foreach ( $value as $usage_data ) {
 						if ( is_array( $usage_data ) && isset( $usage_data['post_id'] ) ) {
@@ -237,7 +237,7 @@ add_action(
 add_filter(
 	'rest_prepare_inline_context_note',
 	function ( $response, $post, $request ) {
-		$data = $response->get_data();
+		$data                = $response->get_data();
 		$data['is_reusable'] = (bool) get_post_meta( $post->ID, 'is_reusable', true );
 		$response->set_data( $data );
 		return $response;
@@ -249,7 +249,7 @@ add_filter(
 /**
  * One-time cleanup function to rebuild usage data for all notes.
  * This fixes corrupted data from the old data structure.
- * 
+ *
  * To use: Add ?inline_context_rebuild=1 to any admin URL while logged in as admin.
  * Example: wp-admin/edit.php?post_type=inline_context_note&inline_context_rebuild=1
  */
@@ -260,90 +260,86 @@ add_action(
 			return;
 		}
 
-
-	// Reset all note usage data - use direct DB delete to avoid cache issues.
-	$all_notes = get_posts(
-		array(
-			'post_type'      => 'inline_context_note',
-			'posts_per_page' => -1,
-			'fields'         => 'ids',
-		)
-	);
-
-
-	global $wpdb;
-	foreach ( $all_notes as $note_id ) {
-		// Delete from database directly to avoid cache issues.
-		$wpdb->delete(
-			$wpdb->postmeta,
+		// Reset all note usage data - use direct DB delete to avoid cache issues.
+		$all_notes = get_posts(
 			array(
-				'post_id'  => $note_id,
-				'meta_key' => 'used_in_posts',
+				'post_type'      => 'inline_context_note',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
 			)
 		);
-		$wpdb->delete(
-			$wpdb->postmeta,
-			array(
-				'post_id'  => $note_id,
-				'meta_key' => 'usage_count',
-			)
-		);
-		// Clear the cache for this post.
-		wp_cache_delete( $note_id, 'post_meta' );
-	}
 
-	// Scan all posts and pages to rebuild usage data.
-	$all_posts = get_posts(
-		array(
-			'post_type'      => array( 'post', 'page' ),
-			'post_status'    => 'any',
-			'posts_per_page' => -1,
-		)
-	);
-
-	// Build usage data structure: note_id => [['post_id' => X, 'count' => Y], ...]
-	$all_usage_data = array();
-
-	foreach ( $all_posts as $post ) {
-		// Get note IDs from content and count occurrences.
-		preg_match_all( '/data-note-id="(\d+)"/i', $post->post_content, $matches );
-		$notes_raw = ! empty( $matches[1] ) ? array_map( 'intval', $matches[1] ) : array();
-		
-		// Count occurrences of each note.
-		$notes_counts = array();
-		foreach ( $notes_raw as $note_id ) {
-			if ( ! isset( $notes_counts[ $note_id ] ) ) {
-				$notes_counts[ $note_id ] = 0;
-			}
-			$notes_counts[ $note_id ]++;
-		}
-
-		// Accumulate usage data for each note.
-		foreach ( $notes_counts as $note_id => $count ) {
-			if ( ! isset( $all_usage_data[ $note_id ] ) ) {
-				$all_usage_data[ $note_id ] = array();
-			}
-
-			$all_usage_data[ $note_id ][] = array(
-				'post_id' => $post->ID,
-				'count'   => $count,
+		global $wpdb;
+		foreach ( $all_notes as $note_id ) {
+			// Delete from database directly to avoid cache issues.
+			$wpdb->delete(
+				$wpdb->postmeta,
+				array(
+					'post_id'  => $note_id,
+					'meta_key' => 'used_in_posts',
+				)
 			);
+			$wpdb->delete(
+				$wpdb->postmeta,
+				array(
+					'post_id'  => $note_id,
+					'meta_key' => 'usage_count',
+				)
+			);
+			// Clear the cache for this post.
+			wp_cache_delete( $note_id, 'post_meta' );
 		}
-	}
 
-	// Now save all the accumulated usage data.
-	foreach ( $all_usage_data as $note_id => $used_in ) {
-		update_post_meta( $note_id, 'used_in_posts', $used_in );
-		
-		// Recalculate total usage count.
-		$total_count = 0;
-		foreach ( $used_in as $usage_data ) {
-			$total_count += $usage_data['count'] ?? 1;
+		// Scan all posts and pages to rebuild usage data.
+		$all_posts = get_posts(
+			array(
+				'post_type'      => array( 'post', 'page' ),
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+			)
+		);
+
+		// Build usage data structure: note_id => [['post_id' => X, 'count' => Y], ...].
+		$all_usage_data = array();      foreach ( $all_posts as $post ) {
+			// Get note IDs from content and count occurrences.
+			preg_match_all( '/data-note-id="(\d+)"/i', $post->post_content, $matches );
+			$notes_raw = ! empty( $matches[1] ) ? array_map( 'intval', $matches[1] ) : array();
+
+			// Count occurrences of each note.
+			$notes_counts = array();
+			foreach ( $notes_raw as $note_id ) {
+				if ( ! isset( $notes_counts[ $note_id ] ) ) {
+					$notes_counts[ $note_id ] = 0;
+				}
+				$notes_counts[ $note_id ]++;
+			}
+
+			// Accumulate usage data for each note.
+			foreach ( $notes_counts as $note_id => $count ) {
+				if ( ! isset( $all_usage_data[ $note_id ] ) ) {
+					$all_usage_data[ $note_id ] = array();
+				}
+
+				$all_usage_data[ $note_id ][] = array(
+					'post_id' => $post->ID,
+					'count'   => $count,
+				);
+			}
 		}
-		update_post_meta( $note_id, 'usage_count', $total_count );
-	}
 
-	// Redirect to notes list with success message.
+		// Now save all the accumulated usage data.
+		foreach ( $all_usage_data as $note_id => $used_in ) {
+			update_post_meta( $note_id, 'used_in_posts', $used_in );
+
+			// Recalculate total usage count.
+			$total_count = 0;
+			foreach ( $used_in as $usage_data ) {
+				$total_count += $usage_data['count'] ?? 1;
+			}
+			update_post_meta( $note_id, 'usage_count', $total_count );
+		}
+
+		// Redirect to notes list with success message.
 		wp_safe_redirect(
 			add_query_arg(
 				array(
@@ -364,7 +360,7 @@ add_action(
 	'admin_notices',
 	function () {
 		// Display rebuild success notice.
-		if ( isset( $_GET['rebuilt'] ) && $_GET['rebuilt'] === '1' && isset( $_GET['post_type'] ) && $_GET['post_type'] === 'inline_context_note' ) {
+		if ( isset( $_GET['rebuilt'] ) && '1' === $_GET['rebuilt'] && isset( $_GET['post_type'] ) && 'inline_context_note' === $_GET['post_type'] ) {
 			echo '<div class="notice notice-success is-dismissible">';
 			echo '<p><strong>' . esc_html__( 'Success!', 'inline-context' ) . '</strong> ';
 			echo esc_html__( 'Usage data has been rebuilt for all inline context notes.', 'inline-context' );
@@ -374,12 +370,12 @@ add_action(
 
 		// Display transient admin notices (for post save validations).
 		$screen = get_current_screen();
-		if ( $screen && $screen->post_type === 'inline_context_note' && $screen->base === 'post' && isset( $_GET['post'] ) ) {
+		if ( $screen && 'inline_context_note' === $screen->post_type && 'post' === $screen->base && isset( $_GET['post'] ) ) {
 			$post_id = intval( $_GET['post'] );
 			$notices = get_transient( 'inline_context_admin_notice_' . $post_id );
 			if ( $notices ) {
 				foreach ( $notices as $notice ) {
-					$type = $notice['type'] === 'error' ? 'error' : 'warning';
+					$type = 'error' === $notice['type'] ? 'error' : 'warning';
 					echo '<div class="notice notice-' . esc_attr( $type ) . ' is-dismissible">';
 					echo '<p>' . esc_html( $notice['message'] ) . '</p>';
 					echo '</div>';
