@@ -645,20 +645,62 @@ export default function Edit( { isActive, value, onChange } ) {
 											'inline-context'
 										) }
 										<br />
-										<a
-											href={ `/wp-admin/post.php?post=${ selectedNote.id }&action=edit` }
-											target="_blank"
-											rel="noopener noreferrer"
+										<div
 											style={ {
 												marginTop: '8px',
-												display: 'inline-block',
+												display: 'flex',
+												gap: '12px',
+												alignItems: 'center',
 											} }
 										>
-											{ __(
-												'Edit source note →',
-												'inline-context'
+											<a
+												href={ `/wp-admin/post.php?post=${ selectedNote.id }&action=edit` }
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												{ __(
+													'Edit source note →',
+													'inline-context'
+												) }
+											</a>
+											{ activeFormat?.attributes?.[
+												'data-anchor-id'
+											] && (
+												<Button
+													variant="link"
+													size="small"
+													onClick={ handleCopyLink }
+													disabled={
+														copyLinkStatus === 'copying'
+													}
+													style={ {
+														padding: 0,
+														height: 'auto',
+														minHeight: 0,
+														textDecoration:
+															copyLinkStatus === 'idle'
+																? 'underline'
+																: 'none',
+													} }
+												>
+													{ copyLinkStatus === 'copied' &&
+														__(
+															'Link copied',
+															'inline-context'
+														) }
+													{ copyLinkStatus === 'copying' &&
+														__(
+															'Copying…',
+															'inline-context'
+														) }
+													{ copyLinkStatus === 'idle' &&
+														__(
+															'Copy link to this note',
+															'inline-context'
+														) }
+												</Button>
 											) }
-										</a>
+										</div>
 									</div>
 								</div>
 							</div>
