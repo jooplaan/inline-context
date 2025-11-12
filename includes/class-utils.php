@@ -42,16 +42,16 @@ class Inline_Context_Utils {
 				'icon_open'   => 'dashicons-external',
 				'color'       => '#d63638',
 			),
-			'definition'       => array(
-				'id'          => 'definition',
-				'name'        => __( 'Definition', 'inline-context' ),
+			'source'       => array(
+				'id'          => 'source',
+				'name'        => __( 'Source', 'inline-context' ),
 				'icon_closed' => 'dashicons-book',
 				'icon_open'   => 'dashicons-book-alt',
 				'color'       => '#00a32a',
 			),
-			'tip'              => array(
-				'id'          => 'tip',
-				'name'        => __( 'Tip', 'inline-context' ),
+			'infocard'              => array(
+				'id'          => 'infocard',
+				'name'        => __( 'Infocard', 'inline-context' ),
 				'icon_closed' => 'dashicons-lightbulb',
 				'icon_open'   => 'dashicons-lightbulb',
 				'color'       => '#dba617',

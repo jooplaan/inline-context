@@ -86,7 +86,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 	// Add or update category icon for a trigger
 	const addCategoryIcon = ( trigger, categoryId, isOpen ) => {
-		const category = categories[ categoryId ];
+		// Find category by ID (categoryId is stored as term_id)
+		const category = Object.values( categories ).find(
+			( cat ) => cat.id && cat.id.toString() === categoryId.toString()
+		);
 		if ( ! category ) return;
 
 		// Remove existing icon if present
@@ -122,8 +125,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 		// Add category icon if category is set
 		const categoryId = trigger.dataset.categoryId;
-		if ( categoryId && categories[ categoryId ] ) {
-			addCategoryIcon( trigger, categoryId, false );
+		if ( categoryId ) {
+			const category = Object.values( categories ).find(
+				( cat ) => cat.id && cat.id.toString() === categoryId.toString()
+			);
+			if ( category ) {
+				addCategoryIcon( trigger, categoryId, false );
+			}
 		}
 	}
 
@@ -227,8 +235,14 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 			// Update icon to closed state
 			const categoryId = trigger.dataset.categoryId;
-			if ( categoryId && categories[ categoryId ] ) {
-				addCategoryIcon( trigger, categoryId, false );
+			if ( categoryId ) {
+				const category = Object.values( categories ).find(
+					( cat ) =>
+						cat.id && cat.id.toString() === categoryId.toString()
+				);
+				if ( category ) {
+					addCategoryIcon( trigger, categoryId, false );
+				}
 			}
 			return;
 		}
@@ -277,8 +291,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 		// Update icon to open state
 		const categoryId = trigger.dataset.categoryId;
-		if ( categoryId && categories[ categoryId ] ) {
-			addCategoryIcon( trigger, categoryId, true );
+		if ( categoryId ) {
+			const category = Object.values( categories ).find(
+				( cat ) => cat.id && cat.id.toString() === categoryId.toString()
+			);
+			if ( category ) {
+				addCategoryIcon( trigger, categoryId, true );
+			}
 		}
 	};
 
