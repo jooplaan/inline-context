@@ -333,6 +333,9 @@ add_action(
 		// Remove the default editor.
 		remove_post_type_support( 'inline_context_note', 'editor' );
 
+		// Remove custom fields metabox.
+		remove_meta_box( 'postcustom', 'inline_context_note', 'normal' );
+
 		add_meta_box(
 			'inline_context_note_content',
 			__( 'Note Content', 'inline-context' ),
@@ -593,31 +596,61 @@ add_action(
 
 		// Add delete confirmation for notes with usage.
 		$usage_count = $post_id ? (int) get_post_meta( $post_id, 'usage_count', true ) : 0;
+		$is_reusable = $post_id ? get_post_meta( $post_id, 'is_reusable', true ) : false;
+		
 		if ( $usage_count > 0 ) {
-			wp_add_inline_script(
-				'jooplaan-inline-context-cpt-editor',
-				sprintf(
-					'
-					(function() {
-						var usageCount = %d;
-						var deleteLink = document.querySelector("a.submitdelete");
-						if (deleteLink && usageCount > 0) {
-							deleteLink.addEventListener("click", function(e) {
-								var message = usageCount === 1
-									? "This note is currently used in 1 post. Are you sure you want to delete it?\n\nDeleting will not remove it from the post, but the note will no longer appear in search results."
-									: "This note is currently used in " + usageCount + " posts. Are you sure you want to delete it?\n\nDeleting will not remove it from those posts, but the note will no longer appear in search results.";
+			if ( $is_reusable ) {
+				// Block deletion for reusable notes
+				wp_add_inline_script(
+					'jooplaan-inline-context-cpt-editor',
+					sprintf(
+						'
+						(function() {
+							var usageCount = %d;
+							var deleteLink = document.querySelector("a.submitdelete");
+							if (deleteLink && usageCount > 0) {
+								deleteLink.addEventListener("click", function(e) {
+									var message = usageCount === 1
+										? "This reusable note cannot be trashed because it is currently used in 1 post.\\n\\nPlease remove it from the post first."
+										: "This reusable note cannot be trashed because it is currently used in " + usageCount + " posts.\\n\\nPlease remove it from all posts first.";
 
-								if (!confirm(message)) {
+									alert(message);
 									e.preventDefault();
 									return false;
-								}
-							});
-						}
-					})();
-					',
-					$usage_count
-				)
-			);
+								});
+							}
+						})();
+						',
+						$usage_count
+					)
+				);
+			} else {
+				// Warn but allow deletion for non-reusable notes
+				wp_add_inline_script(
+					'jooplaan-inline-context-cpt-editor',
+					sprintf(
+						'
+						(function() {
+							var usageCount = %d;
+							var deleteLink = document.querySelector("a.submitdelete");
+							if (deleteLink && usageCount > 0) {
+								deleteLink.addEventListener("click", function(e) {
+									var message = usageCount === 1
+										? "This note is currently used in 1 post.\\n\\nDeleting it will also remove it from that post.\\n\\nContinue?"
+										: "This note is currently used in " + usageCount + " posts.\\n\\nDeleting it will also remove it from those posts.\\n\\nContinue?";
+
+									if (!confirm(message)) {
+										e.preventDefault();
+										return false;
+									}
+								});
+							}
+						})();
+						',
+						$usage_count
+					)
+				);
+			}
 		}
 	}
 );
@@ -633,80 +666,97 @@ add_action(
 			return;
 		}
 
-		// Get all notes with their usage counts for JavaScript.
-		global $wp_query;
-		$note_usage = array();
+	// Get all notes with their usage counts for JavaScript.
+	global $wp_query;
+	$note_usage = array();
+	$reusable_in_use = array();
 
-		if ( isset( $wp_query->posts ) && is_array( $wp_query->posts ) ) {
-			foreach ( $wp_query->posts as $post ) {
-				$usage_count = (int) get_post_meta( $post->ID, 'usage_count', true );
-				if ( $usage_count > 0 ) {
-					$note_usage[ $post->ID ] = $usage_count;
+	if ( isset( $wp_query->posts ) && is_array( $wp_query->posts ) ) {
+		foreach ( $wp_query->posts as $post ) {
+			$usage_count = (int) get_post_meta( $post->ID, 'usage_count', true );
+			$is_reusable = get_post_meta( $post->ID, 'is_reusable', true );
+			
+			if ( $usage_count > 0 ) {
+				$note_usage[ $post->ID ] = $usage_count;
+				
+				// Track if it's reusable and in use (cannot be deleted).
+				if ( $is_reusable ) {
+					$reusable_in_use[ $post->ID ] = true;
 				}
 			}
 		}
+	}
 
-		if ( ! empty( $note_usage ) ) :
-			?>
-			<script>
-			jQuery(document).ready(function($) {
-				var noteUsage = <?php echo wp_json_encode( $note_usage ); ?>;
+	if ( ! empty( $note_usage ) ) :
+		?>
+		<script>
+		jQuery(document).ready(function($) {
+			var noteUsage = <?php echo wp_json_encode( $note_usage ); ?>;
+			var reusableInUse = <?php echo wp_json_encode( $reusable_in_use ); ?>;
 
-				// Confirm bulk delete
-				$('#doaction, #doaction2').on('click', function(e) {
-					var form = $(this).closest('form');
-					var action = form.find('select[name="action"]').val();
-					if (!action || action === '-1') {
-						action = form.find('select[name="action2"]').val();
-					}
+			// Confirm bulk delete
+			$('#doaction, #doaction2').on('click', function(e) {
+				var form = $(this).closest('form');
+				var action = form.find('select[name="action"]').val();
+				if (!action || action === '-1') {
+					action = form.find('select[name="action2"]').val();
+				}
 
-					if (action === 'trash') {
-						var checkedPosts = form.find('input[name="post[]"]:checked');
-						var inUseCount = 0;
-						var totalCount = checkedPosts.length;
+				if (action === 'trash') {
+					var checkedPosts = form.find('input[name="post[]"]:checked');
+					var reusableInUseCount = 0;
 
-						checkedPosts.each(function() {
-							var postId = $(this).val();
-							if (noteUsage[postId] && noteUsage[postId] > 0) {
-								inUseCount++;
-							}
-						});
-
-						if (totalCount > 0 && inUseCount > 0) {
-							var message = 'You are about to delete ' + totalCount + ' note(s).\n\n';
-							message += inUseCount + ' of them ' + (inUseCount === 1 ? 'is' : 'are') + ' currently in use in posts.\n\n';
-							message += 'Deleting will not remove them from posts, but they will no longer appear in search results.\n\nContinue?';
-							if (!confirm(message)) {
-								e.preventDefault();
-								return false;
-							}
+					checkedPosts.each(function() {
+						var postId = $(this).val();
+						if (reusableInUse[postId]) {
+							reusableInUseCount++;
 						}
+					});
+
+					if (reusableInUseCount > 0) {
+						var message = reusableInUseCount + (reusableInUseCount === 1 ? ' reusable note' : ' reusable notes') + ' in your selection cannot be trashed because ' + (reusableInUseCount === 1 ? 'it is' : 'they are') + ' currently in use.\n\n';
+						message += 'Please remove ' + (reusableInUseCount === 1 ? 'it' : 'them') + ' from all posts first.';
+						alert(message);
+						e.preventDefault();
+						return false;
 					}
-				});
-
-				// Confirm individual delete (trash link in row actions)
-				$('span.trash a').on('click', function(e) {
-					var link = $(this);
-					var row = link.closest('tr');
-					var checkbox = row.find('input[name="post[]"]');
-
-					if (checkbox.length) {
-						var postId = checkbox.val();
-						var usage = noteUsage[postId];
-
-						if (usage && usage > 0) {
-							var message = 'This note is currently used in ' + usage + ' post(s).\n\n';
-							message += 'Deleting will not remove it from those posts, but the note will no longer appear in search results.\n\nContinue?';
-							if (!confirm(message)) {
-								e.preventDefault();
-								return false;
-							}
-						}
-					}
-				});
+				}
 			});
-			</script>
-			<?php
+
+			// Confirm individual delete (trash link in row actions)
+			$('span.trash a').on('click', function(e) {
+				var link = $(this);
+				var row = link.closest('tr');
+				var checkbox = row.find('input[name="post[]"]');
+
+				if (checkbox.length) {
+					var postId = checkbox.val();
+					
+					// Block reusable notes that are in use
+					if (reusableInUse[postId]) {
+						var usage = noteUsage[postId];
+						var message = 'This reusable note cannot be trashed because it is currently used in ' + usage + ' post' + (usage === 1 ? '' : 's') + '.\n\n';
+						message += 'Please remove it from all posts first.';
+						alert(message);
+						e.preventDefault();
+						return false;
+					}
+					
+					// Warn about non-reusable notes that are in use (but allow deletion)
+					if (noteUsage[postId] && !reusableInUse[postId]) {
+						var usage = noteUsage[postId];
+						var message = 'This note is currently used in ' + usage + ' post' + (usage === 1 ? '' : 's') + '.\n\n';
+						message += 'Deleting it will also remove it from ' + (usage === 1 ? 'that post' : 'those posts') + '.\n\nContinue?';
+						if (!confirm(message)) {
+							e.preventDefault();
+							return false;
+						}
+					}
+				}
+			});
+		});
+		</script>
+		<?php
 		endif;
 	}
 );
@@ -768,15 +818,49 @@ add_action(
 			}
 		}
 
-		// Save the "is_reusable" flag (verify nonce).
-		if ( isset( $_POST['inline_context_usage_meta_nonce_field'] ) &&
-			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['inline_context_usage_meta_nonce_field'] ) ), 'inline_context_usage_meta_nonce' ) ) {
+	// Save the "is_reusable" flag (verify nonce).
+	if ( isset( $_POST['inline_context_usage_meta_nonce_field'] ) &&
+		wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['inline_context_usage_meta_nonce_field'] ) ), 'inline_context_usage_meta_nonce' ) ) {
 
-			$is_reusable = isset( $_POST['inline_context_is_reusable'] ) ? true : false;
-			update_post_meta( $post_id, 'is_reusable', $is_reusable );
+		$new_is_reusable = isset( $_POST['inline_context_is_reusable'] ) ? true : false;
+		$old_is_reusable = get_post_meta( $post_id, 'is_reusable', true );
+
+		// Check if trying to unmark a reusable note that's in use.
+		if ( $old_is_reusable && ! $new_is_reusable ) {
+			$used_in = get_post_meta( $post_id, 'used_in_posts', true );
+			if ( ! empty( $used_in ) && is_array( $used_in ) ) {
+				// Prevent unchecking - keep it reusable.
+				update_post_meta( $post_id, 'is_reusable', true );
+				
+				// Show admin notice.
+				$usage_count = count( $used_in );
+				add_settings_error(
+					'inline_context_messages',
+					'inline_context_reusable_in_use',
+					sprintf(
+						/* translators: %d: number of posts using the note */
+						_n(
+							'This note is currently used in %d post. To unmark as reusable, first remove it from all posts.',
+							'This note is currently used in %d posts. To unmark as reusable, first remove it from all posts.',
+							$usage_count,
+							'inline-context'
+						),
+						$usage_count
+					),
+					'error'
+				);
+				
+				// Store the notice to display on redirect.
+				set_transient( 'inline_context_admin_notice_' . $post_id, get_settings_errors( 'inline_context_messages' ), 30 );
+			} else {
+				// Not in use, allow unchecking.
+				update_post_meta( $post_id, 'is_reusable', $new_is_reusable );
+			}
+		} else {
+			// Allow checking or no change.
+			update_post_meta( $post_id, 'is_reusable', $new_is_reusable );
 		}
-
-		$assigned_terms     = wp_get_post_terms( $post_id, 'inline_context_category', array( 'fields' => 'ids' ) );
+	}		$assigned_terms     = wp_get_post_terms( $post_id, 'inline_context_category', array( 'fields' => 'ids' ) );
 		$current_category_id = ( ! is_wp_error( $assigned_terms ) && ! empty( $assigned_terms ) ) ? (int) $assigned_terms[0] : 0;
 
 		inline_context_sync_note_category_attribute( $post_id, $current_category_id );
@@ -786,6 +870,159 @@ add_action(
 	10,
 	1
 );
+
+/**
+ * Prevent trashing a reusable note that's in use.
+ */
+add_action(
+	'wp_trash_post',
+	function ( $post_id ) {
+		$post = get_post( $post_id );
+		
+		if ( ! $post || $post->post_type !== 'inline_context_note' ) {
+			return;
+		}
+
+		$is_reusable = get_post_meta( $post_id, 'is_reusable', true );
+		$used_in     = get_post_meta( $post_id, 'used_in_posts', true );
+
+		// Only prevent trashing for REUSABLE notes that are in use.
+		if ( $is_reusable && ! empty( $used_in ) && is_array( $used_in ) ) {
+			wp_die(
+				sprintf(
+					/* translators: %d: number of posts using the note */
+					_n(
+						'This reusable note cannot be trashed because it is currently used in %d post. Please remove it from all posts first.',
+						'This reusable note cannot be trashed because it is currently used in %d posts. Please remove it from all posts first.',
+						count( $used_in ),
+						'inline-context'
+					),
+					count( $used_in )
+				),
+				esc_html__( 'Cannot Trash Note', 'inline-context' ),
+				array(
+					'back_link' => true,
+					'response'  => 403,
+				)
+			);
+		}
+	},
+	10,
+	1
+);
+
+/**
+ * Clean up non-reusable notes from posts after they've been trashed.
+ */
+add_action(
+	'trashed_post',
+	function ( $post_id ) {
+		$post = get_post( $post_id );
+		
+		if ( ! $post || $post->post_type !== 'inline_context_note' ) {
+			return;
+		}
+
+		$is_reusable = get_post_meta( $post_id, 'is_reusable', true );
+		$used_in     = get_post_meta( $post_id, 'used_in_posts', true );
+
+		// For non-reusable notes that are in use, remove them from all posts.
+		if ( ! $is_reusable && ! empty( $used_in ) && is_array( $used_in ) ) {
+			inline_context_remove_note_from_posts( $post_id, $used_in );
+		}
+	},
+	10,
+	1
+);
+
+/**
+ * Prevent deleting a reusable note that's in use.
+ * For non-reusable notes, remove them from posts when permanently deleted.
+ */
+add_action(
+	'before_delete_post',
+	function ( $post_id, $post ) {
+		if ( ! $post || $post->post_type !== 'inline_context_note' ) {
+			return;
+		}
+
+		$is_reusable = get_post_meta( $post_id, 'is_reusable', true );
+		$used_in     = get_post_meta( $post_id, 'used_in_posts', true );
+
+		// Only prevent deletion for REUSABLE notes that are in use.
+		if ( $is_reusable && ! empty( $used_in ) && is_array( $used_in ) ) {
+			wp_die(
+				sprintf(
+					/* translators: %d: number of posts using the note */
+					_n(
+						'This reusable note cannot be deleted because it is currently used in %d post. Please remove it from all posts first.',
+						'This reusable note cannot be deleted because it is currently used in %d posts. Please remove it from all posts first.',
+						count( $used_in ),
+						'inline-context'
+					),
+					count( $used_in )
+				),
+				esc_html__( 'Cannot Delete Note', 'inline-context' ),
+				array(
+					'back_link' => true,
+					'response'  => 403,
+				)
+			);
+		}
+
+		// For non-reusable notes that are in use, remove them from all posts.
+		if ( ! $is_reusable && ! empty( $used_in ) && is_array( $used_in ) ) {
+			inline_context_remove_note_from_posts( $post_id, $used_in );
+		}
+	},
+	10,
+	2
+);
+
+/**
+ * Helper function to remove a note from all posts where it's used.
+ *
+ * @param int   $note_id The note ID to remove.
+ * @param array $used_in Array of usage data with post_id and count.
+ */
+function inline_context_remove_note_from_posts( $note_id, $used_in ) {
+	foreach ( $used_in as $usage_data ) {
+		$using_post_id = $usage_data['post_id'] ?? 0;
+		
+		if ( ! $using_post_id ) {
+			continue;
+		}
+
+		$using_post = get_post( $using_post_id );
+		if ( ! $using_post ) {
+			continue;
+		}
+
+		// Remove the <a> tag but keep the link text.
+		// Pattern matches: <a ...data-note-id="123"...>link text</a>
+		// Replacement: link text (just the captured content)
+		$pattern = '/<a\s+[^>]*?data-note-id=["\']' . preg_quote( (string) $note_id, '/' ) . '["\'][^>]*?>(.*?)<\/a>/is';
+		
+		$updated_content = preg_replace( $pattern, '$1', $using_post->post_content );
+
+		if ( $updated_content !== $using_post->post_content ) {
+			// Use remove_filter to prevent infinite loops with post_updated hooks.
+			remove_action( 'post_updated', 'inline_context_sync_note_usage_on_post_save', 10 );
+			remove_action( 'post_updated', 'inline_context_sync_reusable_note_content', 10 );
+			
+			wp_update_post(
+				array(
+					'ID'           => $using_post_id,
+					'post_content' => $updated_content,
+				)
+			);
+			
+			// Re-add the hooks.
+			add_action( 'post_updated', 'inline_context_sync_note_usage_on_post_save', 10, 3 );
+			add_action( 'post_updated', 'inline_context_sync_reusable_note_content', 10, 3 );
+		}
+	}
+}
 
 /**
  * Update the data-category-id attribute for all usages of a note.
@@ -1989,12 +2226,29 @@ add_action(
 add_action(
 	'admin_notices',
 	function () {
+		// Display rebuild success notice.
 		if ( isset( $_GET['rebuilt'] ) && $_GET['rebuilt'] === '1' && isset( $_GET['post_type'] ) && $_GET['post_type'] === 'inline_context_note' ) {
 			echo '<div class="notice notice-success is-dismissible">';
 			echo '<p><strong>' . esc_html__( 'Success!', 'inline-context' ) . '</strong> ';
 			echo esc_html__( 'Usage data has been rebuilt for all inline context notes.', 'inline-context' );
 			echo '</p>';
 			echo '</div>';
+		}
+
+		// Display transient admin notices (for post save validations).
+		$screen = get_current_screen();
+		if ( $screen && $screen->post_type === 'inline_context_note' && $screen->base === 'post' && isset( $_GET['post'] ) ) {
+			$post_id = intval( $_GET['post'] );
+			$notices = get_transient( 'inline_context_admin_notice_' . $post_id );
+			if ( $notices ) {
+				foreach ( $notices as $notice ) {
+					$type = $notice['type'] === 'error' ? 'error' : 'warning';
+					echo '<div class="notice notice-' . esc_attr( $type ) . ' is-dismissible">';
+					echo '<p>' . esc_html( $notice['message'] ) . '</p>';
+					echo '</div>';
+				}
+				delete_transient( 'inline_context_admin_notice_' . $post_id );
+			}
 		}
 	}
 );
