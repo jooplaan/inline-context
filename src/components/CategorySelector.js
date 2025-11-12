@@ -5,7 +5,12 @@
 import { SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-export default function CategorySelector( { value, onChange, categories, disabled = false } ) {
+export default function CategorySelector( {
+	value,
+	onChange,
+	categories,
+	disabled = false,
+} ) {
 	if ( Object.keys( categories ).length === 0 ) {
 		return null;
 	}

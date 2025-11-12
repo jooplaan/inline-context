@@ -546,6 +546,7 @@ function inline_context_render_settings_page() {
 function inline_context_render_uninstall_tab() {
 	// Count posts with inline context links.
 	global $wpdb;
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time count for display only.
 	$posts_with_links = $wpdb->get_var(
 		"SELECT COUNT(DISTINCT ID)
 		FROM {$wpdb->posts}
@@ -625,22 +626,22 @@ function inline_context_render_uninstall_tab() {
 								?>
 							</p>
 							<?php if ( $posts_with_links > 0 ) : ?>
-								<p class="description" style="color: #d63638;">
-									<strong><?php esc_html_e( 'Warning:', 'inline-context' ); ?></strong>
-									<?php
-									printf(
-										/* translators: %s: number of posts */
-										esc_html(
-											_n(
-												'This will modify %s post in your database.',
-												'This will modify %s posts in your database.',
-												$posts_with_links,
-												'inline-context'
-											)
-										),
-										'<strong>' . esc_html( number_format_i18n( $posts_with_links ) ) . '</strong>'
-									);
-									?>
+							<p class="description" style="color: #d63638;">
+						<strong><?php esc_html_e( 'Warning:', 'inline-context' ); ?></strong>
+								<?php
+								printf(
+									esc_html(
+									/* translators: %s: number of posts */
+										_n(
+											'This will modify %s post in your database.',
+											'This will modify %s posts in your database.',
+											$posts_with_links,
+											'inline-context'
+										)
+									),
+									'<strong>' . esc_html( number_format_i18n( $posts_with_links ) ) . '</strong>'
+								);
+								?>
 								</p>
 							<?php endif; ?>
 							<p class="description">
