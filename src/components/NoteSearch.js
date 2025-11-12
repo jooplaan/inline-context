@@ -21,10 +21,17 @@ export default function NoteSearch( {
 	const searchNotes = useCallback( ( term ) => {
 		setIsLoading( true );
 
-		const params = term ? `?s=${ encodeURIComponent( term ) }` : '';
+		// Build query params: search term + reusable_only filter
+		const params = new URLSearchParams();
+		if ( term ) {
+			params.append( 's', term );
+		}
+		params.append( 'reusable_only', '1' );
+
+		const queryString = params.toString();
 
 		apiFetch( {
-			path: `/inline-context/v1/notes/search${ params }`,
+			path: `/inline-context/v1/notes/search${ queryString ? `?${ queryString }` : '' }`,
 		} )
 			.then( ( results ) => {
 				setNotes( results );
@@ -102,11 +109,11 @@ export default function NoteSearch( {
 					<div className="wp-inline-context-note-empty">
 						{ searchTerm
 							? __(
-									'No notes found. Try a different search or create a new note.',
+									'No reusable notes found. Try a different search or create a new note.',
 									'inline-context'
 							  )
 							: __(
-									'No notes yet. Create your first note!',
+									'No reusable notes yet. Create a note and mark it as reusable to see it here.',
 									'inline-context'
 							  ) }
 					</div>

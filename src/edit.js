@@ -52,6 +52,7 @@ export default function Edit( { isActive, value, onChange } ) {
 	const [ isReusedNote, setIsReusedNote ] = useState( false );
 	const [ selectedNote, setSelectedNote ] = useState( null );
 	const [ isReusable, setIsReusable ] = useState( false );
+	const [ hasReusableNotes, setHasReusableNotes ] = useState( false );
 
 	// Refs
 	const prevFocusRef = useRef( null );
@@ -437,6 +438,24 @@ export default function Edit( { isActive, value, onChange } ) {
 				console.warn( 'Could not fetch note details:', error );
 			} );
 	}, [ isOpen, noteId ] ); // Only depend on isOpen and noteId to avoid infinite loops
+
+	// Check if reusable notes exist when popover opens
+	useEffect( () => {
+		if ( ! isOpen ) {
+			return;
+		}
+
+		// Check if there are any reusable notes available
+		apiFetch( {
+			path: '/inline-context/v1/notes/search?reusable_only=1',
+		} )
+			.then( ( results ) => {
+				setHasReusableNotes( results && results.length > 0 );
+			} )
+			.catch( () => {
+				setHasReusableNotes( false );
+			} );
+	}, [ isOpen ] );
 
 	const handleSelectNote = useCallback( ( note ) => {
 		setNoteId( note.id );
@@ -851,22 +870,24 @@ export default function Edit( { isActive, value, onChange } ) {
 												'Use the toolbar to format your inline context with bold, italic, links, and lists. Use "Add Link" for WordPress internal links, or click the code icon (&lt;/&gt;) to edit HTML source.',
 												'inline-context'
 											) }
-											<Button
-												variant="link"
-												size="small"
-												onClick={ () =>
-													setShowNoteSearch( true )
-												}
-												style={ {
-													marginLeft: '8px',
-													textDecoration: 'underline',
-												} }
-											>
-												{ __(
-													'Or search existing notes…',
-													'inline-context'
-												) }
-											</Button>
+											{ hasReusableNotes && (
+												<Button
+													variant="link"
+													size="small"
+													onClick={ () =>
+														setShowNoteSearch( true )
+													}
+													style={ {
+														marginLeft: '8px',
+														textDecoration: 'underline',
+													} }
+												>
+													{ __(
+														'Or search reusable notes…',
+														'inline-context'
+													) }
+												</Button>
+											) }
 										</div>
 									</>
 								) }
