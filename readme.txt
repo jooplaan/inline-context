@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.5.0
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,6 +98,54 @@ Yes. Icons automatically switch between closed and open states when users click 
 == Changelog ==
 
 == Changelog ==
+
+= 2.0.0 =
+**Major Release: Modular Architecture & Enhanced Code Quality**
+
+*Released: November 12, 2025*
+
+**🏗️ Architecture Overhaul**
+* **REFACTOR**: Complete modular restructuring - main file reduced from 2,291 to 391 lines (83% reduction)
+* **NEW**: Six dedicated class-based modules for optimal separation of concerns:
+  - `Inline_Context_CPT` (855 lines) - Custom Post Type, metaboxes, admin UI
+  - `Inline_Context_Sync` (496 lines) - Usage tracking, reusable content sync, category sync
+  - `Inline_Context_Deletion` (198 lines) - Deletion protection, cleanup logic
+  - `Inline_Context_REST_API` (340 lines) - REST endpoints for search and tracking
+  - `Inline_Context_Frontend` (276 lines) - Noscript generation, KSES filtering, assets
+  - `Inline_Context_Utils` (182 lines) - Category management, CSS variables
+* **NEW**: Clean bootstrap pattern with class initialization and dependency injection
+* **IMPROVED**: Function-based admin settings (678 lines) kept for optimal structure
+
+**💎 Code Quality & Standards**
+* **IMPROVED**: Full WordPress coding standards compliance (JavaScript and PHP)
+* **IMPROVED**: ESLint fixes - resolved 125 formatting issues and React Hooks dependencies
+* **IMPROVED**: PHPCS fixes - proper indentation, translators comments, documented patterns
+* **IMPROVED**: Pre-release quality gates - automatic linting before build/package
+* **IMPROVED**: Comprehensive inline documentation and phpcs:ignore explanations
+* **FIX**: All critical linting errors resolved (0 errors across codebase)
+
+**🔧 Developer Experience**
+* **IMPROVED**: Testable, maintainable modular architecture
+* **IMPROVED**: Clear separation of concerns for easier debugging
+* **IMPROVED**: Backward compatibility wrappers for legacy function calls
+* **IMPROVED**: Enhanced extensibility through clean class interfaces
+* **IMPROVED**: Optimized class autoloading and initialization
+* **IMPROVED**: Better code organization for future feature additions
+
+**📦 Build & Release**
+* **IMPROVED**: Streamlined build process with automatic quality checks
+* **IMPROVED**: Pre-packaging linting ensures clean releases
+* **IMPROVED**: Verified clean compilation with webpack 5
+* **IMPROVED**: Production-ready minified assets
+
+**🔄 Migration Notes**
+* **Seamless upgrade** from v1.5.0 - no data migration required
+* **Backward compatible** - all v1.x functionality preserved
+* **Zero breaking changes** - existing sites upgrade without issues
+* **Performance neutral** - modular code has same runtime performance
+
+**Why version 2.0?**
+This release represents a fundamental architectural improvement that sets the foundation for future development. The modular structure makes the plugin significantly easier to maintain, test, and extend while maintaining full backward compatibility.
 
 = 1.5.0 =
 * **NEW**: Custom Post Type for reusable notes - create once, use everywhere
@@ -253,5 +301,8 @@ Yes. Icons automatically switch between closed and open states when users click 
 * **REMOVED**: Legacy support - v1.0 requires anchor IDs for all context notes
 
 == Upgrade Notice ==
+= 2.0.0 =
+Major architectural overhaul with modular class-based structure (83% main file reduction). Full WordPress coding standards compliance. Seamless upgrade from v1.x with zero breaking changes.
+
 = 1.0.0 =
 Major release with anchor links, subtle design, and enhanced security. All context notes now get unique anchor IDs for direct linking.

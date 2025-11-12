@@ -2,7 +2,7 @@
 	"name": "jooplaan/inline-context",
 	"description": "Add inline expandable context notes with direct anchor linking. Features subtle design for optimal reading flow and smart link behavior.",
 	"type": "wordpress-plugin",
-	"version": "1.5.0",
+	"version": "2.0.0",
 	"keywords": [
 		"wordpress",
 		"plugin",

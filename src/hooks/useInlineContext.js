@@ -13,29 +13,29 @@ import { hasDuplicateAnchorId, generateAnchorId } from '../utils/anchor';
  * @param {Object}   value        - The rich text value
  * @param {Function} onChange     - Change handler
  */
-export const useAnchorIdDuplicateCheck = (activeFormat, value, onChange) => {
-	useEffect(() => {
-		if (!activeFormat?.attributes?.['data-anchor-id']) {
+export const useAnchorIdDuplicateCheck = ( activeFormat, value, onChange ) => {
+	useEffect( () => {
+		if ( ! activeFormat?.attributes?.[ 'data-anchor-id' ] ) {
 			return;
 		}
 
-		const currentId = activeFormat.attributes['data-anchor-id'];
+		const currentId = activeFormat.attributes[ 'data-anchor-id' ];
 
-		if (hasDuplicateAnchorId(currentId)) {
+		if ( hasDuplicateAnchorId( currentId ) ) {
 			const uniqueId = generateAnchorId();
 
 			onChange(
-				applyFormat(value, {
+				applyFormat( value, {
 					type: 'jooplaan/inline-context',
 					attributes: {
 						...activeFormat.attributes,
 						'data-anchor-id': uniqueId,
-						id: `trigger-${uniqueId}`,
+						id: `trigger-${ uniqueId }`,
 					},
-				})
+				} )
 			);
 		}
-	}, [activeFormat, onChange, value]);
+	}, [ activeFormat, onChange, value ] );
 };
 
 /**
@@ -45,11 +45,11 @@ export const useAnchorIdDuplicateCheck = (activeFormat, value, onChange) => {
  * @param {Object}  value  - The rich text value
  * @return {Object} Virtual anchor element
  */
-export const usePopoverAnchor = (isOpen, value) => {
-	const [anchor, setAnchor] = useState();
+export const usePopoverAnchor = ( isOpen, value ) => {
+	const [ anchor, setAnchor ] = useState();
 
-	useEffect(() => {
-		if (!isOpen) {
+	useEffect( () => {
+		if ( ! isOpen ) {
 			return;
 		}
 
@@ -57,31 +57,31 @@ export const usePopoverAnchor = (isOpen, value) => {
 			// We need global getSelection here as we're working with rich text selection
 			// eslint-disable-next-line @wordpress/no-global-get-selection
 			const sel = window.getSelection?.();
-			if (!sel || sel.rangeCount === 0) {
+			if ( ! sel || sel.rangeCount === 0 ) {
 				return undefined;
 			}
-			const range = sel.getRangeAt(0).cloneRange();
+			const range = sel.getRangeAt( 0 ).cloneRange();
 			try {
-				if (range.collapsed) {
+				if ( range.collapsed ) {
 					// Insert a zero-width marker to measure caret position
-					const marker = document.createElement('span');
-					marker.appendChild(document.createTextNode('\u200b'));
-					range.insertNode(marker);
+					const marker = document.createElement( 'span' );
+					marker.appendChild( document.createTextNode( '\u200b' ) );
+					range.insertNode( marker );
 					const rect = marker.getBoundingClientRect();
 					marker.remove();
 					return rect;
 				}
 				return range.getBoundingClientRect();
-			} catch (error) {
+			} catch ( error ) {
 				// eslint-disable-next-line no-console
-				console.warn('Failed to get selection anchor:', error);
+				console.warn( 'Failed to get selection anchor:', error );
 				return undefined;
 			}
 		};
 
 		const rect = getSelectionAnchor();
-		if (!rect) {
-			setAnchor(undefined);
+		if ( ! rect ) {
+			setAnchor( undefined );
 			return;
 		}
 
@@ -89,8 +89,8 @@ export const usePopoverAnchor = (isOpen, value) => {
 		const virtualEl = {
 			getBoundingClientRect: () => rect,
 		};
-		setAnchor(virtualEl);
-	}, [isOpen, value?.start, value?.end]);
+		setAnchor( virtualEl );
+	}, [ isOpen, value?.start, value?.end ] );
 
 	return anchor;
 };
@@ -102,26 +102,26 @@ export const usePopoverAnchor = (isOpen, value) => {
  * @param {Function} onSave  - Save handler (Cmd/Ctrl+Enter)
  * @param {Function} onClose - Close handler (Escape)
  */
-export const usePopoverKeyboardShortcuts = (isOpen, onSave, onClose) => {
-	useEffect(() => {
-		if (!isOpen) {
+export const usePopoverKeyboardShortcuts = ( isOpen, onSave, onClose ) => {
+	useEffect( () => {
+		if ( ! isOpen ) {
 			return;
 		}
 
-		const onKeyDown = (e) => {
-			if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+		const onKeyDown = ( e ) => {
+			if ( ( e.metaKey || e.ctrlKey ) && e.key === 'Enter' ) {
 				e.preventDefault();
 				onSave();
 			}
-			if (e.key === 'Escape') {
+			if ( e.key === 'Escape' ) {
 				e.preventDefault();
 				onClose();
 			}
 		};
 
-		document.addEventListener('keydown', onKeyDown);
-		return () => document.removeEventListener('keydown', onKeyDown);
-	}, [isOpen, onSave, onClose]);
+		document.addEventListener( 'keydown', onKeyDown );
+		return () => document.removeEventListener( 'keydown', onKeyDown );
+	}, [ isOpen, onSave, onClose ] );
 };
 
 /**
@@ -138,32 +138,33 @@ export const useSyncEditorContent = (
 	setText,
 	setCategoryId
 ) => {
-	useEffect(() => {
-		if (!isOpen) {
+	useEffect( () => {
+		if ( ! isOpen ) {
 			return;
 		}
-		const content = activeFormat?.attributes?.['data-inline-context'] || '';
+		const content =
+			activeFormat?.attributes?.[ 'data-inline-context' ] || '';
 		const categoryIdFromHtml =
-			activeFormat?.attributes?.['data-category-id'] || '';
+			activeFormat?.attributes?.[ 'data-category-id' ] || '';
 
-		setText(content);
+		setText( content );
 
 		// Convert term ID from HTML back to slug for CategorySelector
-		if (categoryIdFromHtml) {
+		if ( categoryIdFromHtml ) {
 			const cats = window.inlineContextData?.categories || {};
-			const category = Object.values(cats).find(
-				(cat) => cat.id.toString() === categoryIdFromHtml.toString()
+			const category = Object.values( cats ).find(
+				( cat ) => cat.id.toString() === categoryIdFromHtml.toString()
 			);
-			if (category) {
-				setCategoryId(category.slug);
+			if ( category ) {
+				setCategoryId( category.slug );
 			} else {
 				// Fallback: might be an old slug-based value
-				setCategoryId(categoryIdFromHtml);
+				setCategoryId( categoryIdFromHtml );
 			}
 		} else {
-			setCategoryId('');
+			setCategoryId( '' );
 		}
-	}, [isOpen, activeFormat, setText, setCategoryId]);
+	}, [ isOpen, activeFormat, setText, setCategoryId ] );
 };
 
 /**
@@ -172,22 +173,22 @@ export const useSyncEditorContent = (
  * @param {Function} copyFunction - The async function that performs the copy
  * @return {Object} { status, copyWithStatus }
  */
-export const useCopyLinkStatus = (copyFunction) => {
-	const [status, setStatus] = useState('idle'); // 'idle', 'copying', 'copied'
+export const useCopyLinkStatus = ( copyFunction ) => {
+	const [ status, setStatus ] = useState( 'idle' ); // 'idle', 'copying', 'copied'
 
-	const copyWithStatus = useCallback(async () => {
-		setStatus('copying');
+	const copyWithStatus = useCallback( async () => {
+		setStatus( 'copying' );
 
 		await copyFunction(
 			() => {
-				setStatus('copied');
-				setTimeout(() => setStatus('idle'), 2000);
+				setStatus( 'copied' );
+				setTimeout( () => setStatus( 'idle' ), 2000 );
 			},
 			() => {
-				setStatus('idle');
+				setStatus( 'idle' );
 			}
 		);
-	}, [copyFunction]);
+	}, [ copyFunction ] );
 
 	return { status, copyWithStatus };
 };

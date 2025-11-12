@@ -5,7 +5,7 @@
 import { Button, Flex, FlexItem, CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-export default function PopoverActions({
+export default function PopoverActions( {
 	isActive,
 	onRemove,
 	onCancel,
@@ -17,45 +17,45 @@ export default function PopoverActions({
 	isReusable,
 	onReusableChange,
 	isReusableDisabled,
-}) {
+} ) {
 	return (
 		<Flex justify="space-between" align="center">
 			<FlexItem>
-				{isActive && (
+				{ isActive && (
 					<Button
-						ref={removeRef}
+						ref={ removeRef }
 						variant="tertiary"
 						isDestructive
-						onClick={onRemove}
-						onKeyDown={(e) => onKeyDown(e, removeRef)}
+						onClick={ onRemove }
+						onKeyDown={ ( e ) => onKeyDown( e, removeRef ) }
 					>
-						{__('Delete', 'inline-context')}
+						{ __( 'Delete', 'inline-context' ) }
 					</Button>
-				)}
+				) }
 			</FlexItem>
 			<FlexItem>
-				<Flex gap={3} align="center">
+				<Flex gap={ 3 } align="center">
 					<CheckboxControl
-						label={__('Use as reusable note', 'inline-context')}
-						checked={isReusable}
-						onChange={onReusableChange}
-						disabled={isReusableDisabled}
+						label={ __( 'Use as reusable note', 'inline-context' ) }
+						checked={ isReusable }
+						onChange={ onReusableChange }
+						disabled={ isReusableDisabled }
 					/>
 					<Button
-						ref={cancelRef}
+						ref={ cancelRef }
 						variant="secondary"
-						onClick={onCancel}
-						onKeyDown={(e) => onKeyDown(e, cancelRef)}
+						onClick={ onCancel }
+						onKeyDown={ ( e ) => onKeyDown( e, cancelRef ) }
 					>
-						{__('Cancel', 'inline-context')}
+						{ __( 'Cancel', 'inline-context' ) }
 					</Button>
 					<Button
-						ref={saveRef}
+						ref={ saveRef }
 						variant="primary"
-						onClick={onSave}
-						onKeyDown={(e) => onKeyDown(e, saveRef)}
+						onClick={ onSave }
+						onKeyDown={ ( e ) => onKeyDown( e, saveRef ) }
 					>
-						{__('Save', 'inline-context')}
+						{ __( 'Save', 'inline-context' ) }
 					</Button>
 				</Flex>
 			</FlexItem>
