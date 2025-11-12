@@ -1063,11 +1063,12 @@ function inline_context_sync_note_category_attribute( $note_id, $category_id ) {
 			continue;
 		}
 
-		$pattern = '/<a\b[^>]*class="[^"]*\bwp-inline-context\b[^"]*"[^>]*data-note-id="' . preg_quote( $note_id, '/' ) . '"[^>]*>/i';
+		// Pattern matches <a> tags with both class="wp-inline-context" and data-note-id="X" in any order.
+		$pattern = '/<a\b[^>]*\bclass="[^"]*\bwp-inline-context\b[^"]*"[^>]*\bdata-note-id="' . preg_quote( (string) $note_id, '/' ) . '"[^>]*>|<a\b[^>]*\bdata-note-id="' . preg_quote( (string) $note_id, '/' ) . '"[^>]*\bclass="[^"]*\bwp-inline-context\b[^"]*"[^>]*>/i';
 
 		$updated_html = preg_replace_callback(
 			$pattern,
-			function ( $matches ) use ( $category_id, $attribute_value ) {
+			function ( $matches ) use ( $category_id, $attribute_value, $note_id, $using_post_id ) {
 				$original_tag = $matches[0];
 				$updated_tag  = $original_tag;
 
@@ -1103,15 +1104,50 @@ function inline_context_sync_note_category_attribute( $note_id, $category_id ) {
 		);
 
 		if ( $count > 0 && $updated_html !== $post_content ) {
+			// Use remove_filter to prevent infinite loops with post_updated hooks.
+			remove_action( 'post_updated', 'inline_context_sync_note_usage_on_post_save', 10 );
+			remove_action( 'post_updated', 'inline_context_sync_reusable_note_content', 10 );
+			
 			wp_update_post(
 				array(
 					'ID'           => $using_post_id,
 					'post_content' => $updated_html,
 				)
 			);
+			
+			// Re-add the hooks.
+			add_action( 'post_updated', 'inline_context_sync_note_usage_on_post_save', 10, 3 );
+			add_action( 'post_updated', 'inline_context_sync_reusable_note_content', 10, 3 );
 		}
 	}
 }
+
+/**
+ * Sync category attribute when taxonomy terms are set via WordPress UI.
+ * This handles changes made through the taxonomy metabox.
+ */
+add_action(
+	'set_object_terms',
+	function ( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
+		// Only process our custom taxonomy on our CPT.
+		if ( 'inline_context_category' !== $taxonomy ) {
+			return;
+		}
+
+		$post = get_post( $object_id );
+		if ( ! $post || 'inline_context_note' !== $post->post_type ) {
+			return;
+		}
+
+		// Get the current category (first term if multiple).
+		$category_id = ! empty( $tt_ids ) ? (int) $tt_ids[0] : 0;
+
+		// Sync the category attribute to all posts using this note.
+		inline_context_sync_note_category_attribute( $object_id, $category_id );
+	},
+	10,
+	6
+);
 
 /**
  * Migrate meta-based categories to taxonomy terms (runs once)
