@@ -3,7 +3,7 @@
  * Plugin Name: Inline Context
  * Plugin URI: https://wordpress.org/plugins/inline-context/
  * Description: Add inline expandable context to selected text in the block editor with direct anchor linking. Click to reveal, click again to hide.
- * Version: 1.5.0
+ * Version: 2.0.1
  * Author: Joop Laan
  * Author URI: https://profiles.wordpress.org/joop/
  * License: GPL-2.0-or-later
@@ -19,11 +19,12 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'INLINE_CONTEXT_VERSION', '1.5.0' );
+define( 'INLINE_CONTEXT_VERSION', '2.0.1' );
 
 // Load modular classes.
 require_once __DIR__ . '/includes/class-utils.php';
 require_once __DIR__ . '/includes/class-cpt.php';
+require_once __DIR__ . '/includes/class-taxonomy-meta.php';
 require_once __DIR__ . '/includes/class-sync.php';
 require_once __DIR__ . '/includes/class-deletion.php';
 require_once __DIR__ . '/includes/class-rest-api.php';
@@ -49,6 +50,10 @@ $inline_context_utils->init();
 // Initialize CPT functionality.
 $inline_context_cpt = new Inline_Context_CPT();
 $inline_context_cpt->init();
+
+// Initialize taxonomy meta fields.
+$inline_context_taxonomy_meta = new Inline_Context_Taxonomy_Meta();
+$inline_context_taxonomy_meta->init();
 
 // Initialize sync functionality.
 $inline_context_sync = new Inline_Context_Sync();
@@ -176,7 +181,7 @@ add_action(
 					if ( ! is_array( $value ) ) {
 						return array();
 					}
-					// Sanitize array of objects: [['post_id' => int, 'count' => int], ...].
+					// Clean and validate the usage tracking data structure.
 					$sanitized = array();
 					foreach ( $value as $usage_data ) {
 						if ( is_array( $usage_data ) && isset( $usage_data['post_id'] ) ) {
@@ -256,7 +261,7 @@ add_filter(
 add_action(
 	'admin_init',
 	function () {
-		if ( ! isset( $_GET['inline_context_rebuild'] ) || ! current_user_can( 'manage_options' ) ) {
+		if ( ! isset( $_GET['inline_context_rebuild'] ) || ! current_user_can( 'manage_options' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin URL parameter for rebuild action.
 			return;
 		}
 
@@ -271,6 +276,7 @@ add_action(
 
 		global $wpdb;
 		foreach ( $all_notes as $note_id ) {
+			// @codingStandardsIgnoreStart - Direct DB operations intentional for rebuild.
 			// Delete from database directly to avoid cache issues.
 			$wpdb->delete(
 				$wpdb->postmeta,
@@ -286,11 +292,10 @@ add_action(
 					'meta_key' => 'usage_count',
 				)
 			);
+			// @codingStandardsIgnoreEnd
 			// Clear the cache for this post.
 			wp_cache_delete( $note_id, 'post_meta' );
-		}
-
-		// Scan all posts and pages to rebuild usage data.
+		} // Scan all posts and pages to rebuild usage data.
 		$all_posts = get_posts(
 			array(
 				'post_type'      => array( 'post', 'page' ),
@@ -300,7 +305,8 @@ add_action(
 		);
 
 		// Build usage data structure: note_id => [['post_id' => X, 'count' => Y], ...].
-		$all_usage_data = array();      foreach ( $all_posts as $post ) {
+		$all_usage_data = array();
+		foreach ( $all_posts as $post ) {
 			// Get note IDs from content and count occurrences.
 			preg_match_all( '/data-note-id="(\d+)"/i', $post->post_content, $matches );
 			$notes_raw = ! empty( $matches[1] ) ? array_map( 'intval', $matches[1] ) : array();
@@ -359,6 +365,7 @@ add_action(
 add_action(
 	'admin_notices',
 	function () {
+		// @codingStandardsIgnoreStart - Checking URL parameters for display-only admin notices.
 		// Display rebuild success notice.
 		if ( isset( $_GET['rebuilt'] ) && '1' === $_GET['rebuilt'] && isset( $_GET['post_type'] ) && 'inline_context_note' === $_GET['post_type'] ) {
 			echo '<div class="notice notice-success is-dismissible">';
@@ -368,11 +375,12 @@ add_action(
 			echo '</div>';
 		}
 
-		// Display transient admin notices (for post save validations).
-		$screen = get_current_screen();
-		if ( $screen && 'inline_context_note' === $screen->post_type && 'post' === $screen->base && isset( $_GET['post'] ) ) {
-			$post_id = intval( $_GET['post'] );
-			$notices = get_transient( 'inline_context_admin_notice_' . $post_id );
+	// Display transient admin notices (for post save validations).
+	$screen = get_current_screen();
+	if ( $screen && isset( $_GET['post'] ) && 'inline_context_note' === $screen->id ) {
+		$post_id = intval( $_GET['post'] );
+		$notices = get_transient( 'inline_context_admin_notice_' . $post_id );
+		// @codingStandardsIgnoreEnd.
 			if ( $notices ) {
 				foreach ( $notices as $notice ) {
 					$type = 'error' === $notice['type'] ? 'error' : 'warning';

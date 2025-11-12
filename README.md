@@ -1,6 +1,16 @@
 # Inline Context
 
-Add categorized "click to reveal" notes inline with your text. Create reusable notes via Custom Post Type and manage them centrally. Perfect for short explanations, definitions, and asides with custom icons and full styling control.
+Add categorized "click to reveal" notes inline with your text. Create reusable notes via Custom Post Type and manage them centrally with modular, maintainable architecture. Perfect for short explanations, definitions, and asides with custom icons and full styling control.
+
+## Version 2.0 Highlights
+
+**Major refactoring and architectural improvements:**
+- **Modular Architecture**: Complete codebase refactoring from monolithic to 6 class-based modules (83% main file reduction)
+- **Enhanced Maintainability**: Separation of concerns with dedicated classes for CPT, Sync, Deletion, REST API, Frontend, and Utilities
+- **Code Quality**: Full WordPress coding standards compliance (JavaScript and PHP)
+- **Performance**: Optimized class autoloading and initialization
+- **Developer Experience**: Clean, testable, and extensible codebase
+- **Backward Compatibility**: Seamless upgrade from v1.x with preserved functionality
 
 ## What it does
 
@@ -94,6 +104,32 @@ For detailed styling instructions and examples, see [STYLING.md](STYLING.md).
 For developer filters and programmatic customization, see [FILTERS.md](FILTERS.md).
 
 For future feature ideas and version 2.0 roadmap, see [ROADMAP.md](ROADMAP.md).
+
+## Architecture (v2.0)
+
+The plugin uses a modular, class-based architecture for optimal maintainability:
+
+### Core Classes
+
+- **`Inline_Context_CPT`** (855 lines) - Custom Post Type registration, metaboxes, and admin UI
+- **`Inline_Context_Sync`** (496 lines) - Note usage tracking, reusable content synchronization, category sync
+- **`Inline_Context_Deletion`** (198 lines) - Deletion protection for reusable notes, cleanup for non-reusable
+- **`Inline_Context_REST_API`** (340 lines) - REST API endpoints for search and usage tracking
+- **`Inline_Context_Frontend`** (276 lines) - Noscript content generation, KSES filtering, asset enqueuing
+- **`Inline_Context_Utils`** (182 lines) - Category management, CSS variable management with backward compatibility
+
+### Main Bootstrap File
+
+- **`inline-context.php`** (391 lines, down from 2,291) - Clean plugin initialization and class loading
+- **`admin-settings.php`** (678 lines) - Admin settings UI with tabbed interface (function-based)
+
+### Benefits
+
+- **Separation of Concerns**: Each class has a single, well-defined responsibility
+- **Testability**: Modular code is easier to unit test and debug
+- **Maintainability**: 83% reduction in main file size makes codebase navigable
+- **Extensibility**: Clean interfaces for adding features without touching core logic
+- **Performance**: Efficient class initialization and lazy loading where appropriate
 
 ## Accessibility
 

@@ -114,8 +114,8 @@ function inline_context_uninstall_cleanup() {
 		$posts = $wpdb->get_results(
 			"SELECT ID, post_content
 			FROM {$wpdb->posts}
-			WHERE post_content LIKE '%data-inline-context%'
-			AND post_status != 'trash'",
+			WHERE post_content LIKE '%class=\"wp-inline-context\"%'
+			AND post_status IN ('publish', 'draft', 'pending', 'private', 'future', 'trash')",
 			ARRAY_A
 		);
 

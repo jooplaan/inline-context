@@ -13,20 +13,20 @@ import apiFetch from '@wordpress/api-fetch';
  * @param {number[]} noteIds An array of note IDs that were removed.
  * @return {void}
  */
-export function handleNoteRemoval(postId, noteIds) {
-	if (!postId || !Array.isArray(noteIds) || noteIds.length === 0) {
+export function handleNoteRemoval( postId, noteIds ) {
+	if ( ! postId || ! Array.isArray( noteIds ) || noteIds.length === 0 ) {
 		return;
 	}
 
-	apiFetch({
+	apiFetch( {
 		path: '/inline-context/v1/notes/handle-removals',
 		method: 'POST',
 		data: {
 			post_id: postId,
 			note_ids: noteIds,
 		},
-	}).catch((error) => {
+	} ).catch( ( error ) => {
 		// eslint-disable-next-line no-console
-		console.warn('Could not handle note removal:', error);
-	});
+		console.warn( 'Could not handle note removal:', error );
+	} );
 }
