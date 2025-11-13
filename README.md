@@ -179,6 +179,7 @@ This will install the plugin to `wp-content/plugins/inline-context/` automatical
 
    ```bash
    npm install
+   composer install
    ```
 
 3. Start development mode (watches files and rebuilds on change):
@@ -198,8 +199,8 @@ This will install the plugin to `wp-content/plugins/inline-context/` automatical
 - `npm run start` — Start development mode with hot reload
 - `npm run build` — Build production assets
 - `npm run lint:js` — Lint JavaScript files
-- `npm run lint:php` — Check PHP coding standards
-- `npm run lint:php:fix` — Auto-fix PHP coding standard violations
+- `npm run lint:php` — Check PHP coding standards (uses local PHPCS via Composer)
+- `npm run lint:php:fix` — Auto-fix PHP coding standard violations (uses local PHPCBF via Composer)
 - `npm run lint` — Check both JavaScript and PHP standards
 - `npm run test` — Run all quality checks (currently linting)
 - `npm run pot` — Show instructions for generating translation template file (requires WP-CLI)
@@ -212,16 +213,34 @@ This will install the plugin to `wp-content/plugins/inline-context/` automatical
 - `build/` — Compiled assets (committed to repo for WordPress.org)
 - `languages/` — Translation files
 - `inline-context.php` — Main plugin bootstrap file
+- `admin-settings.php` — Admin settings interface
+- `classes/` — Modular class-based architecture (v2.0)
 - `readme.txt` — WordPress.org readme
 - `scripts/` — Build and packaging scripts
+- `vendor/` — Composer dependencies (PHP CodeSniffer, WordPress Coding Standards)
 
 ## Code Quality
 
 This project enforces WordPress coding standards for both JavaScript and PHP:
 
 - **JavaScript**: Uses `@wordpress/scripts` with ESLint for WordPress coding standards
-- **PHP**: Uses PHP_CodeSniffer with WordPress-Coding-Standards ruleset
+- **PHP**: Uses PHP_CodeSniffer 3.13.5+ with WordPress-Coding-Standards 3.2.0+ ruleset (installed via Composer)
 - **Automatic Quality Checks**: All packaging and release commands automatically fix and check linting before building
+
+### Development tools
+
+The project uses local PHP CodeSniffer tools installed via Composer:
+
+```bash
+# Install PHP development tools
+composer install
+
+# Run PHPCS manually
+vendor/bin/phpcs --standard=WordPress inline-context.php
+
+# Run PHPCBF manually  
+vendor/bin/phpcbf --standard=WordPress inline-context.php
+```
 
 ### Quality assurance workflow
 

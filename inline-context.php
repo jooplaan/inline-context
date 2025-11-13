@@ -177,7 +177,7 @@ add_action(
 				'description'       => __( 'Post IDs where this note is used', 'inline-context' ),
 				'single'            => true,
 				'default'           => array(),
-				'sanitize_callback' => function( $value ) {
+				'sanitize_callback' => function ( $value ) {
 					if ( ! is_array( $value ) ) {
 						return array();
 					}
