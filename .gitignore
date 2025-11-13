@@ -12,6 +12,10 @@ pnpm-debug.log*
 package-lock.json
 yarn.lock
 
+# Composer
+vendor/
+composer.lock
+
 # Build caches
 .cache/
 .parcel-cache/
