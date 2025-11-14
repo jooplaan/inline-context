@@ -2,9 +2,11 @@
 
 ## Architecture Overview
 
-This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expandable context functionality with direct anchor linking and reusable notes via Custom Post Type. The plugin extends the WordPress block editor toolbar rather than creating a standalone block.
+This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expandable context functionality with dual display modes (inline/tooltip), direct anchor linking, and reusable notes via Custom Post Type. The plugin extends the WordPress block editor toolbar rather than creating a standalone block.
 
 **Version 2.0** introduced a complete modular refactoring from monolithic to class-based architecture (83% main file reduction from 2,291 to 395 lines).
+
+**Version 2.1** added tooltip display mode as an alternative to inline expansion, with full accessibility support.
 
 ### Key Components
 
@@ -14,7 +16,7 @@ This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expan
 - **Note Search Component** (`src/components/NoteSearch.js`): Live search interface for finding existing CPT notes
 - **QuillEditor Component** (`src/components/QuillEditor.js`): Rich text editor with keyboard navigation
 - **CPT Editor Enhancement** (`src/cpt-editor.js`): QuillEditor integration for inline_context_note CPT edit screen
-- **Frontend Interaction** (`src/frontend.js`): Vanilla JS with DOMPurify for secure HTML rendering and anchor navigation
+- **Frontend Interaction** (`src/frontend.js`): Dual-mode display system (inline/tooltip) with DOMPurify for secure HTML rendering, smart positioning, and full keyboard support
 
 **Backend Modular Architecture (v2.0):**
 - **`Inline_Context_CPT`** (`includes/class-cpt.php`, 855 lines) - Custom Post Type registration, metaboxes, and admin UI
@@ -22,12 +24,12 @@ This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expan
 - **`Inline_Context_Sync`** (`includes/class-sync.php`, 496 lines) - Note usage tracking, reusable content synchronization, category sync
 - **`Inline_Context_Deletion`** (`includes/class-deletion.php`, 198 lines) - Deletion protection for reusable notes, cleanup for non-reusable
 - **`Inline_Context_REST_API`** (`includes/class-rest-api.php`, 340 lines) - REST API endpoints for search, usage tracking, and note removal handling
-- **`Inline_Context_Frontend`** (`includes/class-frontend.php`, 276 lines) - Noscript content generation, KSES filtering, asset enqueuing
+- **`Inline_Context_Frontend`** (`includes/class-frontend.php`, 276 lines) - Noscript content generation, KSES filtering, asset enqueuing, display mode configuration
 - **`Inline_Context_Utils`** (`includes/class-utils.php`, 182 lines) - Category management, CSS variable management with backward compatibility
 
 **Bootstrap & Settings:**
 - **Asset Management** (`inline-context.php`, 395 lines) - WordPress coding standards compliant PHP with CPT registration, REST API, and asset enqueuing
-- **Admin Settings** (`admin-settings.php`, 728 lines) - Tabbed admin interface for categories and styling options (function-based)
+- **Admin Settings** (`admin-settings.php`, 720 lines) - Tabbed admin interface (General, Categories, Styling, Uninstall) with display mode selection and organized styling sections
 - **Uninstall System** (`uninstall.php`) - Comprehensive cleanup with content removal options
 
 ### Version 2.0 Modular Architecture Benefits
@@ -172,6 +174,47 @@ The editor popover has two tabbed modes:
 - **JavaScript warnings**: Edit screen, list view individual, and bulk delete all show confirmation
 - **PHP cleanup**: Hooks into `wp_trash_post` and `before_delete_post` to clean up content
 
+### Display Modes (v2.1)
+
+The plugin supports two display modes for showing notes on the frontend:
+
+**Inline Mode (default):**
+- Notes expand directly below the trigger text in the content flow
+- Uses `insertAdjacentElement` to inject note div after trigger link
+- Adds `.wp-inline-context-inline` class with slide-down animation
+- Left accent bar for visual distinction
+- Vertical margins for spacing in content flow
+
+**Tooltip Mode:**
+- Notes appear as floating positioned elements above or below trigger
+- Smart positioning with viewport boundary detection
+- Automatically flips above/below to prevent off-screen display
+- Close button (×) in top-right corner
+- Click/keyboard activation only (no hover)
+- Escape key closes tooltip and returns focus to trigger
+- Positioned absolutely with z-index 10000
+- Arrow pointer indicates which trigger opened it
+
+**Shared Features:**
+- Both modes support full keyboard navigation (Space/Enter to activate)
+- Automatic focus management (note receives focus when opened)
+- DOMPurify sanitization for security
+- CSS animations for smooth reveal
+- Multiple notes can be open simultaneously
+- Click toggle behavior (click again to close)
+
+**Admin Configuration:**
+- Setting stored as `inline_context_display_mode` option ('inline' or 'tooltip')
+- General tab in admin settings with radio button selection
+- Value passed to frontend via `wp_localize_script` in `displayMode` property
+- Frontend checks `window.inlineContextData.displayMode` to route display logic
+
+**Implementation:**
+- `toggleNote(trigger)` function routes to either `toggleInlineNote()` or `toggleTooltip()`
+- Both modes store event listeners on trigger element for proper cleanup
+- Tooltip positioning handled by `positionTooltip()` with viewport calculations
+- Focus moved to note content for keyboard link navigation in both modes
+
 ### Frontend Interaction Pattern
 
 - Single event listener on `document.body` with event delegation
@@ -218,17 +261,17 @@ Uses `@wordpress/scripts` which provides:
 - `src/components/NoteSearch.js` - Search interface for existing notes
 - `src/components/QuillEditor.js` - Rich text editor component
 - `src/cpt-editor.js` - CPT edit screen enhancements
-- `src/frontend.js` - Frontend click handlers (vanilla JS with DOMPurify)
-- `src/style.scss` - Frontend styles (loaded on both editor/frontend)
+- `src/frontend.js` - Frontend dual-mode display system (inline/tooltip) with DOMPurify
+- `src/style.scss` - Frontend styles including tooltip positioning and animations
 - `src/editor.scss` - Editor-only styles
 - `inline-context.php` - WordPress plugin bootstrap (395 lines)
-- `admin-settings.php` - Admin settings UI with tabbed interface (728 lines)
+- `admin-settings.php` - Admin settings UI with General, Categories, Styling, Uninstall tabs (720 lines)
 - `includes/class-cpt.php` - Custom Post Type class (855 lines)
 - `includes/class-taxonomy-meta.php` - Taxonomy meta fields class (372 lines)
 - `includes/class-sync.php` - Synchronization class (496 lines)
 - `includes/class-deletion.php` - Bulk deletion with automatic cleanup (198 lines)
 - `includes/class-rest-api.php` - REST API endpoints class (340 lines)
-- `includes/class-frontend.php` - Frontend rendering class (276 lines)
+- `includes/class-frontend.php` - Frontend rendering and display mode configuration (276 lines)
 - `includes/class-utils.php` - Utility functions class (182 lines)
 - `uninstall.php` - Plugin uninstall cleanup
 - `build/` - Compiled assets (committed for WordPress.org distribution)
