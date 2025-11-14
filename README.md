@@ -18,9 +18,10 @@ Add categorized "click to reveal" notes inline with your text. Create reusable n
 - **Create reusable notes** that can be used across multiple posts (v1.5)
 - **Search and insert** existing notes instantly from the editor (v1.5)
 - **Track usage** to see where each note is used on your site (v1.5)
+- **Choose display mode**: Show notes inline or as floating tooltips (v2.1)
 - Organize notes with custom categories (Internal Article, External Article, Definition, Tip, etc.)
 - Each category has distinct icons for closed/open states
-- Readers click the highlighted text to show the note inline, and click again to hide it
+- Readers click the highlighted text to show the note inline or in a tooltip, and click again to hide it
 - Full styling control through tabbed admin interface
 - Keeps pages clean and easy to scan while still offering helpful context
 
@@ -33,7 +34,8 @@ Add categorized "click to reveal" notes inline with your text. Create reusable n
 - **Create or Reuse**: Choose to create new notes or select from existing library
 - **Usage Tracking**: See which posts use each note with enhanced list view
 - **Filter by Type**: Filter notes marked as reusable in the admin list
-- **Delete Protection**: Warnings when attempting to delete actively used notes
+- **Bulk Delete**: Delete reusable notes with automatic cleanup from all posts
+- **Smart Deletion**: Confirmation dialogs show exactly how many uses will be removed from how many posts
 - **Cached Performance**: Notes cached in content for optimal frontend speed
 
 ### Category Management
@@ -44,11 +46,22 @@ Add categorized "click to reveal" notes inline with your text. Create reusable n
 - **Dual Icon States**: Different icons for closed/open states provide visual feedback
 - **Color Coding**: Assign colors to each category for visual distinction
 
+### Display Modes (v2.1)
+
+- **Inline Mode (default)**: Notes expand directly below the trigger text in the content flow
+- **Tooltip Mode**: Notes appear as floating positioned tooltips above or below the trigger
+- **Smart Positioning**: Tooltips automatically flip position to stay within viewport
+- **Accessibility First**: Both modes support full keyboard navigation and screen readers
+- **Click/Keyboard Only**: Tooltips activate on click or keyboard (Space/Enter), not hover
+- **Focus Management**: Automatic focus on note content for keyboard users
+- **Escape to Close**: Press Escape to close tooltips and return focus to trigger
+
 ### Styling Controls
 
-- **Tabbed Interface**: Clean admin settings with Categories and Styling tabs
+- **Tabbed Interface**: Clean admin settings with General, Categories, Styling, and Uninstall tabs
+- **Display Mode Setting**: Choose between inline or tooltip display on the General tab
 - **Comprehensive Options**: Control colors, spacing, borders, shadows for every element
-- **Live Preview**: Interactive preview shows exactly how notes will appear
+- **Organized Sections**: Shared settings grouped first, then mode-specific options
 - **Helpful Descriptions**: Every setting includes clear explanation of its purpose
 
 ### Rich Features
@@ -62,6 +75,15 @@ Add categorized "click to reveal" notes inline with your text. Create reusable n
 
 ## How to use
 
+### Choosing display mode (v2.1)
+
+1. Go to Settings > Inline Context
+2. Click the General tab
+3. Choose between:
+   - **Inline notes** (default) - Notes expand in the content flow
+   - **Tooltips** - Notes appear as floating positioned elements
+4. Save your settings
+
 ### Managing notes library (v1.5)
 
 1. Go to Inline Context > All Notes in WordPress admin
@@ -69,6 +91,7 @@ Add categorized "click to reveal" notes inline with your text. Create reusable n
 3. Mark notes as "Reusable" to use them across multiple posts
 4. View usage statistics to see where each note is used
 5. Use the filter dropdown to show only reusable notes
+6. Delete notes with confidence - the system shows exactly how many uses will be removed from how many posts
 
 ### Setting up categories
 1. Go to Settings > Inline Context
@@ -113,7 +136,7 @@ The plugin uses a modular, class-based architecture for optimal maintainability:
 
 - **`Inline_Context_CPT`** (855 lines) - Custom Post Type registration, metaboxes, and admin UI
 - **`Inline_Context_Sync`** (496 lines) - Note usage tracking, reusable content synchronization, category sync
-- **`Inline_Context_Deletion`** (198 lines) - Deletion protection for reusable notes, cleanup for non-reusable
+- **`Inline_Context_Deletion`** (198 lines) - Bulk deletion with automatic cleanup from all posts
 - **`Inline_Context_REST_API`** (340 lines) - REST API endpoints for search, usage tracking, and note removal handling
 - **`Inline_Context_Frontend`** (276 lines) - Noscript content generation, KSES filtering, asset enqueuing
 - **`Inline_Context_Taxonomy_Meta`** (372 lines) - Taxonomy meta fields for category icons, colors, and admin UI enhancements
@@ -135,12 +158,16 @@ The plugin uses a modular, class-based architecture for optimal maintainability:
 ## Accessibility
 
 - Full keyboard navigation in icon picker (Esc to close, Tab/Shift+Tab to navigate)
-- ARIA attributes on all interactive elements (`role="dialog"`, `aria-modal`, `aria-label`)
+- Keyboard activation of notes (Space/Enter on trigger links)
+- Escape key closes tooltips and returns focus to trigger
+- Automatic focus management for keyboard users (notes receive focus when opened)
+- ARIA attributes on all interactive elements (`role="dialog"`, `aria-modal`, `aria-label`, `aria-expanded`)
 - Focus management (auto-focus on modal open, focus restoration on close)
-- Focus trapping within modal
+- Focus trapping within modal dialogs
 - Proper button semantics for icon selection
-- Screen reader friendly labels on all icons
-- Notes include `aria-expanded` and `role="note"` attributes
+- Screen reader friendly labels on all icons and controls
+- Notes include `role="note"` attributes
+- Smart tooltip positioning ensures content stays within viewport
 
 ## Privacy
 
