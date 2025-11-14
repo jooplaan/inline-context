@@ -7,7 +7,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const { applyFilters } = wp.hooks || { applyFilters: ( name, val ) => val };
 
 	// Get settings from localized data
-	const { categories = {} } = window.inlineContextData || {};
+	const { categories = {}, displayMode = 'inline' } =
+		window.inlineContextData || {};
 
 	// Allow developers to customize the CSS class used for revealed notes
 	const revealedClass = applyFilters(
@@ -221,8 +222,198 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		}
 	};
 
+	/**
+	 * Toggle tooltip display (accessibility-first implementation)
+	 *
+	 * @param {HTMLElement} trigger - The trigger element
+	 */
+	const toggleTooltip = ( trigger ) => {
+		if ( ! trigger ) return;
+
+		const tooltipId = `tooltip-${ trigger.dataset.anchorId }`;
+		let tooltip = document.getElementById( tooltipId );
+
+		// If tooltip exists, remove it (toggle off)
+		if ( tooltip ) {
+			tooltip.remove();
+			trigger.classList.remove( revealedClass );
+			trigger.setAttribute( 'aria-expanded', 'false' );
+			trigger.removeAttribute( 'aria-describedby' );
+
+			// Clean up event listeners stored on the trigger
+			if ( trigger._handleOutsideClick ) {
+				document.removeEventListener(
+					'click',
+					trigger._handleOutsideClick
+				);
+				delete trigger._handleOutsideClick;
+			}
+			if ( trigger._handleEscape ) {
+				document.removeEventListener(
+					'keydown',
+					trigger._handleEscape
+				);
+				delete trigger._handleEscape;
+			}
+
+			// Update icon to closed state
+			const categoryId = trigger.dataset.categoryId;
+			if ( categoryId ) {
+				const category = Object.values( categories ).find(
+					( cat ) =>
+						cat.id && cat.id.toString() === categoryId.toString()
+				);
+				if ( category ) {
+					addCategoryIcon( trigger, categoryId, false );
+				}
+			}
+			return;
+		}
+
+		// Build tooltip content
+		const hiddenContent = trigger.dataset.inlineContext || '';
+		if ( ! hiddenContent ) return;
+
+		const anchorId = trigger.dataset.anchorId;
+		if ( ! anchorId ) return;
+
+		// Create tooltip element
+		tooltip = document.createElement( 'div' );
+		tooltip.id = tooltipId;
+		tooltip.className = 'wp-inline-context-tooltip';
+		tooltip.setAttribute( 'role', 'tooltip' );
+		tooltip.setAttribute( 'tabindex', '-1' ); // Make focusable but not in tab order
+
+		// Add content
+		const isQuillContent =
+			hiddenContent.includes( '<p>' ) ||
+			hiddenContent.includes( '<strong>' ) ||
+			hiddenContent.includes( '<em>' );
+		if ( isQuillContent ) {
+			tooltip.innerHTML = sanitizeHtml( hiddenContent );
+			processLinksInNote( tooltip );
+		} else {
+			tooltip.textContent = decodeEntities( hiddenContent );
+		}
+
+		// Add close button for accessibility
+		const closeBtn = document.createElement( 'button' );
+		closeBtn.className = 'wp-inline-context-tooltip-close';
+		closeBtn.setAttribute( 'aria-label', 'Close tooltip' );
+		closeBtn.innerHTML = '&times;';
+		closeBtn.addEventListener( 'click', ( e ) => {
+			e.stopPropagation();
+			toggleTooltip( trigger );
+			trigger.focus();
+		} );
+		tooltip.appendChild( closeBtn );
+
+		// Position tooltip
+		document.body.appendChild( tooltip );
+		positionTooltip( tooltip, trigger );
+
+		// Update trigger state
+		trigger.classList.add( revealedClass );
+		trigger.setAttribute( 'aria-expanded', 'true' );
+		trigger.setAttribute( 'aria-describedby', tooltipId );
+
+		// Update icon to open state
+		const categoryId = trigger.dataset.categoryId;
+		if ( categoryId ) {
+			const category = Object.values( categories ).find(
+				( cat ) => cat.id && cat.id.toString() === categoryId.toString()
+			);
+			if ( category ) {
+				addCategoryIcon( trigger, categoryId, true );
+			}
+		}
+
+		// Auto-close on outside click
+		const handleOutsideClick = ( e ) => {
+			if (
+				! tooltip.contains( e.target ) &&
+				! trigger.contains( e.target )
+			) {
+				toggleTooltip( trigger );
+			}
+		};
+		// Store reference on trigger for cleanup
+		trigger._handleOutsideClick = handleOutsideClick;
+		setTimeout( () => {
+			document.addEventListener( 'click', handleOutsideClick );
+		}, 0 );
+
+		// Close on Escape key
+		const handleEscape = ( e ) => {
+			if ( e.key === 'Escape' ) {
+				toggleTooltip( trigger );
+				trigger.focus();
+			}
+		};
+		// Store reference on trigger for cleanup
+		trigger._handleEscape = handleEscape;
+		document.addEventListener( 'keydown', handleEscape );
+
+		// Set focus to tooltip for keyboard navigation of links inside
+		setTimeout( () => {
+			tooltip.focus();
+		}, 100 );
+	};
+
+	/**
+	 * Position tooltip with smart viewport boundary detection
+	 *
+	 * @param {HTMLElement} tooltip - The tooltip element
+	 * @param {HTMLElement} trigger - The trigger element
+	 */
+	const positionTooltip = ( tooltip, trigger ) => {
+		const triggerRect = trigger.getBoundingClientRect();
+		const tooltipRect = tooltip.getBoundingClientRect();
+		const viewportWidth = window.innerWidth;
+		const scrollX =
+			window.pageXOffset || document.documentElement.scrollLeft;
+		const scrollY =
+			window.pageYOffset || document.documentElement.scrollTop;
+
+		const spacing = 10; // Gap between trigger and tooltip
+
+		// Default: position above the trigger, centered
+		let top = triggerRect.top + scrollY - tooltipRect.height - spacing;
+		let left =
+			triggerRect.left +
+			scrollX +
+			triggerRect.width / 2 -
+			tooltipRect.width / 2;
+
+		// Check if tooltip goes above viewport, flip to below
+		if ( triggerRect.top - tooltipRect.height - spacing < 0 ) {
+			top = triggerRect.bottom + scrollY + spacing;
+			tooltip.classList.add( 'wp-inline-context-tooltip--below' );
+		} else {
+			tooltip.classList.add( 'wp-inline-context-tooltip--above' );
+		}
+
+		// Check horizontal boundaries
+		if ( left < scrollX + 10 ) {
+			left = scrollX + 10; // 10px from left edge
+			tooltip.classList.add( 'wp-inline-context-tooltip--left' );
+		} else if ( left + tooltipRect.width > scrollX + viewportWidth - 10 ) {
+			left = scrollX + viewportWidth - tooltipRect.width - 10; // 10px from right edge
+			tooltip.classList.add( 'wp-inline-context-tooltip--right' );
+		}
+
+		tooltip.style.top = `${ top }px`;
+		tooltip.style.left = `${ left }px`;
+	};
+
 	const toggleNote = ( trigger ) => {
 		if ( ! trigger ) return;
+
+		// Use tooltip mode if enabled
+		if ( displayMode === 'tooltip' ) {
+			toggleTooltip( trigger );
+			return;
+		}
 
 		// Check if note already exists (toggle off)
 		const existing = trigger.nextElementSibling;
@@ -281,6 +472,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			span.textContent = decodeEntities( hiddenContent );
 		}
 		span.setAttribute( 'role', 'note' );
+		span.setAttribute( 'tabindex', '-1' ); // Make focusable but not in tab order
 		span.id = noteId;
 
 		trigger.after( span );
@@ -299,6 +491,11 @@ document.addEventListener( 'DOMContentLoaded', () => {
 				addCategoryIcon( trigger, categoryId, true );
 			}
 		}
+
+		// Set focus to note for keyboard navigation of links inside
+		setTimeout( () => {
+			span.focus();
+		}, 100 );
 	};
 
 	// Handle click events

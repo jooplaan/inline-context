@@ -127,6 +127,17 @@
 	animation: wp-inline-context-reveal 0.3s ease-out;
 	transform-origin: top left;
 
+	/* Remove default focus outline since we're providing custom focus styles */
+	&:focus {
+		outline: none;
+	}
+
+	/* Custom focus-visible styles for keyboard navigation */
+	&:focus-visible {
+		outline: 2px solid var(--wp--preset--color--primary, #0073aa);
+		outline-offset: 2px;
+	}
+
 	@media (prefers-reduced-motion: reduce) {
 		animation: none;
 	}
@@ -207,4 +218,177 @@
 .wp-inline-context[aria-expanded='true']::after,
 .wp-inline-context.wp-inline-context--open::after {
 	transform: rotate(180deg);
+}
+
+/* ============================================
+   Tooltip Mode Styles
+   ============================================ */
+
+.wp-inline-context-tooltip {
+	position: absolute;
+	z-index: 10000;
+	max-width: 400px;
+	min-width: 200px;
+	/* Spacing - extra padding-right to avoid close button collision */
+	padding: var(--wp--custom--inline-context--note--padding-y, 0.75em)
+		2.5em /* Extra space for close button */
+		var(--wp--custom--inline-context--note--padding-y, 0.75em)
+		var(--wp--custom--inline-context--note--padding-x, 1em);
+	/* Surface */
+	background: var(
+		--wp--custom--inline-context--note--background,
+		#fff
+	);
+	border: 1px solid
+		var(
+			--wp--custom--inline-context--note--border-color,
+			rgba(0, 0, 0, 0.15)
+		);
+	border-radius: var(--wp--custom--inline-context--note--radius, 6px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+	/* Typography */
+	font-size: var(--wp--custom--inline-context--note--font-size, 0.95em);
+	line-height: 1.5;
+	color: #1d2327;
+	/* Smooth reveal animation */
+	animation: wp-inline-context-tooltip-reveal 0.2s ease-out;
+	transform-origin: top center;
+	/* Word wrapping */
+	overflow-wrap: break-word;
+	word-break: break-word;
+
+	/* Remove default focus outline since we're providing custom focus styles */
+	&:focus {
+		outline: none;
+	}
+
+	/* Custom focus-visible styles for keyboard navigation */
+	&:focus-visible {
+		outline: 2px solid var(--wp--preset--color--primary, #0073aa);
+		outline-offset: 2px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1),
+			0 0 0 2px var(--wp--preset--color--primary, #0073aa);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
+	}
+
+	/* Responsive max-width */
+	@media (max-width: 768px) {
+		max-width: calc(100vw - 40px);
+	}
+}
+
+/* Tooltip arrow/pointer styles */
+.wp-inline-context-tooltip--above::after {
+	content: '';
+	position: absolute;
+	bottom: -8px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 0;
+	height: 0;
+	border-left: 8px solid transparent;
+	border-right: 8px solid transparent;
+	border-top: 8px solid
+		var(
+			--wp--custom--inline-context--note--background,
+			#fff
+		);
+	filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.1));
+}
+
+.wp-inline-context-tooltip--below::after {
+	content: '';
+	position: absolute;
+	top: -8px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 0;
+	height: 0;
+	border-left: 8px solid transparent;
+	border-right: 8px solid transparent;
+	border-bottom: 8px solid
+		var(
+			--wp--custom--inline-context--note--background,
+			#fff
+		);
+	filter: drop-shadow(0 -2px 1px rgba(0, 0, 0, 0.1));
+}
+
+/* Close button */
+.wp-inline-context-tooltip-close {
+	position: absolute;
+	top: 0.5em;
+	right: 0.5em;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	color: #757575;
+	font-size: 24px;
+	line-height: 1;
+	cursor: pointer;
+	transition: color 0.2s ease, background 0.2s ease;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	&:hover,
+	&:focus {
+		color: #1d2327;
+		background: rgba(0, 0, 0, 0.05);
+		outline: none;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--wp--preset--color--primary, #0073aa);
+		outline-offset: 2px;
+	}
+}
+
+/* Content spacing inside tooltip */
+.wp-inline-context-tooltip > :first-child {
+	margin-top: 0;
+}
+
+.wp-inline-context-tooltip > :last-child:not(.wp-inline-context-tooltip-close) {
+	margin-bottom: 0;
+}
+
+/* Links inside tooltips */
+.wp-inline-context-tooltip a {
+	color: var(--wp--custom--inline-context--note--link-color, #0073aa);
+	text-decoration-color: var(
+		--wp--custom--inline-context--note--link-underline,
+		currentColor
+	);
+}
+
+/* Animations */
+@keyframes wp-inline-context-tooltip-reveal {
+	from {
+		opacity: 0;
+		transform: scale(0.95) translateY(-4px);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
+}
+
+/* Hide tooltips in print */
+@media print {
+	.wp-inline-context-tooltip {
+		display: none !important;
+	}
+}
+
+/* Accessibility: Focus states for triggers in tooltip mode */
+body:has(.wp-inline-context-tooltip) .wp-inline-context:focus-visible {
+	outline: 2px solid var(--wp--preset--color--primary, #0073aa);
+	outline-offset: 2px;
 }

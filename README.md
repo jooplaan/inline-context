@@ -18,9 +18,10 @@ Add categorized "click to reveal" notes inline with your text. Create reusable n
 - **Create reusable notes** that can be used across multiple posts (v1.5)
 - **Search and insert** existing notes instantly from the editor (v1.5)
 - **Track usage** to see where each note is used on your site (v1.5)
+- **Choose display mode**: Show notes inline or as floating tooltips (v2.1)
 - Organize notes with custom categories (Internal Article, External Article, Definition, Tip, etc.)
 - Each category has distinct icons for closed/open states
-- Readers click the highlighted text to show the note inline, and click again to hide it
+- Readers click the highlighted text to show the note inline or in a tooltip, and click again to hide it
 - Full styling control through tabbed admin interface
 - Keeps pages clean and easy to scan while still offering helpful context
 
@@ -45,11 +46,22 @@ Add categorized "click to reveal" notes inline with your text. Create reusable n
 - **Dual Icon States**: Different icons for closed/open states provide visual feedback
 - **Color Coding**: Assign colors to each category for visual distinction
 
+### Display Modes (v2.1)
+
+- **Inline Mode (default)**: Notes expand directly below the trigger text in the content flow
+- **Tooltip Mode**: Notes appear as floating positioned tooltips above or below the trigger
+- **Smart Positioning**: Tooltips automatically flip position to stay within viewport
+- **Accessibility First**: Both modes support full keyboard navigation and screen readers
+- **Click/Keyboard Only**: Tooltips activate on click or keyboard (Space/Enter), not hover
+- **Focus Management**: Automatic focus on note content for keyboard users
+- **Escape to Close**: Press Escape to close tooltips and return focus to trigger
+
 ### Styling Controls
 
-- **Tabbed Interface**: Clean admin settings with Categories and Styling tabs
+- **Tabbed Interface**: Clean admin settings with General, Categories, Styling, and Uninstall tabs
+- **Display Mode Setting**: Choose between inline or tooltip display on the General tab
 - **Comprehensive Options**: Control colors, spacing, borders, shadows for every element
-- **Live Preview**: Interactive preview shows exactly how notes will appear
+- **Organized Sections**: Shared settings grouped first, then mode-specific options
 - **Helpful Descriptions**: Every setting includes clear explanation of its purpose
 
 ### Rich Features
@@ -62,6 +74,15 @@ Add categorized "click to reveal" notes inline with your text. Create reusable n
 - **Full Accessibility**: ARIA support, keyboard navigation, focus management
 
 ## How to use
+
+### Choosing display mode (v2.1)
+
+1. Go to Settings > Inline Context
+2. Click the General tab
+3. Choose between:
+   - **Inline notes** (default) - Notes expand in the content flow
+   - **Tooltips** - Notes appear as floating positioned elements
+4. Save your settings
 
 ### Managing notes library (v1.5)
 
@@ -137,12 +158,16 @@ The plugin uses a modular, class-based architecture for optimal maintainability:
 ## Accessibility
 
 - Full keyboard navigation in icon picker (Esc to close, Tab/Shift+Tab to navigate)
-- ARIA attributes on all interactive elements (`role="dialog"`, `aria-modal`, `aria-label`)
+- Keyboard activation of notes (Space/Enter on trigger links)
+- Escape key closes tooltips and returns focus to trigger
+- Automatic focus management for keyboard users (notes receive focus when opened)
+- ARIA attributes on all interactive elements (`role="dialog"`, `aria-modal`, `aria-label`, `aria-expanded`)
 - Focus management (auto-focus on modal open, focus restoration on close)
-- Focus trapping within modal
+- Focus trapping within modal dialogs
 - Proper button semantics for icon selection
-- Screen reader friendly labels on all icons
-- Notes include `aria-expanded` and `role="note"` attributes
+- Screen reader friendly labels on all icons and controls
+- Notes include `role="note"` attributes
+- Smart tooltip positioning ensures content stays within viewport
 
 ## Privacy
 
