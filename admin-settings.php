@@ -30,6 +30,17 @@ add_action( 'admin_menu', 'inline_context_add_settings_page' );
  * Register settings
  */
 function inline_context_register_settings() {
+	// Register display mode setting.
+	register_setting(
+		'inline_context_general_settings',
+		'inline_context_display_mode',
+		array(
+			'type'              => 'string',
+			'sanitize_callback' => 'inline_context_sanitize_display_mode',
+			'default'           => 'inline',
+		)
+	);
+
 	// Register CSS variables setting.
 	register_setting(
 		'inline_context_styling_settings',
@@ -53,24 +64,33 @@ function inline_context_register_settings() {
 	);
 
 	// Styling tab sections.
+	// First: Shared settings for both modes.
 	add_settings_section(
 		'inline_context_link_section',
-		__( 'Link Styling', 'inline-context' ),
+		__( 'Trigger Link Styling', 'inline-context' ),
 		'inline_context_link_section_callback',
 		'inline-context-settings-styling'
 	);
 
 	add_settings_section(
 		'inline_context_note_section',
-		__( 'Note Styling', 'inline-context' ),
+		__( 'Note Appearance', 'inline-context' ),
 		'inline_context_note_section_callback',
 		'inline-context-settings-styling'
 	);
 
 	add_settings_section(
 		'inline_context_chevron_section',
-		__( 'Chevron Styling', 'inline-context' ),
+		__( 'Chevron Icon', 'inline-context' ),
 		'inline_context_chevron_section_callback',
+		'inline-context-settings-styling'
+	);
+
+	// Then: Mode-specific settings.
+	add_settings_section(
+		'inline_context_inline_section',
+		__( 'Inline Mode Specific', 'inline-context' ),
+		'inline_context_inline_section_callback',
 		'inline-context-settings-styling'
 	);
 
@@ -124,14 +144,8 @@ function inline_context_register_settings() {
 		);
 	}
 
-	// Note settings.
+	// Note settings (shared between both inline and tooltip modes).
 	$note_fields = array(
-		'note-margin-y'       => array(
-			'label'       => __( 'Vertical Margin', 'inline-context' ),
-			'default'     => '8px',
-			'type'        => 'text',
-			'description' => __( 'Space above and below the note block.', 'inline-context' ),
-		),
 		'note-padding-y'      => array(
 			'label'       => __( 'Vertical Padding', 'inline-context' ),
 			'default'     => '12px',
@@ -156,18 +170,6 @@ function inline_context_register_settings() {
 			'type'        => 'color',
 			'description' => __( 'Color of the border around the note.', 'inline-context' ),
 		),
-		'note-accent-width'   => array(
-			'label'       => __( 'Accent Width', 'inline-context' ),
-			'default'     => '4px',
-			'type'        => 'text',
-			'description' => __( 'Width of the colored accent bar on the left side.', 'inline-context' ),
-		),
-		'note-accent-color'   => array(
-			'label'       => __( 'Accent Color', 'inline-context' ),
-			'default'     => '#2271b1',
-			'type'        => 'color',
-			'description' => __( 'Color of the accent bar on the left side of the note.', 'inline-context' ),
-		),
 		'note-radius'         => array(
 			'label'       => __( 'Border Radius', 'inline-context' ),
 			'default'     => '4px',
@@ -178,7 +180,7 @@ function inline_context_register_settings() {
 			'label'       => __( 'Box Shadow', 'inline-context' ),
 			'default'     => '0 2px 4px rgba(0,0,0,0.1)',
 			'type'        => 'text',
-			'description' => __( 'Drop shadow effect. Use CSS box-shadow format.', 'inline-context' ),
+			'description' => __( 'Drop shadow effect. Use CSS box-shadow format. Tooltips use enhanced shadow.', 'inline-context' ),
 		),
 		'note-font-size'      => array(
 			'label'       => __( 'Font Size', 'inline-context' ),
@@ -221,7 +223,7 @@ function inline_context_register_settings() {
 		);
 	}
 
-	// Chevron settings.
+	// Chevron settings (shared between both inline and tooltip modes).
 	$chevron_fields = array(
 		'chevron-default-color' => array(
 			'label'       => __( 'Default Color', 'inline-context' ),
@@ -276,8 +278,57 @@ function inline_context_register_settings() {
 			)
 		);
 	}
+
+	// Inline mode specific settings.
+	$inline_fields = array(
+		'note-margin-y'     => array(
+			'label'       => __( 'Vertical Margin', 'inline-context' ),
+			'default'     => '8px',
+			'type'        => 'text',
+			'description' => __( 'Space above and below the inline note block. Not used in tooltip mode.', 'inline-context' ),
+		),
+		'note-accent-width' => array(
+			'label'       => __( 'Accent Bar Width', 'inline-context' ),
+			'default'     => '4px',
+			'type'        => 'text',
+			'description' => __( 'Width of the colored accent bar on the left side. Not used in tooltip mode.', 'inline-context' ),
+		),
+		'note-accent-color' => array(
+			'label'       => __( 'Accent Bar Color', 'inline-context' ),
+			'default'     => '#2271b1',
+			'type'        => 'color',
+			'description' => __( 'Color of the accent bar on the left side. Not used in tooltip mode.', 'inline-context' ),
+		),
+	);
+
+	foreach ( $inline_fields as $key => $field ) {
+		add_settings_field(
+			'inline_context_' . $key,
+			$field['label'],
+			'inline_context_render_field',
+			'inline-context-settings-styling',
+			'inline_context_inline_section',
+			array(
+				'key'         => $key,
+				'type'        => $field['type'],
+				'default'     => $field['default'],
+				'description' => $field['description'] ?? '',
+			)
+		);
+	}
 }
 add_action( 'admin_init', 'inline_context_register_settings' );
+
+/**
+ * Sanitize display mode setting
+ *
+ * @param string $input The input value to sanitize.
+ * @return string The sanitized display mode ('inline' or 'tooltip').
+ */
+function inline_context_sanitize_display_mode( $input ) {
+	$valid_modes = array( 'inline', 'tooltip' );
+	return in_array( $input, $valid_modes, true ) ? $input : 'inline';
+}
 
 /**
  * Sanitize CSS variables
@@ -308,21 +359,28 @@ function inline_context_sanitize_css_variables( $input ) {
  * Link section callback
  */
 function inline_context_link_section_callback() {
-	echo '<p>' . esc_html__( 'Customize how inline context links appear before they are clicked. These are the underlined trigger words that users click to reveal notes.', 'inline-context' ) . '</p>';
+	echo '<p>' . esc_html__( 'Customize how trigger links appear. These settings apply to both inline and tooltip display modes.', 'inline-context' ) . '</p>';
 }
 
 /**
  * Note section callback
  */
 function inline_context_note_section_callback() {
-	echo '<p>' . esc_html__( 'Customize the appearance of the revealed note blocks that appear below the trigger link when clicked.', 'inline-context' ) . '</p>';
+	echo '<p>' . esc_html__( 'Customize the appearance of note content. These settings apply to both inline notes and tooltips.', 'inline-context' ) . '</p>';
+}
+
+/**
+ * Inline mode section callback
+ */
+function inline_context_inline_section_callback() {
+	echo '<p>' . esc_html__( 'These settings only apply when Display Mode is set to "Inline notes". They are not used in tooltip mode.', 'inline-context' ) . '</p>';
 }
 
 /**
  * Chevron section callback
  */
 function inline_context_chevron_section_callback() {
-	echo '<p>' . esc_html__( 'Customize the small arrow (chevron) icon that appears next to inline context links. The chevron indicates that the link can be expanded.', 'inline-context' ) . '</p>';
+	echo '<p>' . esc_html__( 'Customize the chevron icon that appears next to trigger links. These settings apply to both display modes.', 'inline-context' ) . '</p>';
 }
 
 /**
@@ -377,14 +435,15 @@ function inline_context_render_settings_page() {
 
 	// Define tabs.
 	$tabs = array(
+		'general'   => __( 'General', 'inline-context' ),
 		'styling'   => __( 'Styling', 'inline-context' ),
 		'uninstall' => __( 'Uninstall', 'inline-context' ),
 	);
 
 	// Get current tab.
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WordPress handles nonce for settings page.
-	$tab_param   = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'styling';
-	$current_tab = isset( $tabs[ $tab_param ] ) ? $tab_param : 'styling';
+	$tab_param   = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'general';
+	$current_tab = isset( $tabs[ $tab_param ] ) ? $tab_param : 'general';
 
 	// WordPress Settings API automatically shows success message, no need to add it manually.
 	settings_errors( 'inline_context_messages' );
@@ -413,8 +472,50 @@ function inline_context_render_settings_page() {
 			?>
 		</nav>
 
-		<?php if ( 'styling' === $current_tab ) : ?>
-			<p><?php esc_html_e( 'Customize the appearance of inline context notes using CSS custom properties. Changes will affect all notes on your site.', 'inline-context' ); ?></p>
+		<?php if ( 'general' === $current_tab ) : ?>
+			<h2><?php esc_html_e( 'Display Settings', 'inline-context' ); ?></h2>
+			<p><?php esc_html_e( 'Choose how inline context notes appear to your visitors on the frontend.', 'inline-context' ); ?></p>
+
+			<form action="options.php" method="post">
+				<?php settings_fields( 'inline_context_general_settings' ); ?>
+
+				<table class="form-table" role="presentation">
+					<tr>
+						<th scope="row">
+							<?php esc_html_e( 'Display Mode', 'inline-context' ); ?>
+						</th>
+						<td>
+							<fieldset>
+								<legend class="screen-reader-text">
+									<span><?php esc_html_e( 'Display Mode', 'inline-context' ); ?></span>
+								</legend>
+								<?php
+								$display_mode = get_option( 'inline_context_display_mode', 'inline' );
+								?>
+								<label>
+									<input type="radio" name="inline_context_display_mode" value="inline" <?php checked( $display_mode, 'inline' ); ?>>
+									<?php esc_html_e( 'Show notes as inline note (default)', 'inline-context' ); ?>
+								</label>
+								<br>
+								<label>
+									<input type="radio" name="inline_context_display_mode" value="tooltip" <?php checked( $display_mode, 'tooltip' ); ?>>
+									<?php esc_html_e( 'Show notes as tooltips', 'inline-context' ); ?>
+								</label>
+								<p class="description">
+									<?php esc_html_e( 'Inline notes expand below the trigger link when clicked. Tooltips appear as a popup near the trigger link when clicked or activated with keyboard.', 'inline-context' ); ?>
+								</p>
+							</fieldset>
+						</td>
+					</tr>
+				</table>
+
+				<p class="submit">
+					<input type="submit" name="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 'inline-context' ); ?>">
+				</p>
+			</form>
+
+		<?php elseif ( 'styling' === $current_tab ) : ?>
+			<p><?php esc_html_e( 'Customize the appearance of inline context notes. Settings are organized by what they apply to: both display modes, or inline mode only.', 'inline-context' ); ?></p>
 
 			<form action="options.php" method="post">
 				<?php
@@ -426,114 +527,6 @@ function inline_context_render_settings_page() {
 				<input type="submit" name="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 'inline-context' ); ?>">
 			</p>
 		</form>
-
-		<hr>
-
-		<h2><?php esc_html_e( 'Live Preview', 'inline-context' ); ?></h2>
-		<p><?php esc_html_e( 'See how your styling looks in action. Hover over the link and click it to reveal the note.', 'inline-context' ); ?></p>
-
-		<div id="inline-context-preview-area" style="padding: 30px; background: #fff; border: 1px solid #ccd0d4; border-radius: 4px; margin-top: 10px; box-shadow: 0 1px 1px rgba(0,0,0,0.04);">
-				<h3 style="margin-top: 0; color: #1d2327;"><?php esc_html_e( 'Example Article', 'inline-context' ); ?></h3>
-				<p style="line-height: 1.6; color: #2c3338;">
-					<?php esc_html_e( 'WordPress is a popular content management system. You can add', 'inline-context' ); ?>
-					<a href="#preview-note" class="wp-inline-context" style="scroll-margin-top: var(--wp--custom--inline-context--link--scroll-margin, 80px);" data-inline-context="<p><strong>Inline Context</strong> allows you to add expandable notes directly in your content without breaking the reading flow.</p><p>Readers can click to reveal additional information, definitions, or related content when they need it.</p>" data-anchor-id="preview-note" id="trigger-preview-note" role="button" aria-expanded="false">
-						<?php esc_html_e( 'inline context notes', 'inline-context' ); ?>
-					</a>
-					<?php esc_html_e( 'to provide additional information without cluttering your content.', 'inline-context' ); ?>
-				</p>
-				<p style="line-height: 1.6; color: #2c3338; margin-top: 20px;">
-					<small style="color: #646970;">
-						<strong><?php esc_html_e( 'Tip:', 'inline-context' ); ?></strong>
-						<?php esc_html_e( 'Try hovering over the link above to see hover effects, then click it to reveal the note and see how it appears with your current styling.', 'inline-context' ); ?>
-					</small>
-				</p>
-			</div>
-
-			<script>
-				// Simple frontend preview functionality
-				(function() {
-					const trigger = document.getElementById('trigger-preview-note');
-					if (!trigger) return;
-
-					trigger.addEventListener('click', function(e) {
-						e.preventDefault();
-
-						const existingNote = document.querySelector('.wp-inline-context-inline[data-anchor-id="preview-note"]');
-
-						if (existingNote) {
-							// Remove note
-							existingNote.remove();
-							trigger.setAttribute('aria-expanded', 'false');
-							trigger.classList.remove('wp-inline-context--open');
-						} else {
-							// Add note
-							const note = document.createElement('div');
-							note.className = 'wp-inline-context-inline';
-							note.setAttribute('data-anchor-id', 'preview-note');
-							note.setAttribute('role', 'note');
-							note.innerHTML = trigger.getAttribute('data-inline-context');
-
-							trigger.parentElement.insertAdjacentElement('afterend', note);
-							trigger.setAttribute('aria-expanded', 'true');
-							trigger.classList.add('wp-inline-context--open');
-						}
-					});
-				})();
-			</script>
-
-			<style>
-				/* Preview-specific styles - mimic frontend appearance */
-				#inline-context-preview-area .wp-inline-context {
-					cursor: pointer;
-					background: none;
-					border: none;
-					padding: 0;
-					margin: 0;
-					font-family: inherit;
-					font-size: inherit;
-					font-weight: inherit;
-					line-height: inherit;
-					text-align: inherit;
-					text-decoration: underline;
-					color: inherit;
-					white-space: normal;
-					transition: color 0.2s ease;
-					display: inline;
-				}
-
-				#inline-context-preview-area .wp-inline-context:hover,
-				#inline-context-preview-area .wp-inline-context:focus {
-					color: var(--wp--custom--inline-context--link--hover-color, #2271b1);
-				}
-
-				#inline-context-preview-area .wp-inline-context:focus {
-					outline: 2px solid var(--wp--custom--inline-context--link--focus-border-color, #2271b1);
-					outline-offset: 2px;
-					border-radius: 2px;
-				}
-
-				#inline-context-preview-area .wp-inline-context--open {
-					color: var(--wp--custom--inline-context--link--open-color, #2271b1);
-				}
-
-				#inline-context-preview-area .wp-inline-context::after {
-					content: '\00A0';
-					display: inline-block;
-					width: var(--wp--custom--inline-context--chevron--size, 0.7em);
-					height: var(--wp--custom--inline-context--chevron--size, 0.7em);
-					margin-left: var(--wp--custom--inline-context--chevron--margin-left, 0.25em);
-					vertical-align: middle;
-					text-decoration: none;
-					background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill=
-				#inline-context-preview-area .wp-inline-context-inline > :last-child {
-					margin-bottom: 0;
-				}
-
-			#inline-context-preview-area .wp-inline-context-inline a {
-				color: var(--wp--custom--inline-context--note--link-color, #2271b1);
-				text-decoration: var(--wp--custom--inline-context--note--link-underline, underline);
-			}
-		</style>
 
 	<?php elseif ( 'uninstall' === $current_tab ) : ?>
 		<?php inline_context_render_uninstall_tab(); ?>

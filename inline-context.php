@@ -3,7 +3,7 @@
  * Plugin Name: Inline Context
  * Plugin URI: https://wordpress.org/plugins/inline-context/
  * Description: Add inline expandable context to selected text in the block editor with direct anchor linking. Click to reveal, click again to hide.
- * Version: 2.0.1
+ * Version: 2.1.0
  * Author: Joop Laan
  * Author URI: https://profiles.wordpress.org/joop/
  * License: GPL-2.0-or-later
@@ -19,7 +19,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'INLINE_CONTEXT_VERSION', '2.0.1' );
+define( 'INLINE_CONTEXT_VERSION', '2.1.0' );
 
 // Load modular classes.
 require_once __DIR__ . '/includes/class-utils.php';
@@ -238,9 +238,14 @@ add_action(
 
 /**
  * Add is_reusable field to REST API response for inline_context_note
+ *
+ * @param WP_REST_Response $response The response object.
+ * @param WP_Post          $post     Post object.
+ * @param WP_REST_Request  $request  Request object (unused but required by filter signature).
  */
 add_filter(
 	'rest_prepare_inline_context_note',
+	// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 	function ( $response, $post, $request ) {
 		$data                = $response->get_data();
 		$data['is_reusable'] = (bool) get_post_meta( $post->ID, 'is_reusable', true );
