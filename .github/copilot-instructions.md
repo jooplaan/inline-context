@@ -4,16 +4,53 @@
 
 This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expandable context functionality with direct anchor linking and reusable notes via Custom Post Type. The plugin extends the WordPress block editor toolbar rather than creating a standalone block.
 
+**Version 2.0** introduced a complete modular refactoring from monolithic to class-based architecture (83% main file reduction from 2,291 to 395 lines).
+
 ### Key Components
 
+**Frontend Assets:**
 - **Rich Text Format Registration** (`src/index.js`): Registers `jooplaan/inline-context` format type with WordPress
 - **Editor Interface** (`src/edit.js`): React component with tabbed interface (Create/Search), QuillEditor, and category selector
 - **Note Search Component** (`src/components/NoteSearch.js`): Live search interface for finding existing CPT notes
 - **QuillEditor Component** (`src/components/QuillEditor.js`): Rich text editor with keyboard navigation
 - **CPT Editor Enhancement** (`src/cpt-editor.js`): QuillEditor integration for inline_context_note CPT edit screen
 - **Frontend Interaction** (`src/frontend.js`): Vanilla JS with DOMPurify for secure HTML rendering and anchor navigation
-- **Asset Management** (`inline-context.php`): WordPress coding standards compliant PHP with CPT registration, REST API, and asset enqueuing
-- **Uninstall System** (`uninstall.php`): Comprehensive cleanup with content removal options
+
+**Backend Modular Architecture (v2.0):**
+- **`Inline_Context_CPT`** (`includes/class-cpt.php`, 855 lines) - Custom Post Type registration, metaboxes, and admin UI
+- **`Inline_Context_Taxonomy_Meta`** (`includes/class-taxonomy-meta.php`, 372 lines) - Taxonomy meta fields for category icons, colors, and admin UI enhancements
+- **`Inline_Context_Sync`** (`includes/class-sync.php`, 496 lines) - Note usage tracking, reusable content synchronization, category sync
+- **`Inline_Context_Deletion`** (`includes/class-deletion.php`, 198 lines) - Deletion protection for reusable notes, cleanup for non-reusable
+- **`Inline_Context_REST_API`** (`includes/class-rest-api.php`, 340 lines) - REST API endpoints for search, usage tracking, and note removal handling
+- **`Inline_Context_Frontend`** (`includes/class-frontend.php`, 276 lines) - Noscript content generation, KSES filtering, asset enqueuing
+- **`Inline_Context_Utils`** (`includes/class-utils.php`, 182 lines) - Category management, CSS variable management with backward compatibility
+
+**Bootstrap & Settings:**
+- **Asset Management** (`inline-context.php`, 395 lines) - WordPress coding standards compliant PHP with CPT registration, REST API, and asset enqueuing
+- **Admin Settings** (`admin-settings.php`, 728 lines) - Tabbed admin interface for categories and styling options (function-based)
+- **Uninstall System** (`uninstall.php`) - Comprehensive cleanup with content removal options
+
+### Version 2.0 Modular Architecture Benefits
+
+**Separation of Concerns:**
+- Each class has a single, well-defined responsibility
+- CPT registration separated from REST API, sync logic, and frontend rendering
+- Taxonomy meta fields isolated in dedicated class
+
+**Maintainability:**
+- 83% reduction in main file size (2,291 → 395 lines)
+- Clear file organization makes navigation and debugging easier
+- Modular code easier to test and extend
+
+**Performance:**
+- Efficient class initialization with proper WordPress hooks
+- Lazy loading where appropriate
+- Optimized autoloading pattern
+
+**Developer Experience:**
+- Clean interfaces for adding features without touching core logic
+- Testable code structure
+- Full WordPress coding standards compliance
 
 ## Development Patterns
 
@@ -94,12 +131,13 @@ The editor popover has two tabbed modes:
 - Click to select existing note
 - Loads CPT content into cache
 - Reuses existing `data-note-id`
+- Supports filtering by reusable status
 
 ### REST API Endpoints (v1.5.0)
 
 **`/wp-json/inline-context/v1/notes/search`**
 - Method: GET
-- Params: `s` (search term)
+- Params: `s` (search term), `reusable_only` (boolean)
 - Returns: Array of notes with ID, title, content, excerpt
 
 **`/wp-json/inline-context/v1/notes/{id}/track-usage`**
@@ -107,6 +145,12 @@ The editor popover has two tabbed modes:
 - Params: `post_id` (current post ID)
 - Updates: `used_in_posts` array and `usage_count`
 - Non-blocking: Failures don't prevent saving
+
+**`/wp-json/inline-context/v1/notes/handle-removals`**
+- Method: POST
+- Params: `post_id` (post ID), `note_ids` (array of note IDs)
+- Updates: Removes post ID from `used_in_posts` and decrements `usage_count`
+- Non-blocking: Cleans up usage tracking when notes are removed from content
 
 ### CPT List View Enhancements (v1.5.0)
 
@@ -141,12 +185,14 @@ The editor popover has two tabbed modes:
 npm run start           # Development with hot reload
 npm run build          # Production build
 npm run lint:js        # JavaScript linting (ESLint)
+npm run lint:js:fix    # Auto-fix JavaScript violations
 npm run lint:php       # PHP coding standards (PHPCS)
 npm run lint:php:fix   # Auto-fix PHP violations (PHPCBF)
 npm run lint           # Check both JS and PHP standards
-npm run test           # Run all quality checks
-npm run package        # Create zip (runs test + build)
-npm run release        # One-step release (runs test + build + package)
+npm run lint:fix       # Auto-fix both JS and PHP violations
+npm run test           # Run all quality checks (runs lint)
+npm run package        # Create zip (runs lint:fix + build automatically)
+npm run release        # One-step release (runs lint:fix + build + package)
 ```
 
 Uses `@wordpress/scripts` which provides:
@@ -158,7 +204,7 @@ Uses `@wordpress/scripts` which provides:
 
 ### Quality Assurance
 
-- **Pre-packaging checks**: Both `package` and `release` commands automatically run linting
+- **Pre-packaging checks**: Both `package` and `release` commands automatically run `lint:fix` before building
 - **WordPress standards**: PHP code must pass PHPCS with WordPress-Coding-Standards
 - **JavaScript standards**: Uses `@wordpress/scripts` ESLint configuration
 - **Fail-fast**: Packaging stops if any quality checks fail
@@ -166,11 +212,23 @@ Uses `@wordpress/scripts` which provides:
 ## File Organization
 
 - `src/index.js` - Entry point, format registration
-- `src/edit.js` - Editor component (toolbar button + popover with ReactQuill)
+- `src/edit.js` - Editor component (toolbar button + popover with tabbed interface)
+- `src/components/NoteSearch.js` - Search interface for existing notes
+- `src/components/QuillEditor.js` - Rich text editor component
+- `src/cpt-editor.js` - CPT edit screen enhancements
 - `src/frontend.js` - Frontend click handlers (vanilla JS with DOMPurify)
 - `src/style.scss` - Frontend styles (loaded on both editor/frontend)
 - `src/editor.scss` - Editor-only styles
-- `inline-context.php` - WordPress plugin bootstrap with asset enqueuing
+- `inline-context.php` - WordPress plugin bootstrap (395 lines)
+- `admin-settings.php` - Admin settings UI with tabbed interface (728 lines)
+- `includes/class-cpt.php` - Custom Post Type class (855 lines)
+- `includes/class-taxonomy-meta.php` - Taxonomy meta fields class (372 lines)
+- `includes/class-sync.php` - Synchronization class (496 lines)
+- `includes/class-deletion.php` - Deletion handling class (198 lines)
+- `includes/class-rest-api.php` - REST API endpoints class (340 lines)
+- `includes/class-frontend.php` - Frontend rendering class (276 lines)
+- `includes/class-utils.php` - Utility functions class (182 lines)
+- `uninstall.php` - Plugin uninstall cleanup
 - `build/` - Compiled assets (committed for WordPress.org distribution)
 - `dist/` - Packaged plugin zip files
 - `scripts/package.sh` - Plugin packaging script

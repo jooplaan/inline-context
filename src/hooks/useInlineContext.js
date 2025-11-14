@@ -144,19 +144,27 @@ export const useSyncEditorContent = (
 		}
 		const content =
 			activeFormat?.attributes?.[ 'data-inline-context' ] || '';
-		const categoryId =
+		const categoryIdFromHtml =
 			activeFormat?.attributes?.[ 'data-category-id' ] || '';
+
 		setText( content );
-		setCategoryId( categoryId );
-		// Deliberately using complex expressions in deps to track specific attribute changes
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [
-		isOpen,
-		activeFormat?.attributes?.[ 'data-inline-context' ],
-		activeFormat?.attributes?.[ 'data-category-id' ],
-		setText,
-		setCategoryId,
-	] );
+
+		// Convert term ID from HTML back to slug for CategorySelector
+		if ( categoryIdFromHtml ) {
+			const cats = window.inlineContextData?.categories || {};
+			const category = Object.values( cats ).find(
+				( cat ) => cat.id.toString() === categoryIdFromHtml.toString()
+			);
+			if ( category ) {
+				setCategoryId( category.slug );
+			} else {
+				// Fallback: might be an old slug-based value
+				setCategoryId( categoryIdFromHtml );
+			}
+		} else {
+			setCategoryId( '' );
+		}
+	}, [ isOpen, activeFormat, setText, setCategoryId ] );
 };
 
 /**
