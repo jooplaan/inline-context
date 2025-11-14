@@ -5,8 +5,8 @@ Add categorized "click to reveal" notes inline with your text. Create reusable n
 ## Version 2.0 Highlights
 
 **Major refactoring and architectural improvements:**
-- **Modular Architecture**: Complete codebase refactoring from monolithic to 6 class-based modules (83% main file reduction)
-- **Enhanced Maintainability**: Separation of concerns with dedicated classes for CPT, Sync, Deletion, REST API, Frontend, and Utilities
+- **Modular Architecture**: Complete codebase refactoring from monolithic to 7 class-based modules (83% main file reduction)
+- **Enhanced Maintainability**: Separation of concerns with dedicated classes for CPT, Taxonomy Meta, Sync, Deletion, REST API, Frontend, and Utilities
 - **Code Quality**: Full WordPress coding standards compliance (JavaScript and PHP)
 - **Performance**: Optimized class autoloading and initialization
 - **Developer Experience**: Clean, testable, and extensible codebase
@@ -114,14 +114,15 @@ The plugin uses a modular, class-based architecture for optimal maintainability:
 - **`Inline_Context_CPT`** (855 lines) - Custom Post Type registration, metaboxes, and admin UI
 - **`Inline_Context_Sync`** (496 lines) - Note usage tracking, reusable content synchronization, category sync
 - **`Inline_Context_Deletion`** (198 lines) - Deletion protection for reusable notes, cleanup for non-reusable
-- **`Inline_Context_REST_API`** (340 lines) - REST API endpoints for search and usage tracking
+- **`Inline_Context_REST_API`** (340 lines) - REST API endpoints for search, usage tracking, and note removal handling
 - **`Inline_Context_Frontend`** (276 lines) - Noscript content generation, KSES filtering, asset enqueuing
+- **`Inline_Context_Taxonomy_Meta`** (372 lines) - Taxonomy meta fields for category icons, colors, and admin UI enhancements
 - **`Inline_Context_Utils`** (182 lines) - Category management, CSS variable management with backward compatibility
 
 ### Main Bootstrap File
 
-- **`inline-context.php`** (391 lines, down from 2,291) - Clean plugin initialization and class loading
-- **`admin-settings.php`** (678 lines) - Admin settings UI with tabbed interface (function-based)
+- **`inline-context.php`** (395 lines, down from 2,291) - Clean plugin initialization and class loading
+- **`admin-settings.php`** (728 lines) - Admin settings UI with tabbed interface (function-based)
 
 ### Benefits
 
@@ -214,7 +215,7 @@ This will install the plugin to `wp-content/plugins/inline-context/` automatical
 - `languages/` — Translation files
 - `inline-context.php` — Main plugin bootstrap file
 - `admin-settings.php` — Admin settings interface
-- `classes/` — Modular class-based architecture (v2.0)
+- `includes/` — Modular class-based architecture (v2.0)
 - `readme.txt` — WordPress.org readme
 - `scripts/` — Build and packaging scripts
 - `vendor/` — Composer dependencies (PHP CodeSniffer, WordPress Coding Standards)
