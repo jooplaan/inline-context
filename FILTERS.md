@@ -11,6 +11,7 @@ Customize which HTML attributes are allowed on anchor elements in the block edit
 **Type:** PHP  
 **Location:** `inline-context.php`  
 **Default Value:**
+
 ```php
 array(
     'data-inline-context' => true,
@@ -21,6 +22,7 @@ array(
 ```
 
 **Example:**
+
 ```php
 // Allow custom data attributes
 add_filter( 'inline_context_allowed_attributes', function( $attributes ) {
@@ -43,9 +45,11 @@ Change the CSS class applied to triggers when their note is open.
 **Location:** `src/frontend.js`  
 **Default Value:** `'wp-inline-context--open'`  
 **Parameters:**
+
 - `{string}` className - The CSS class to use
 
 **Example:**
+
 ```javascript
 wp.hooks.addFilter(
     'inline_context_revealed_class',
@@ -64,9 +68,11 @@ Customize which HTML tags are allowed in note content after sanitization.
 **Location:** `src/frontend.js`  
 **Default Value:** `['p', 'strong', 'em', 'a', 'ol', 'ul', 'li', 'br']`  
 **Parameters:**
+
 - `{Array<string>}` tags - Array of allowed HTML tag names
 
 **Example:**
+
 ```javascript
 // Allow additional tags like headings and blockquotes
 wp.hooks.addFilter(
@@ -88,9 +94,11 @@ Customize which HTML attributes are allowed in note content after sanitization.
 **Location:** `src/frontend.js`  
 **Default Value:** `['href', 'rel', 'target']`  
 **Parameters:**
+
 - `{Array<string>}` attributes - Array of allowed HTML attribute names
 
 **Example:**
+
 ```javascript
 // Allow additional attributes like classes and IDs
 wp.hooks.addFilter(
@@ -111,9 +119,11 @@ Modify note HTML content before DOMPurify sanitization.
 **Type:** JavaScript (Frontend)  
 **Location:** `src/frontend.js`  
 **Parameters:**
+
 - `{string}` html - The HTML content to be sanitized
 
 **Example:**
+
 ```javascript
 // Add a wrapper div before sanitization
 wp.hooks.addFilter(
@@ -134,9 +144,11 @@ Modify note HTML content after DOMPurify sanitization.
 **Type:** JavaScript (Frontend)  
 **Location:** `src/frontend.js`  
 **Parameters:**
+
 - `{string}` html - The sanitized HTML content
 
 **Example:**
+
 ```javascript
 // Add a footer after sanitization
 wp.hooks.addFilter(
@@ -158,10 +170,12 @@ Control whether links in notes should be processed for target behavior.
 **Location:** `src/frontend.js`  
 **Default Value:** `true`  
 **Parameters:**
+
 - `{boolean}` shouldProcess - Whether to process links
 - `{HTMLElement}` noteElement - The note container element
 
 **Example:**
+
 ```javascript
 // Disable link processing for notes with a specific class
 wp.hooks.addFilter(
@@ -183,11 +197,13 @@ Customize the target attribute for internal links.
 **Location:** `src/frontend.js`  
 **Default Value:** `'_self'`  
 **Parameters:**
+
 - `{string}` target - The target attribute value
 - `{string}` href - The link URL
 - `{HTMLAnchorElement}` link - The link element
 
 **Example:**
+
 ```javascript
 // Open internal links in new tab if they match a pattern
 wp.hooks.addFilter(
@@ -212,11 +228,13 @@ Customize the target attribute for external links.
 **Location:** `src/frontend.js`  
 **Default Value:** `'_blank'`  
 **Parameters:**
+
 - `{string}` target - The target attribute value
 - `{string}` href - The link URL
 - `{HTMLAnchorElement}` link - The link element
 
 **Example:**
+
 ```javascript
 // Open trusted external domains in same tab
 wp.hooks.addFilter(
@@ -243,10 +261,12 @@ Customize the CSS class for the revealed note container.
 **Location:** `src/frontend.js`  
 **Default Value:** `'wp-inline-context-inline'`  
 **Parameters:**
+
 - `{string}` className - The CSS class to use
 - `{HTMLElement}` trigger - The trigger element that was clicked
 
 **Example:**
+
 ```javascript
 // Add custom class based on trigger attributes
 wp.hooks.addFilter(
@@ -271,10 +291,12 @@ Customize how unique anchor IDs are generated for new notes.
 **Location:** `src/edit.js`  
 **Default Value:** `'context-note-{timestamp}-{random}'`  
 **Parameters:**
+
 - `{string}` anchorId - The generated anchor ID
 - `{Object}` context - Object containing `timestamp` and `random` values
 
 **Example:**
+
 ```javascript
 // Use a custom prefix and format
 wp.hooks.addFilter(

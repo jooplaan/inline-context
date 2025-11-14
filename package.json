@@ -9,10 +9,12 @@
 		"lint:js:fix": "wp-scripts lint-js --fix",
 		"lint:php": "vendor/bin/phpcs --standard=WordPress *.php",
 		"lint:php:fix": "vendor/bin/phpcbf --standard=WordPress *.php",
+		"lint:md": "npx markdownlint-cli2 \"**/*.md\" \"!node_modules\" \"!vendor\"",
+		"lint:md:fix": "npx markdownlint-cli2 --fix \"**/*.md\" \"!node_modules\" \"!vendor\"",
 		"format:js": "prettier --write \"src/**/*.{js,jsx,scss,css,json}\"",
 		"format": "npm run format:js && npm run lint:php:fix",
-		"lint": "npm run lint:js && npm run lint:php",
-		"lint:fix": "npm run lint:js:fix && npm run lint:php:fix",
+		"lint": "npm run lint:js && npm run lint:php && npm run lint:md",
+		"lint:fix": "npm run lint:js:fix && npm run lint:php:fix && npm run lint:md:fix",
 		"test": "npm run lint",
 		"pot": "echo 'POT file generation requires WP-CLI. Run: wp i18n make-pot . languages/inline-context.pot --domain=inline-context'",
 		"prepackage": "npm run lint:fix && npm run build",
@@ -21,8 +23,8 @@
 		"release": "bash scripts/package.sh"
 	},
 	"dependencies": {
-		"react-quill": "^2.0.0",
-		"dompurify": "^3.0.0"
+		"dompurify": "^3.0.0",
+		"react-quill": "^2.0.0"
 	},
 	"devDependencies": {
 		"@wordpress/scripts": "^25.0.0"
