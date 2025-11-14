@@ -513,6 +513,20 @@ export default function Edit( { isActive, value, onChange } ) {
 		setTimeout( () => prevFocusRef.current?.focus?.(), 0 );
 	}, [] );
 
+	const handleReusableChange = useCallback(
+		( newValue ) => {
+			// If unchecking a reused note, we need to create a new note
+			// Reset noteId to null so saveNoteToCPT creates a new note
+			if ( ! newValue && isReusedNote ) {
+				setNoteId( null );
+				setIsReusedNote( false );
+				setSelectedNote( null );
+			}
+			setIsReusable( newValue );
+		},
+		[ isReusedNote ]
+	);
+
 	const insertLink = useCallback( () => {
 		const quillInstance = quillRef.current?.getEditor();
 		if ( ! quillInstance || ! linkUrl ) {
@@ -945,8 +959,8 @@ export default function Edit( { isActive, value, onChange } ) {
 						cancelRef={ cancelRef }
 						saveRef={ saveRef }
 						isReusable={ isReusable }
-						onReusableChange={ setIsReusable }
-						isReusableDisabled={ isReusedNote }
+						onReusableChange={ handleReusableChange }
+						isReusedNote={ isReusedNote }
 					/>
 				</Popover>
 			) }
