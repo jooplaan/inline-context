@@ -439,6 +439,7 @@ class Inline_Context_CPT {
 		}
 
 		$usage_count = $actual_usage_count;
+		$post_count  = count( $used_in_posts ); // Number of distinct posts.
 
 		wp_nonce_field( 'inline_context_usage_meta_nonce', 'inline_context_usage_meta_nonce_field' );
 
@@ -446,9 +447,12 @@ class Inline_Context_CPT {
 
 		// Usage count.
 		echo '<p><strong>' . esc_html__( 'Used in:', 'inline-context' ) . '</strong> ';
-		if ( $usage_count > 0 ) {
-			echo '<span style="font-size: 1.2em; color: #2271b1;">' . esc_html( $usage_count ) . '</span> ';
-			echo esc_html( _n( 'post', 'posts', $usage_count, 'inline-context' ) );
+		if ( $post_count > 0 ) {
+			echo '<span style="font-size: 1.2em; color: #2271b1;">' . esc_html( $post_count ) . '</span> ';
+			echo esc_html( _n( 'post', 'posts', $post_count, 'inline-context' ) );
+			if ( $usage_count > $post_count ) {
+				echo ' <span style="color: #666; font-size: 0.9em;">(' . esc_html( $usage_count ) . ' ' . esc_html__( 'times total', 'inline-context' ) . ')</span>';
+			}
 		} else {
 			echo '<span style="color: #999;">' . esc_html__( 'Not used yet', 'inline-context' ) . '</span>';
 		}
@@ -508,7 +512,7 @@ class Inline_Context_CPT {
 		echo '</div>';
 
 		// Warning if used in multiple posts.
-		if ( $usage_count > 1 ) {
+		if ( $post_count > 1 ) {
 			echo '<div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-left: 3px solid #ffc107;">';
 			echo '<p style="margin: 0; font-size: 0.9em;">';
 			echo '<strong>⚠️ ' . esc_html__( 'Note:', 'inline-context' ) . '</strong> ';
@@ -518,24 +522,28 @@ class Inline_Context_CPT {
 		}
 
 		// Delete warning if note is in use.
-		if ( $usage_count > 0 ) {
+		if ( $post_count > 0 ) {
 			echo '<div style="margin-top: 15px; padding: 12px; background: #f8d7da; border-left: 3px solid #dc3545;">';
 			echo '<p style="margin: 0 0 8px 0; font-weight: 600; color: #721c24;">';
 			echo '🗑️ ' . esc_html__( 'Before deleting this note:', 'inline-context' );
 			echo '</p>';
 			echo '<p style="margin: 0; font-size: 0.9em; color: #721c24;">';
+			
+			// Show usage count and post count.
 			echo esc_html(
 				sprintf(
-					/* translators: %d: number of posts */
+					/* translators: 1: number of times used, 2: number of posts */
 					_n(
-						'This note is currently used in %d post. Deleting it will not remove it from that post, but the note will no longer appear in search results.',
-						'This note is currently used in %d posts. Deleting it will not remove it from those posts, but the note will no longer appear in search results.',
+						'Deleting this note will remove %1$d use from %2$d post.',
+						'Deleting this note will remove %1$d uses from %2$d posts.',
 						$usage_count,
 						'inline-context'
 					),
-					$usage_count
+					$usage_count,
+					$post_count
 				)
 			);
+			
 			echo '</p>';
 			echo '</div>';
 		}
@@ -693,31 +701,36 @@ class Inline_Context_CPT {
 		// Add delete confirmation for notes with usage.
 		$usage_count = $post_id ? (int) get_post_meta( $post_id, 'usage_count', true ) : 0;
 		$is_reusable = $post_id ? get_post_meta( $post_id, 'is_reusable', true ) : false;
+		$used_in_posts = $post_id ? get_post_meta( $post_id, 'used_in_posts', true ) : array();
+		$post_count = is_array( $used_in_posts ) ? count( $used_in_posts ) : 0;
 
-		if ( $usage_count > 0 ) {
+		if ( $usage_count > 0 && $post_count > 0 ) {
 			if ( $is_reusable ) {
-				// Block deletion for reusable notes.
+				// Confirm deletion for reusable notes with usage.
 				wp_add_inline_script(
 					'jooplaan-inline-context-cpt-editor',
 					sprintf(
 						'
 						(function() {
 							var usageCount = %d;
+							var postCount = %d;
 							var deleteLink = document.querySelector("a.submitdelete");
 							if (deleteLink && usageCount > 0) {
 								deleteLink.addEventListener("click", function(e) {
-									var message = usageCount === 1
-										? "This reusable note cannot be trashed because it is currently used in 1 post.\\n\\nPlease remove it from the post first."
-										: "This reusable note cannot be trashed because it is currently used in " + usageCount + " posts.\\n\\nPlease remove it from all posts first.";
+									var message = "Are you sure you want to delete this reusable note?\\n\\n" +
+										usageCount + " note " + (usageCount === 1 ? "use" : "uses") + " will be deleted in " +
+										postCount + " post" + (postCount === 1 ? "" : "s") + ".";
 
-									alert(message);
-									e.preventDefault();
-									return false;
+									if (!confirm(message)) {
+										e.preventDefault();
+										return false;
+									}
 								});
 							}
 						})();
 						',
-						$usage_count
+						$usage_count,
+						$post_count
 					)
 				);
 			} else {
@@ -728,12 +741,13 @@ class Inline_Context_CPT {
 						'
 						(function() {
 							var usageCount = %d;
+							var postCount = %d;
 							var deleteLink = document.querySelector("a.submitdelete");
 							if (deleteLink && usageCount > 0) {
 								deleteLink.addEventListener("click", function(e) {
-									var message = usageCount === 1
-										? "This note is currently used in 1 post.\\n\\nDeleting it will also remove it from that post.\\n\\nContinue?"
-										: "This note is currently used in " + usageCount + " posts.\\n\\nDeleting it will also remove it from those posts.\\n\\nContinue?";
+									var message = "This note is currently used " + usageCount + " " + (usageCount === 1 ? "time" : "times") +
+										" in " + postCount + " post" + (postCount === 1 ? "" : "s") + ".\\n\\n" +
+										"Deleting it will also remove it from " + (postCount === 1 ? "that post" : "those posts") + ".\\n\\nContinue?";
 
 									if (!confirm(message)) {
 										e.preventDefault();
@@ -743,7 +757,8 @@ class Inline_Context_CPT {
 							}
 						})();
 						',
-						$usage_count
+						$usage_count,
+						$post_count
 					)
 				);
 			}
@@ -762,15 +777,19 @@ class Inline_Context_CPT {
 		// Get all notes with their usage counts for JavaScript.
 		global $wp_query;
 		$note_usage      = array();
+		$note_post_count = array();
 		$reusable_in_use = array();
 
 		if ( isset( $wp_query->posts ) && is_array( $wp_query->posts ) ) {
 			foreach ( $wp_query->posts as $post ) {
-				$usage_count = (int) get_post_meta( $post->ID, 'usage_count', true );
-				$is_reusable = get_post_meta( $post->ID, 'is_reusable', true );
+				$usage_count   = (int) get_post_meta( $post->ID, 'usage_count', true );
+				$is_reusable   = get_post_meta( $post->ID, 'is_reusable', true );
+				$used_in_posts = get_post_meta( $post->ID, 'used_in_posts', true );
+				$post_count    = is_array( $used_in_posts ) ? count( $used_in_posts ) : 0;
 
 				if ( $usage_count > 0 ) {
-					$note_usage[ $post->ID ] = $usage_count;
+					$note_usage[ $post->ID ]      = $usage_count;
+					$note_post_count[ $post->ID ] = $post_count;
 
 					// Track if it's reusable and in use (cannot be deleted).
 					if ( $is_reusable ) {
@@ -785,6 +804,7 @@ class Inline_Context_CPT {
 			<script>
 			jQuery(document).ready(function($) {
 				var noteUsage = <?php echo wp_json_encode( $note_usage ); ?>;
+				var notePostCount = <?php echo wp_json_encode( $note_post_count ); ?>;
 				var reusableInUse = <?php echo wp_json_encode( $reusable_in_use ); ?>;
 
 				// Confirm bulk delete.
@@ -797,21 +817,31 @@ class Inline_Context_CPT {
 
 					if (action === 'trash') {
 						var checkedPosts = form.find('input[name="post[]"]:checked');
-						var reusableInUseCount = 0;
+						var totalNotesCount = 0;
+						var totalUsageCount = 0;
+						var totalPostsAffected = 0;
 
 						checkedPosts.each(function() {
 							var postId = $(this).val();
-							if (reusableInUse[postId]) {
-								reusableInUseCount++;
+							if (noteUsage[postId] && reusableInUse[postId]) {
+								totalNotesCount++;
+								totalUsageCount += noteUsage[postId];
+								totalPostsAffected += notePostCount[postId];
 							}
 						});
 
-						if (reusableInUseCount > 0) {
-							var message = reusableInUseCount + (reusableInUseCount === 1 ? ' reusable note' : ' reusable notes') + ' in your selection cannot be trashed because ' + (reusableInUseCount === 1 ? 'it is' : 'they are') + ' currently in use.\n\n';
-							message += 'Please remove ' + (reusableInUseCount === 1 ? 'it' : 'them') + ' from all posts first.';
-							alert(message);
-							e.preventDefault();
-							return false;
+						// Show confirmation for reusable notes that are in use
+						if (totalNotesCount > 0 && totalPostsAffected > 0) {
+							var message = 'Are you sure you want to delete ' +
+								(totalNotesCount === 1 ? 'this reusable note' : 'these ' + totalNotesCount + ' reusable notes') +
+								'?\n\n' + totalUsageCount + ' note ' + (totalUsageCount === 1 ? 'use' : 'uses') +
+								' will be deleted in ' + totalPostsAffected + ' post' +
+								(totalPostsAffected === 1 ? '' : 's') + '.';
+
+							if (!confirm(message)) {
+								e.preventDefault();
+								return false;
+							}
 						}
 					}
 				});
@@ -825,21 +855,27 @@ class Inline_Context_CPT {
 					if (checkbox.length) {
 						var postId = checkbox.val();
 
-						// Block reusable notes that are in use.
+						// Show confirmation for reusable notes that are in use.
 						if (reusableInUse[postId]) {
 							var usage = noteUsage[postId];
-							var message = 'This reusable note cannot be trashed because it is currently used in ' + usage + ' post' + (usage === 1 ? '' : 's') + '.\n\n';
-							message += 'Please remove it from all posts first.';
-							alert(message);
-							e.preventDefault();
-							return false;
+							var postCount = notePostCount[postId];
+							var message = 'Are you sure you want to delete this reusable note?\n\n' +
+								usage + ' note ' + (usage === 1 ? 'use' : 'uses') +
+								' will be deleted in ' + postCount + ' post' + (postCount === 1 ? '' : 's') + '.';
+
+							if (!confirm(message)) {
+								e.preventDefault();
+								return false;
+							}
 						}
 
 						// Warn about non-reusable notes that are in use (but allow deletion).
 						if (noteUsage[postId] && !reusableInUse[postId]) {
 							var usage = noteUsage[postId];
-							var message = 'This note is currently used in ' + usage + ' post' + (usage === 1 ? '' : 's') + '.\n\n';
-							message += 'Deleting it will also remove it from ' + (usage === 1 ? 'that post' : 'those posts') + '.\n\nContinue?';
+							var postCount = notePostCount[postId];
+							var message = 'This note is currently used ' + usage + ' ' + (usage === 1 ? 'time' : 'times') +
+								' in ' + postCount + ' post' + (postCount === 1 ? '' : 's') + '.\n\n' +
+								'Deleting it will also remove it from ' + (postCount === 1 ? 'that post' : 'those posts') + '.\n\nContinue?';
 							if (!confirm(message)) {
 								e.preventDefault();
 								return false;

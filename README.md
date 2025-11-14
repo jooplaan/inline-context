@@ -33,7 +33,8 @@ Add categorized "click to reveal" notes inline with your text. Create reusable n
 - **Create or Reuse**: Choose to create new notes or select from existing library
 - **Usage Tracking**: See which posts use each note with enhanced list view
 - **Filter by Type**: Filter notes marked as reusable in the admin list
-- **Delete Protection**: Warnings when attempting to delete actively used notes
+- **Bulk Delete**: Delete reusable notes with automatic cleanup from all posts
+- **Smart Deletion**: Confirmation dialogs show exactly how many uses will be removed from how many posts
 - **Cached Performance**: Notes cached in content for optimal frontend speed
 
 ### Category Management
@@ -69,6 +70,7 @@ Add categorized "click to reveal" notes inline with your text. Create reusable n
 3. Mark notes as "Reusable" to use them across multiple posts
 4. View usage statistics to see where each note is used
 5. Use the filter dropdown to show only reusable notes
+6. Delete notes with confidence - the system shows exactly how many uses will be removed from how many posts
 
 ### Setting up categories
 1. Go to Settings > Inline Context
@@ -113,7 +115,7 @@ The plugin uses a modular, class-based architecture for optimal maintainability:
 
 - **`Inline_Context_CPT`** (855 lines) - Custom Post Type registration, metaboxes, and admin UI
 - **`Inline_Context_Sync`** (496 lines) - Note usage tracking, reusable content synchronization, category sync
-- **`Inline_Context_Deletion`** (198 lines) - Deletion protection for reusable notes, cleanup for non-reusable
+- **`Inline_Context_Deletion`** (198 lines) - Bulk deletion with automatic cleanup from all posts
 - **`Inline_Context_REST_API`** (340 lines) - REST API endpoints for search, usage tracking, and note removal handling
 - **`Inline_Context_Frontend`** (276 lines) - Noscript content generation, KSES filtering, asset enqueuing
 - **`Inline_Context_Taxonomy_Meta`** (372 lines) - Taxonomy meta fields for category icons, colors, and admin UI enhancements
