@@ -52,7 +52,7 @@ class Inline_Context_Deletion {
 	}
 
 	/**
-	 * Prevent trashing a reusable note that's in use.
+	 * Handle trashing of reusable notes - removes them from posts where they're used.
 	 *
 	 * @param int $post_id Post ID being trashed.
 	 */
@@ -66,25 +66,10 @@ class Inline_Context_Deletion {
 		$is_reusable = get_post_meta( $post_id, 'is_reusable', true );
 		$used_in     = get_post_meta( $post_id, 'used_in_posts', true );
 
-		// Only prevent trashing for REUSABLE notes that are in use.
+		// For reusable notes that are in use, remove them from all posts.
+		// The confirmation dialog is handled by JavaScript in class-cpt.php.
 		if ( $is_reusable && ! empty( $used_in ) && is_array( $used_in ) ) {
-			wp_die(
-				sprintf(
-					/* translators: %d: number of posts using the note */
-					_n(
-						'This reusable note cannot be trashed because it is currently used in %d post. Please remove it from all posts first.',
-						'This reusable note cannot be trashed because it is currently used in %d posts. Please remove it from all posts first.',
-						count( $used_in ),
-						'inline-context'
-					),
-					count( $used_in )
-				),
-				esc_html__( 'Cannot Trash Note', 'inline-context' ),
-				array(
-					'back_link' => true,
-					'response'  => 403,
-				)
-			);
+			$this->remove_note_from_posts( $post_id, $used_in );
 		}
 	}
 
@@ -110,7 +95,7 @@ class Inline_Context_Deletion {
 	}
 
 	/**
-	 * Prevent deleting a reusable note that's in use.
+	 * Handle permanent deletion of reusable notes - removes them from posts where they're used.
 	 * For non-reusable notes, remove them from posts when permanently deleted.
 	 *
 	 * @param int      $post_id Post ID being deleted.
@@ -124,25 +109,10 @@ class Inline_Context_Deletion {
 		$is_reusable = get_post_meta( $post_id, 'is_reusable', true );
 		$used_in     = get_post_meta( $post_id, 'used_in_posts', true );
 
-		// Only prevent deletion for REUSABLE notes that are in use.
+		// For reusable notes that are in use, remove them from all posts.
+		// The confirmation dialog is handled by JavaScript in class-cpt.php.
 		if ( $is_reusable && ! empty( $used_in ) && is_array( $used_in ) ) {
-			wp_die(
-				sprintf(
-					/* translators: %d: number of posts using the note */
-					_n(
-						'This reusable note cannot be deleted because it is currently used in %d post. Please remove it from all posts first.',
-						'This reusable note cannot be deleted because it is currently used in %d posts. Please remove it from all posts first.',
-						count( $used_in ),
-						'inline-context'
-					),
-					count( $used_in )
-				),
-				esc_html__( 'Cannot Delete Note', 'inline-context' ),
-				array(
-					'back_link' => true,
-					'response'  => 403,
-				)
-			);
+			$this->remove_note_from_posts( $post_id, $used_in );
 		}
 
 		// For non-reusable notes that are in use, remove them from all posts.

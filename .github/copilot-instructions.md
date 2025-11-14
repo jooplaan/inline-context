@@ -164,11 +164,13 @@ The editor popover has two tabbed modes:
 - Dropdown: "All Notes" / "Reusable Notes Only"
 - Filters by `is_reusable` meta value
 
-**Delete Protection:**
-- Warning in post list bulk/quick actions
-- Warning in trash/delete links
-- Warning on single post delete screen
-- Shows which posts will be affected
+**Bulk Delete System (v2.1):**
+- **Smart deletion**: Reusable notes can be deleted even when in use
+- **Automatic cleanup**: Deletes note from all posts where it's used (removes `<a>` tag, preserves text)
+- **Confirmation dialogs**: Show exact impact - "X note uses will be deleted in Y posts"
+- **Usage vs Post count**: Distinguishes between total uses (3×) and number of posts (2)
+- **JavaScript warnings**: Edit screen, list view individual, and bulk delete all show confirmation
+- **PHP cleanup**: Hooks into `wp_trash_post` and `before_delete_post` to clean up content
 
 ### Frontend Interaction Pattern
 
@@ -224,7 +226,7 @@ Uses `@wordpress/scripts` which provides:
 - `includes/class-cpt.php` - Custom Post Type class (855 lines)
 - `includes/class-taxonomy-meta.php` - Taxonomy meta fields class (372 lines)
 - `includes/class-sync.php` - Synchronization class (496 lines)
-- `includes/class-deletion.php` - Deletion handling class (198 lines)
+- `includes/class-deletion.php` - Bulk deletion with automatic cleanup (198 lines)
 - `includes/class-rest-api.php` - REST API endpoints class (340 lines)
 - `includes/class-frontend.php` - Frontend rendering class (276 lines)
 - `includes/class-utils.php` - Utility functions class (182 lines)
