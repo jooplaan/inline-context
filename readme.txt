@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 2.0.1
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,23 +14,24 @@ Add inline expandable context notes with direct anchor linking. Features reusabl
 Inline Context lets you enrich content with expandable context notes that maintain optimal reading flow. Create reusable notes via Custom Post Type, organize with custom categories (each with distinct icons and colors), and control all styling through a tabbed admin interface.
 
 = Key Features =
-* **Reusable Notes (NEW v1.5)**: Create notes as Custom Post Type entries and reuse them across multiple posts
-* **Notes Library (NEW v1.5)**: Centralized management of all notes with usage tracking
-* **Quick Search (NEW v1.5)**: Find and insert existing notes instantly from the editor
-* **Usage Tracking (NEW v1.5)**: See where each note is used across your site
+* **Display Modes (NEW v2.1)**: Choose between inline expansion or floating tooltips
+* **Smart Tooltips (NEW v2.1)**: Automatic positioning that prevents off-screen display
+* **Reusable Notes (v1.5)**: Create notes as Custom Post Type entries and reuse them across multiple posts
+* **Notes Library (v1.5)**: Centralized management of all notes with usage tracking
+* **Quick Search (v1.5)**: Find and insert existing notes instantly from the editor
+* **Usage Tracking (v1.5)**: See where each note is used across your site
 * **Category Management**: Organize notes with custom categories (Internal Article, External Article, Definition, Tip, etc.)
 * **Custom Icons**: Choose from 30 curated Dashicons or use any of 300+ available icons
 * **Icon States**: Different icons for closed/open states provide visual feedback
-* **Tabbed Settings**: Clean admin interface with Categories and Styling tabs
+* **Tabbed Settings**: Clean admin interface with General, Categories, Styling, and Uninstall tabs
 * **Visual Icon Picker**: Accessible modal with keyboard navigation (Esc to close, Tab to navigate)
 * **Direct Anchor Links**: Every note gets a unique URL anchor for easy sharing (#context-note-xxx)
 * **Auto-Opening**: Notes automatically open when accessed via direct link
 * **Smart Link Behavior**: Internal links stay in same tab, external links open in new tab with security
 * **Rich Text Support**: Notes support bold, italic, links, lists with ReactQuill editor
 * **Comprehensive Styling**: Control colors, spacing, borders, shadows for links and notes
-* **Live Preview**: Interactive preview shows exactly how notes will appear
 * **Security First**: Content sanitized with DOMPurify before frontend display
-* **Accessibility**: Full ARIA support, keyboard navigation, and focus management
+* **Full Accessibility**: ARIA support, keyboard navigation, focus management, Escape key support
 * **WordPress Integration**: Clean toolbar button in Rich Text format controls
 
 = Reusable Notes System (v1.5) =
@@ -214,6 +215,20 @@ This release represents a fundamental architectural improvement that sets the fo
 2. Frontend rendering of an inline note
 
 == Changelog ==
+
+= 2.1.0 =
+* **NEW**: Tooltip display mode as alternative to inline expansion
+* **NEW**: General settings tab with display mode selection (inline/tooltip)
+* **NEW**: Smart tooltip positioning with viewport boundary detection
+* **NEW**: Automatic position flipping to prevent off-screen tooltips
+* **NEW**: Close button on tooltips with proper event cleanup
+* **NEW**: Full keyboard support (Space/Enter to activate, Escape to close)
+* **NEW**: Automatic focus management for keyboard users
+* **IMPROVED**: Organized styling sections (shared settings first, mode-specific after)
+* **IMPROVED**: Admin settings reorganized into 4 tabs (General, Categories, Styling, Uninstall)
+* **IMPROVED**: Click/keyboard-only activation for tooltips (no hover)
+* **IMPROVED**: Comprehensive tooltip accessibility with ARIA attributes
+* **REMOVED**: Non-functional live preview from Styling tab (will be reimplemented properly later)
 
 = 2.0.1 =
 * **NEW**: Taxonomy meta fields UI for managing category icons and colors
