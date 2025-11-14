@@ -1,14 +1,14 @@
 {
 	"name": "inline-context",
-	"version": "1.5.0",
+	"version": "2.0.1",
 	"main": "src/index.js",
 	"scripts": {
 		"start": "wp-scripts start",
 		"build": "wp-scripts build",
 		"lint:js": "wp-scripts lint-js",
 		"lint:js:fix": "wp-scripts lint-js --fix",
-		"lint:php": "phpcs --standard=WordPress *.php",
-		"lint:php:fix": "phpcbf --standard=WordPress *.php",
+		"lint:php": "vendor/bin/phpcs --standard=WordPress *.php",
+		"lint:php:fix": "vendor/bin/phpcbf --standard=WordPress *.php",
 		"format:js": "prettier --write \"src/**/*.{js,jsx,scss,css,json}\"",
 		"format": "npm run format:js && npm run lint:php:fix",
 		"lint": "npm run lint:js && npm run lint:php",

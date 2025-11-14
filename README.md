@@ -1,6 +1,16 @@
 # Inline Context
 
-Add categorized "click to reveal" notes inline with your text. Create reusable notes via Custom Post Type and manage them centrally. Perfect for short explanations, definitions, and asides with custom icons and full styling control.
+Add categorized "click to reveal" notes inline with your text. Create reusable notes via Custom Post Type and manage them centrally with modular, maintainable architecture. Perfect for short explanations, definitions, and asides with custom icons and full styling control.
+
+## Version 2.0 Highlights
+
+**Major refactoring and architectural improvements:**
+- **Modular Architecture**: Complete codebase refactoring from monolithic to 7 class-based modules (83% main file reduction)
+- **Enhanced Maintainability**: Separation of concerns with dedicated classes for CPT, Taxonomy Meta, Sync, Deletion, REST API, Frontend, and Utilities
+- **Code Quality**: Full WordPress coding standards compliance (JavaScript and PHP)
+- **Performance**: Optimized class autoloading and initialization
+- **Developer Experience**: Clean, testable, and extensible codebase
+- **Backward Compatibility**: Seamless upgrade from v1.x with preserved functionality
 
 ## What it does
 
@@ -95,6 +105,33 @@ For developer filters and programmatic customization, see [FILTERS.md](FILTERS.m
 
 For future feature ideas and version 2.0 roadmap, see [ROADMAP.md](ROADMAP.md).
 
+## Architecture (v2.0)
+
+The plugin uses a modular, class-based architecture for optimal maintainability:
+
+### Core Classes
+
+- **`Inline_Context_CPT`** (855 lines) - Custom Post Type registration, metaboxes, and admin UI
+- **`Inline_Context_Sync`** (496 lines) - Note usage tracking, reusable content synchronization, category sync
+- **`Inline_Context_Deletion`** (198 lines) - Deletion protection for reusable notes, cleanup for non-reusable
+- **`Inline_Context_REST_API`** (340 lines) - REST API endpoints for search, usage tracking, and note removal handling
+- **`Inline_Context_Frontend`** (276 lines) - Noscript content generation, KSES filtering, asset enqueuing
+- **`Inline_Context_Taxonomy_Meta`** (372 lines) - Taxonomy meta fields for category icons, colors, and admin UI enhancements
+- **`Inline_Context_Utils`** (182 lines) - Category management, CSS variable management with backward compatibility
+
+### Main Bootstrap File
+
+- **`inline-context.php`** (395 lines, down from 2,291) - Clean plugin initialization and class loading
+- **`admin-settings.php`** (728 lines) - Admin settings UI with tabbed interface (function-based)
+
+### Benefits
+
+- **Separation of Concerns**: Each class has a single, well-defined responsibility
+- **Testability**: Modular code is easier to unit test and debug
+- **Maintainability**: 83% reduction in main file size makes codebase navigable
+- **Extensibility**: Clean interfaces for adding features without touching core logic
+- **Performance**: Efficient class initialization and lazy loading where appropriate
+
 ## Accessibility
 
 - Full keyboard navigation in icon picker (Esc to close, Tab/Shift+Tab to navigate)
@@ -143,6 +180,7 @@ This will install the plugin to `wp-content/plugins/inline-context/` automatical
 
    ```bash
    npm install
+   composer install
    ```
 
 3. Start development mode (watches files and rebuilds on change):
@@ -162,8 +200,8 @@ This will install the plugin to `wp-content/plugins/inline-context/` automatical
 - `npm run start` — Start development mode with hot reload
 - `npm run build` — Build production assets
 - `npm run lint:js` — Lint JavaScript files
-- `npm run lint:php` — Check PHP coding standards
-- `npm run lint:php:fix` — Auto-fix PHP coding standard violations
+- `npm run lint:php` — Check PHP coding standards (uses local PHPCS via Composer)
+- `npm run lint:php:fix` — Auto-fix PHP coding standard violations (uses local PHPCBF via Composer)
 - `npm run lint` — Check both JavaScript and PHP standards
 - `npm run test` — Run all quality checks (currently linting)
 - `npm run pot` — Show instructions for generating translation template file (requires WP-CLI)
@@ -176,16 +214,34 @@ This will install the plugin to `wp-content/plugins/inline-context/` automatical
 - `build/` — Compiled assets (committed to repo for WordPress.org)
 - `languages/` — Translation files
 - `inline-context.php` — Main plugin bootstrap file
+- `admin-settings.php` — Admin settings interface
+- `includes/` — Modular class-based architecture (v2.0)
 - `readme.txt` — WordPress.org readme
 - `scripts/` — Build and packaging scripts
+- `vendor/` — Composer dependencies (PHP CodeSniffer, WordPress Coding Standards)
 
 ## Code Quality
 
 This project enforces WordPress coding standards for both JavaScript and PHP:
 
 - **JavaScript**: Uses `@wordpress/scripts` with ESLint for WordPress coding standards
-- **PHP**: Uses PHP_CodeSniffer with WordPress-Coding-Standards ruleset
+- **PHP**: Uses PHP_CodeSniffer 3.13.5+ with WordPress-Coding-Standards 3.2.0+ ruleset (installed via Composer)
 - **Automatic Quality Checks**: All packaging and release commands automatically fix and check linting before building
+
+### Development tools
+
+The project uses local PHP CodeSniffer tools installed via Composer:
+
+```bash
+# Install PHP development tools
+composer install
+
+# Run PHPCS manually
+vendor/bin/phpcs --standard=WordPress inline-context.php
+
+# Run PHPCBF manually  
+vendor/bin/phpcbf --standard=WordPress inline-context.php
+```
 
 ### Quality assurance workflow
 

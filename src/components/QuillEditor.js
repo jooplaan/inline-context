@@ -30,6 +30,7 @@ export default function QuillEditor( {
 	sourceTextareaRef,
 	onKeyDownCapture,
 	isOpen,
+	readOnly = false,
 } ) {
 	// Set up custom toolbar handler for code-view button
 	useEffect( () => {
@@ -89,6 +90,7 @@ export default function QuillEditor( {
 						'inline-context'
 					) }
 					theme="snow"
+					readOnly={ readOnly }
 				/>
 			) : (
 				<>
@@ -118,6 +120,7 @@ export default function QuillEditor( {
 							'inline-context'
 						) }
 						rows={ 10 }
+						readOnly={ readOnly }
 					/>
 				</>
 			) }

@@ -2,7 +2,13 @@
  * Refactored Edit component for WordPress inline context
  * Optimized for performance and maintainability
  */
-import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
+import {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { RichTextToolbarButton } from '@wordpress/block-editor';
 import { Popover, Button } from '@wordpress/components';
 import { applyFormat, removeFormat } from '@wordpress/rich-text';
@@ -30,6 +36,9 @@ import LinkControl from './components/LinkControl';
 import PopoverActions from './components/PopoverActions';
 import NoteSearch from './components/NoteSearch';
 
+// API
+import { handleNoteRemoval } from './api/note-actions';
+
 // Quill keyboard navigation utilities
 import { useQuillKeyboardNav } from './hooks/useQuillKeyboardNav';
 
@@ -46,6 +55,10 @@ export default function Edit( { isActive, value, onChange } ) {
 	const [ isSourceMode, setIsSourceMode ] = useState( false );
 	const [ noteId, setNoteId ] = useState( null );
 	const [ showNoteSearch, setShowNoteSearch ] = useState( false );
+	const [ isReusedNote, setIsReusedNote ] = useState( false );
+	const [ selectedNote, setSelectedNote ] = useState( null );
+	const [ isReusable, setIsReusable ] = useState( false );
+	const [ hasReusableNotes, setHasReusableNotes ] = useState( false );
 
 	// Refs
 	const prevFocusRef = useRef( null );
@@ -61,6 +74,7 @@ export default function Edit( { isActive, value, onChange } ) {
 	const linkCancelButtonRef = useRef( null );
 	const copyLinkButtonRef = useRef( null );
 	const sourceTextareaRef = useRef( null );
+	const isSettingReusableNoteRef = useRef( false );
 
 	// Derived state
 	const activeFormat = value.activeFormats?.find(
@@ -91,17 +105,32 @@ export default function Edit( { isActive, value, onChange } ) {
 
 	// Handlers
 	const remove = useCallback( () => {
+		const noteIdToRemove = activeFormat?.attributes?.[ 'data-note-id' ];
+		const currentPostId = window.wp?.data
+			?.select( 'core/editor' )
+			?.getCurrentPostId();
+
+		if ( noteIdToRemove && currentPostId ) {
+			// Fire and forget call to backend to update usage count
+			handleNoteRemoval( currentPostId, [
+				parseInt( noteIdToRemove, 10 ),
+			] );
+		}
+
 		onChange( removeFormat( value, FORMAT_TYPE ) );
 		setIsOpen( false );
 		setTimeout( () => prevFocusRef.current?.focus?.(), 0 );
-	}, [ onChange, value ] );
+	}, [ onChange, value, activeFormat ] );
 
 	const saveNoteToCPT = useCallback(
-		async ( noteContent, currentNoteId = null ) => {
+		async ( noteContent, currentNoteId = null, isReusableFlag = false ) => {
 			try {
 				const postData = {
 					content: noteContent,
 					status: 'publish',
+					meta: {
+						is_reusable: isReusableFlag,
+					},
 				};
 
 				// Only set title when creating a new note, not when updating
@@ -248,13 +277,58 @@ export default function Edit( { isActive, value, onChange } ) {
 		const proposedId = activeFormat?.attributes?.[ 'data-anchor-id' ];
 		const anchorId = ensureUniqueAnchorId( proposedId );
 
-		// Save to CPT first
-		const savedNoteId = await saveNoteToCPT( text, noteId );
+		let savedNoteId = noteId;
+
+		// Only save to CPT if this is NOT a reused note, or if the user modified it
+		if ( ! isReusedNote || noteId === null ) {
+			// This is a new note or a modified note - save to CPT
+			savedNoteId = await saveNoteToCPT( text, noteId, isReusable );
+		} else if (
+			// This is a reused note - just track usage, don't modify the CPT
+			noteId &&
+			window.wp?.data?.select( 'core/editor' )?.getCurrentPostId
+		) {
+			const currentPostId = window.wp.data
+				.select( 'core/editor' )
+				.getCurrentPostId();
+			if ( currentPostId ) {
+				try {
+					await apiFetch( {
+						path: `/inline-context/v1/notes/${ noteId }/track-usage`,
+						method: 'POST',
+						data: {
+							post_id: currentPostId,
+						},
+					} );
+				} catch ( trackingError ) {
+					// Non-critical - don't fail if tracking fails
+					// eslint-disable-next-line no-console
+					console.warn(
+						'Could not track note usage:',
+						trackingError
+					);
+				}
+			}
+		}
+
+		// Convert category slug to ID for storage in HTML attribute
+		let categoryIdForHtml = '';
+		if ( categoryId ) {
+			const cats = window.inlineContextData?.categories || {};
+			const category = Object.values( cats ).find(
+				( cat ) =>
+					cat.slug === categoryId ||
+					cat.id.toString() === categoryId.toString()
+			);
+			if ( category && category.id ) {
+				categoryIdForHtml = String( category.id );
+			}
+		}
 
 		const formatAttributes = {
 			'data-inline-context': text,
 			'data-anchor-id': anchorId,
-			'data-category-id': categoryId || '',
+			'data-category-id': categoryIdForHtml,
 			href: `#${ anchorId }`,
 			id: `trigger-${ anchorId }`,
 			role: 'button',
@@ -279,6 +353,8 @@ export default function Edit( { isActive, value, onChange } ) {
 		text,
 		categoryId,
 		noteId,
+		isReusable,
+		isReusedNote,
 		value,
 		activeFormat,
 		saveNoteToCPT,
@@ -296,8 +372,33 @@ export default function Edit( { isActive, value, onChange } ) {
 					( f ) => f.type === FORMAT_TYPE
 				);
 				setText( fmt?.attributes?.[ 'data-inline-context' ] || '' );
-				setCategoryId( fmt?.attributes?.[ 'data-category-id' ] || '' );
-				setNoteId( fmt?.attributes?.[ 'data-note-id' ] || null );
+
+				// Convert category ID from HTML to slug for CategorySelector
+				const categoryIdFromHtml =
+					fmt?.attributes?.[ 'data-category-id' ] || '';
+				if ( categoryIdFromHtml ) {
+					const cats = window.inlineContextData?.categories || {};
+					const category = Object.values( cats ).find(
+						( cat ) =>
+							cat.id.toString() === categoryIdFromHtml.toString()
+					);
+					if ( category ) {
+						setCategoryId( category.slug );
+					} else {
+						// Fallback: might be an old slug-based value
+						setCategoryId( categoryIdFromHtml );
+					}
+				} else {
+					setCategoryId( '' );
+				}
+
+				const existingNoteId =
+					fmt?.attributes?.[ 'data-note-id' ] || null;
+				setNoteId( existingNoteId );
+				setIsReusedNote( false ); // Will be set to true by useEffect if note is reusable
+				setSelectedNote( null ); // Will be populated by useEffect
+				setIsReusable( false ); // Default to not reusable for new notes
+
 				// Always start in create mode (search is secondary workflow)
 				setShowNoteSearch( false );
 			}
@@ -305,9 +406,76 @@ export default function Edit( { isActive, value, onChange } ) {
 		} );
 	}, [ isOpen, value ] );
 
+	// Fetch note details when popover opens with an existing note ID
+	useEffect( () => {
+		if ( ! isOpen || ! noteId ) {
+			return;
+		}
+
+		// Skip if already fetched
+		if ( isReusedNote && selectedNote ) {
+			return;
+		}
+
+		// Fetch the note to check if it's reusable
+		apiFetch( {
+			path: `/wp/v2/inline_context_note/${ noteId }`,
+		} )
+			.then( ( note ) => {
+				// Check if the note is marked as reusable
+				// The is_reusable field is now directly in the response (via REST API filter)
+				const isReusableFlag = note.is_reusable || false;
+
+				if ( note && isReusableFlag ) {
+					// Set flag to prevent popover from closing during state update
+					isSettingReusableNoteRef.current = true;
+					setIsReusedNote( true );
+					setSelectedNote( {
+						id: note.id,
+						title: note.title?.rendered || '',
+						content: note.content?.rendered || '',
+						is_reusable: isReusableFlag,
+						inline_context_category:
+							note.inline_context_category || [],
+					} );
+					setIsReusable( isReusableFlag );
+					// Clear flag after a short delay to allow render to complete
+					setTimeout( () => {
+						isSettingReusableNoteRef.current = false;
+					}, 100 );
+				}
+			} )
+			.catch( ( error ) => {
+				// Note might have been deleted, that's ok
+				// eslint-disable-next-line no-console
+				console.warn( 'Could not fetch note details:', error );
+			} );
+	}, [ isOpen, noteId, isReusedNote, selectedNote ] ); // Dependencies for fetching note details
+
+	// Check if reusable notes exist when popover opens
+	useEffect( () => {
+		if ( ! isOpen ) {
+			return;
+		}
+
+		// Check if there are any reusable notes available
+		apiFetch( {
+			path: '/inline-context/v1/notes/search?reusable_only=1',
+		} )
+			.then( ( results ) => {
+				setHasReusableNotes( results && results.length > 0 );
+			} )
+			.catch( () => {
+				setHasReusableNotes( false );
+			} );
+	}, [ isOpen ] );
+
 	const handleSelectNote = useCallback( ( note ) => {
 		setNoteId( note.id );
 		setText( note.content );
+		setIsReusedNote( true ); // Mark as reused note (don't modify CPT)
+		setSelectedNote( note ); // Store the full note object
+		setIsReusable( note.is_reusable || false );
 
 		// Load the category from the note's taxonomy
 		if (
@@ -330,10 +498,17 @@ export default function Edit( { isActive, value, onChange } ) {
 	const handleCreateNewNote = useCallback( () => {
 		setNoteId( null );
 		setText( '' );
+		setIsReusedNote( false );
+		setSelectedNote( null );
+		setIsReusable( false );
 		setShowNoteSearch( false );
 	}, [] );
 
 	const handleClose = useCallback( () => {
+		// Don't close if we're in the middle of setting up reusable note data
+		if ( isSettingReusableNoteRef.current ) {
+			return;
+		}
 		setIsOpen( false );
 		setTimeout( () => prevFocusRef.current?.focus?.(), 0 );
 	}, [] );
@@ -430,7 +605,7 @@ export default function Edit( { isActive, value, onChange } ) {
 					id={ popoverId }
 					anchor={ anchor }
 					position="bottom center"
-					focusOnMount="firstElement"
+					focusOnMount={ isReusedNote ? false : 'firstElement' }
 					role="dialog"
 					aria-modal={ false }
 					aria-labelledby={ labelId }
@@ -460,6 +635,117 @@ export default function Edit( { isActive, value, onChange } ) {
 								</span>
 							) : null }
 						</div>
+
+						{ /* Show reusable note info banner if this is a reused note */ }
+						{ isReusedNote &&
+							selectedNote &&
+							selectedNote.is_reusable && (
+								<div
+									className="wp-inline-context-reusable-notice"
+									style={ {
+										background: '#f0f6fc',
+										border: '1px solid #0073aa',
+										borderRadius: '4px',
+										padding: '12px',
+										marginBottom: '16px',
+										fontSize: '13px',
+									} }
+								>
+									<div
+										style={ {
+											display: 'flex',
+											alignItems: 'flex-start',
+											gap: '8px',
+										} }
+									>
+										<span
+											style={ {
+												fontSize: '16px',
+												flexShrink: 0,
+											} }
+										>
+											♻️
+										</span>
+										<div style={ { flex: 1 } }>
+											<strong>
+												{ __(
+													'Reusable Note',
+													'inline-context'
+												) }
+											</strong>
+											<br />
+											{ __(
+												'This note is marked as reusable and cannot be edited here. Changes must be made to the source note.',
+												'inline-context'
+											) }
+											<br />
+											<div
+												style={ {
+													marginTop: '8px',
+													display: 'flex',
+													gap: '12px',
+													alignItems: 'center',
+												} }
+											>
+												<a
+													href={ `/wp-admin/post.php?post=${ selectedNote.id }&action=edit` }
+													target="_blank"
+													rel="noopener noreferrer"
+												>
+													{ __(
+														'Edit source note →',
+														'inline-context'
+													) }
+												</a>
+												{ activeFormat?.attributes?.[
+													'data-anchor-id'
+												] && (
+													<Button
+														variant="link"
+														size="small"
+														onClick={
+															handleCopyLink
+														}
+														disabled={
+															copyLinkStatus ===
+															'copying'
+														}
+														style={ {
+															padding: 0,
+															height: 'auto',
+															minHeight: 0,
+															textDecoration:
+																copyLinkStatus ===
+																'idle'
+																	? 'underline'
+																	: 'none',
+														} }
+													>
+														{ copyLinkStatus ===
+															'copied' &&
+															__(
+																'Link copied',
+																'inline-context'
+															) }
+														{ copyLinkStatus ===
+															'copying' &&
+															__(
+																'Copying…',
+																'inline-context'
+															) }
+														{ copyLinkStatus ===
+															'idle' &&
+															__(
+																'Copy link to this note',
+																'inline-context'
+															) }
+													</Button>
+												) }
+											</div>
+										</div>
+									</div>
+								</div>
+							) }
 
 						{ showNoteSearch ? (
 							<>
@@ -496,6 +782,10 @@ export default function Edit( { isActive, value, onChange } ) {
 									value={ categoryId }
 									onChange={ setCategoryId }
 									categories={ categories }
+									disabled={
+										isReusedNote &&
+										selectedNote?.is_reusable
+									}
 								/>
 
 								<QuillEditor
@@ -509,6 +799,10 @@ export default function Edit( { isActive, value, onChange } ) {
 										handleEditorKeyDownCapture
 									}
 									isOpen={ isOpen }
+									readOnly={
+										isReusedNote &&
+										selectedNote?.is_reusable
+									}
 								/>
 
 								<LinkControl
@@ -526,98 +820,117 @@ export default function Edit( { isActive, value, onChange } ) {
 									onKeyDown={ handleActionButtonsKeyDown }
 								/>
 
-								<div className="wp-reveal-quill-actions">
-									<Button
-										ref={ addLinkButtonRef }
-										variant="secondary"
-										size="small"
-										onClick={ () =>
-											setShowLinkInput( ! showLinkInput )
-										}
-										onKeyDown={ ( e ) =>
-											handleActionButtonsKeyDown(
-												e,
-												addLinkButtonRef
-											)
-										}
-									>
-										{ showLinkInput
-											? __(
-													'Hide Link Form',
-													'inline-context'
-											  )
-											: __(
-													'Add Link',
-													'inline-context'
-											  ) }
-									</Button>
+								{ /* Only show action buttons and help text if not viewing a reusable note */ }
+								{ ! (
+									isReusedNote && selectedNote?.is_reusable
+								) && (
+									<>
+										<div className="wp-reveal-quill-actions">
+											<Button
+												ref={ addLinkButtonRef }
+												variant="secondary"
+												size="small"
+												onClick={ () =>
+													setShowLinkInput(
+														! showLinkInput
+													)
+												}
+												onKeyDown={ ( e ) =>
+													handleActionButtonsKeyDown(
+														e,
+														addLinkButtonRef
+													)
+												}
+											>
+												{ showLinkInput
+													? __(
+															'Hide Link Form',
+															'inline-context'
+													  )
+													: __(
+															'Add Link',
+															'inline-context'
+													  ) }
+											</Button>
 
-									{ activeFormat?.attributes?.[
-										'data-anchor-id'
-									] && (
-										<Button
-											ref={ copyLinkButtonRef }
-											variant="link"
-											size="small"
-											onClick={ handleCopyLink }
-											disabled={
-												copyLinkStatus === 'copying'
-											}
-											onKeyDown={ ( e ) =>
-												handleActionButtonsKeyDown(
-													e,
-													copyLinkButtonRef
-												)
-											}
-											style={ {
-												marginLeft: '8px',
-												textDecoration:
-													copyLinkStatus === 'idle'
-														? 'underline'
-														: 'none',
-											} }
-										>
-											{ copyLinkStatus === 'copied' &&
-												__(
-													'Link copied',
-													'inline-context'
-												) }
-											{ copyLinkStatus === 'copying' &&
-												__(
-													'Copying…',
-													'inline-context'
-												) }
-											{ copyLinkStatus === 'idle' &&
-												__(
-													'Copy link to this note',
-													'inline-context'
-												) }
-										</Button>
-									) }
-								</div>
+											{ activeFormat?.attributes?.[
+												'data-anchor-id'
+											] && (
+												<Button
+													ref={ copyLinkButtonRef }
+													variant="link"
+													size="small"
+													onClick={ handleCopyLink }
+													disabled={
+														copyLinkStatus ===
+														'copying'
+													}
+													onKeyDown={ ( e ) =>
+														handleActionButtonsKeyDown(
+															e,
+															copyLinkButtonRef
+														)
+													}
+													style={ {
+														marginLeft: '8px',
+														textDecoration:
+															copyLinkStatus ===
+															'idle'
+																? 'underline'
+																: 'none',
+													} }
+												>
+													{ copyLinkStatus ===
+														'copied' &&
+														__(
+															'Link copied',
+															'inline-context'
+														) }
+													{ copyLinkStatus ===
+														'copying' &&
+														__(
+															'Copying…',
+															'inline-context'
+														) }
+													{ copyLinkStatus ===
+														'idle' &&
+														__(
+															'Copy link to this note',
+															'inline-context'
+														) }
+												</Button>
+											) }
+										</div>
 
-								<div className="wp-reveal-quill-help">
-									{ __(
-										'Use the toolbar to format your inline context with bold, italic, links, and lists. Use "Add Link" for WordPress internal links, or click the code icon (&lt;/&gt;) to edit HTML source.',
-										'inline-context'
-									) }
-									<Button
-										variant="link"
-										size="small"
-										onClick={ () =>
-											setShowNoteSearch( true )
-										}
-										style={ {
-											marginLeft: '8px',
-											textDecoration: 'underline',
-										} }
-									>
-										{ __(
-											'Or search existing notes…',
-											'inline-context'
-										) }
-									</Button>
-								</div>
+										<div className="wp-reveal-quill-help">
+											{ __(
+												'Use the toolbar to format your inline context with bold, italic, links, and lists. Use "Add Link" for WordPress internal links, or click the code icon (&lt;/&gt;) to edit HTML source.',
+												'inline-context'
+											) }
+											{ hasReusableNotes && (
+												<Button
+													variant="link"
+													size="small"
+													onClick={ () =>
+														setShowNoteSearch(
+															true
+														)
+													}
+													style={ {
+														marginLeft: '8px',
+														textDecoration:
+															'underline',
+													} }
+												>
+													{ __(
+														'Or search reusable notes…',
+														'inline-context'
+													) }
+												</Button>
+											) }
+										</div>
+									</>
+								) }
 							</>
 						) }
 					</div>
@@ -631,6 +944,9 @@ export default function Edit( { isActive, value, onChange } ) {
 						removeRef={ removeRef }
 						cancelRef={ cancelRef }
 						saveRef={ saveRef }
+						isReusable={ isReusable }
+						onReusableChange={ setIsReusable }
+						isReusableDisabled={ isReusedNote }
 					/>
 				</Popover>
 			) }

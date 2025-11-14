@@ -87,6 +87,7 @@ function inline_context_cleanup_content( $content ) {
 function inline_context_count_posts_with_links() {
 	global $wpdb;
 
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time count for uninstall.
 	$count = $wpdb->get_var(
 		"SELECT COUNT(DISTINCT ID)
 		FROM {$wpdb->posts}
@@ -109,11 +110,12 @@ function inline_context_uninstall_cleanup() {
 
 	if ( $cleanup_content ) {
 		// Get all posts with inline context links.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time cleanup on uninstall.
 		$posts = $wpdb->get_results(
 			"SELECT ID, post_content
 			FROM {$wpdb->posts}
-			WHERE post_content LIKE '%data-inline-context%'
-			AND post_status != 'trash'",
+			WHERE post_content LIKE '%class=\"wp-inline-context\"%'
+			AND post_status IN ('publish', 'draft', 'pending', 'private', 'future', 'trash')",
 			ARRAY_A
 		);
 
@@ -166,6 +168,7 @@ function inline_context_uninstall_cleanup() {
 	delete_option( 'inline_context_cleanup_on_uninstall' );
 
 	// Delete all post meta related to inline context notes.
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time cleanup on uninstall.
 	$wpdb->query(
 		"DELETE FROM {$wpdb->postmeta}
 		WHERE meta_key IN ('usage_count', 'used_in_posts', 'is_reusable')"

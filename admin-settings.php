@@ -540,17 +540,31 @@ function inline_context_render_settings_page() {
 	<?php endif; ?>
 	</div>
 	<?php
-}/**
-  * Render the Uninstall tab content
-  */
+}
+
+/**
+ * Render the Uninstall tab content
+ */
 function inline_context_render_uninstall_tab() {
 	// Count posts with inline context links.
 	global $wpdb;
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time count for display only.
 	$posts_with_links = $wpdb->get_var(
 		"SELECT COUNT(DISTINCT ID)
 		FROM {$wpdb->posts}
-		WHERE post_content LIKE '%data-inline-context%'
-		AND post_status != 'trash'"
+		WHERE post_content LIKE '%class=\"wp-inline-context\"%'
+		AND post_status IN ('publish', 'draft', 'pending', 'private', 'future', 'trash')"
+	);
+
+	// Get list of posts with inline context links.
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time query for display only.
+	$posts_list = $wpdb->get_results(
+		"SELECT ID, post_title, post_type, post_status
+		FROM {$wpdb->posts}
+		WHERE post_content LIKE '%class=\"wp-inline-context\"%'
+		AND post_status IN ('publish', 'draft', 'pending', 'private', 'future', 'trash')
+		ORDER BY post_type, post_title
+		LIMIT 100"
 	);
 
 	// Count total notes.
@@ -585,6 +599,39 @@ function inline_context_render_uninstall_tab() {
 							<strong><?php echo esc_html( number_format_i18n( $posts_with_links ) ); ?></strong>
 							<?php echo esc_html( _n( 'post with inline context links', 'posts with inline context links', $posts_with_links, 'inline-context' ) ); ?>
 						</p>
+						<?php if ( ! empty( $posts_list ) ) : ?>
+							<details style="margin-top: 10px;">
+								<summary style="cursor: pointer; color: #2271b1;">
+									<?php esc_html_e( 'View list of posts', 'inline-context' ); ?>
+								</summary>
+								<ul style="margin: 10px 0 0 20px; list-style: disc;">
+									<?php foreach ( $posts_list as $post ) : ?>
+										<li>
+											<a href="<?php echo esc_url( get_edit_post_link( $post->ID ) ); ?>">
+												<?php echo esc_html( $post->post_title ? $post->post_title : __( '(no title)', 'inline-context' ) ); ?>
+											</a>
+											<span style="color: #646970;">
+												(<?php echo esc_html( get_post_type_object( $post->post_type )->labels->singular_name ); ?>
+												<?php if ( 'publish' !== $post->post_status ) : ?>
+													— <?php echo esc_html( $post->post_status ); ?>
+												<?php endif; ?>)
+											</span>
+										</li>
+									<?php endforeach; ?>
+								</ul>
+								<?php if ( $posts_with_links > 100 ) : ?>
+									<p style="margin-left: 20px; color: #646970; font-style: italic;">
+										<?php
+										printf(
+											/* translators: %s: number of additional posts */
+											esc_html__( '...and %s more', 'inline-context' ),
+											esc_html( number_format_i18n( $posts_with_links - 100 ) )
+										);
+										?>
+									</p>
+								<?php endif; ?>
+							</details>
+						<?php endif; ?>
 					</td>
 				</tr>
 				<tr>
@@ -624,23 +671,27 @@ function inline_context_render_uninstall_tab() {
 								);
 								?>
 							</p>
+							<p class="description" style="background: #fff8e5; padding: 10px; border-left: 4px solid #dba617;">
+								<strong><?php esc_html_e( '⚠️ Important:', 'inline-context' ); ?></strong>
+								<?php esc_html_e( 'Always create a complete database backup before uninstalling with this option enabled. This operation modifies your post content and cannot be automatically reversed.', 'inline-context' ); ?>
+							</p>
 							<?php if ( $posts_with_links > 0 ) : ?>
-								<p class="description" style="color: #d63638;">
-									<strong><?php esc_html_e( 'Warning:', 'inline-context' ); ?></strong>
-									<?php
-									printf(
-										/* translators: %s: number of posts */
-										esc_html(
-											_n(
-												'This will modify %s post in your database.',
-												'This will modify %s posts in your database.',
-												$posts_with_links,
-												'inline-context'
-											)
-										),
-										'<strong>' . esc_html( number_format_i18n( $posts_with_links ) ) . '</strong>'
-									);
-									?>
+							<p class="description" style="color: #d63638;">
+						<strong><?php esc_html_e( 'Warning:', 'inline-context' ); ?></strong>
+								<?php
+								printf(
+									esc_html(
+									/* translators: %s: number of posts */
+										_n(
+											'This will modify %s post in your database.',
+											'This will modify %s posts in your database.',
+											$posts_with_links,
+											'inline-context'
+										)
+									),
+									'<strong>' . esc_html( number_format_i18n( $posts_with_links ) ) . '</strong>'
+								);
+								?>
 								</p>
 							<?php endif; ?>
 							<p class="description">
