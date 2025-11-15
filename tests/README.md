@@ -134,18 +134,75 @@ tests/
 
 ## Environment Variables
 
-You can customize the test environment:
+The plugin supports two ways to configure the test environment:
+
+### Option 1: Using `.env` File (Recommended)
+
+Create a `.env` file in the project root with your database credentials:
 
 ```bash
-# Custom test library location
-export WP_TESTS_DIR=/path/to/wordpress-tests-lib
+# Copy the example file
+cp .env.example .env
 
-# Custom WordPress installation location
-export WP_CORE_DIR=/path/to/wordpress
+# Edit with your credentials
+nano .env
+```
 
-# Then run tests
+Available `.env` variables:
+
+```bash
+# Database Configuration (Required)
+DB_NAME=wordpress_test        # Name of the test database
+DB_USER=root                  # Database user
+DB_PASS=                      # Database password (can be empty)
+DB_HOST=localhost             # Database host
+
+# WordPress Version (Optional)
+WP_VERSION=latest             # Or specific version like '6.4'
+
+# Custom Paths (Optional - auto-detected if not set)
+WP_TESTS_DIR=/tmp/wordpress-tests-lib  # WordPress test library path
+WP_CORE_DIR=/tmp/wordpress             # WordPress core installation path
+```
+
+**Benefits:**
+
+- ✅ Set once, use everywhere
+- ✅ No need to remember command line arguments
+- ✅ Secure - `.env` is in `.gitignore` (won't be committed)
+- ✅ Works with both `install-wp-tests.sh` and `setup-tests.sh`
+
+### Option 2: Environment Variables
+
+You can also export environment variables directly:
+
+```bash
+# Set environment variables
+export DB_NAME=wordpress_test
+export DB_USER=root
+export DB_PASS=''
+export DB_HOST=localhost
+export WP_VERSION=latest
+
+# Run install script (will use environment variables)
+bash bin/install-wp-tests.sh
+
+# Or run tests directly
 vendor/bin/phpunit
 ```
+
+### Option 3: Command Line Arguments
+
+Pass credentials directly to the install script:
+
+```bash
+bin/install-wp-tests.sh <db-name> <db-user> <db-pass> [db-host] [wp-version]
+
+# Example:
+bin/install-wp-tests.sh wordpress_test root '' localhost latest
+```
+
+**Note:** Command line arguments take precedence over `.env` file and environment variables.
 
 ## Continuous Integration
 
