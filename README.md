@@ -5,6 +5,7 @@ Add categorized "click to reveal" notes inline with your text. Create reusable n
 ## Version 2.0 Highlights
 
 **Major refactoring and architectural improvements:**
+
 - **Modular Architecture**: Complete codebase refactoring from monolithic to 7 class-based modules (83% main file reduction)
 - **Enhanced Maintainability**: Separation of concerns with dedicated classes for CPT, Taxonomy Meta, Sync, Deletion, REST API, Frontend, and Utilities
 - **Code Quality**: Full WordPress coding standards compliance (JavaScript and PHP)
@@ -94,6 +95,7 @@ Add categorized "click to reveal" notes inline with your text. Create reusable n
 6. Delete notes with confidence - the system shows exactly how many uses will be removed from how many posts
 
 ### Setting up categories
+
 1. Go to Settings > Inline Context
 2. Click the Categories tab
 3. Add or edit categories with custom names, icons, and colors
@@ -110,6 +112,7 @@ Add categorized "click to reveal" notes inline with your text. Create reusable n
 6. Save and view your page
 
 ### Customizing appearance
+
 1. Go to Settings > Inline Context > Styling tab
 2. Adjust link colors, note styling, chevron appearance
 3. See changes immediately in the live preview
@@ -118,6 +121,7 @@ Add categorized "click to reveal" notes inline with your text. Create reusable n
 ## Customization
 
 The plugin supports extensive styling customization through:
+
 - **Admin Settings**: Tabbed interface with comprehensive visual controls
 - **CSS Variables**: All settings use CSS custom properties for easy override
 - **Live Preview**: See changes in real-time before saving
@@ -181,11 +185,13 @@ This plugin does not collect data, set cookies, or connect to external services.
 ## Installation
 
 ### Via WordPress Admin (Recommended)
+
 1. Download from WordPress.org plugin directory
 2. Upload via Plugins → Add New in your WordPress admin
 3. Activate the plugin
 
 ### Via Composer (For Developers)
+
 ```bash
 composer config repositories.inline-context vcs https://github.com/jooplaan/inline-context
 composer require jooplaan/inline-context
@@ -194,6 +200,7 @@ composer require jooplaan/inline-context
 This will install the plugin to `wp-content/plugins/inline-context/` automatically using `composer/installers`.
 
 ### Manual Installation
+
 1. Download the latest release from GitHub
 2. Extract to `wp-content/plugins/inline-context/`
 3. Activate via WordPress admin
