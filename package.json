@@ -18,9 +18,9 @@
 		"test": "npm run lint",
 		"pot": "echo 'POT file generation requires WP-CLI. Run: wp i18n make-pot . languages/inline-context.pot --domain=inline-context'",
 		"prepackage": "npm run lint:fix && npm run build",
-		"package": "bash scripts/package.sh",
+		"package": "bash bin/package.sh",
 		"prerelease": "npm run lint:fix && npm run build",
-		"release": "bash scripts/package.sh"
+		"release": "bash bin/package.sh"
 	},
 	"dependencies": {
 		"dompurify": "^3.0.0",

@@ -299,7 +299,9 @@ Uses `@wordpress/scripts` which provides:
 - `uninstall.php` - Plugin uninstall cleanup
 - `build/` - Compiled assets (committed for WordPress.org distribution)
 - `dist/` - Packaged plugin zip files
-- `scripts/package.sh` - Plugin packaging script
+- `bin/package.sh` - Plugin packaging script
+- `bin/install-wp-tests.sh` - WordPress test suite installer
+- `bin/setup-tests.sh` - Interactive test setup wizard
 
 ## WordPress Integration Points
 
