@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<phpunit
+	bootstrap="tests/bootstrap.php"
+	backupGlobals="false"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	>
+	<testsuites>
+		<testsuite name="Inline Context Test Suite">
+			<directory prefix="test-" suffix=".php">./tests</directory>
+		</testsuite>
+	</testsuites>
+	<coverage processUncoveredFiles="true">
+		<include>
+			<directory suffix=".php">./includes</directory>
+			<file>./inline-context.php</file>
+		</include>
+		<exclude>
+			<directory>./vendor</directory>
+			<directory>./node_modules</directory>
+		</exclude>
+	</coverage>
+	<php>
+		<const name="WP_TESTS_PHPUNIT_POLYFILLS_PATH" value="./vendor/yoast/phpunit-polyfills" />
+	</php>
+</phpunit>

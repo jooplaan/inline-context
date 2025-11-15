@@ -11,6 +11,7 @@ This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expan
 ### Key Components
 
 **Frontend Assets:**
+
 - **Rich Text Format Registration** (`src/index.js`): Registers `jooplaan/inline-context` format type with WordPress
 - **Editor Interface** (`src/edit.js`): React component with tabbed interface (Create/Search), QuillEditor, and category selector
 - **Note Search Component** (`src/components/NoteSearch.js`): Live search interface for finding existing CPT notes
@@ -19,6 +20,7 @@ This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expan
 - **Frontend Interaction** (`src/frontend.js`): Dual-mode display system (inline/tooltip) with DOMPurify for secure HTML rendering, smart positioning, and full keyboard support
 
 **Backend Modular Architecture (v2.0):**
+
 - **`Inline_Context_CPT`** (`includes/class-cpt.php`, 855 lines) - Custom Post Type registration, metaboxes, and admin UI
 - **`Inline_Context_Taxonomy_Meta`** (`includes/class-taxonomy-meta.php`, 372 lines) - Taxonomy meta fields for category icons, colors, and admin UI enhancements
 - **`Inline_Context_Sync`** (`includes/class-sync.php`, 496 lines) - Note usage tracking, reusable content synchronization, category sync
@@ -28,6 +30,7 @@ This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expan
 - **`Inline_Context_Utils`** (`includes/class-utils.php`, 182 lines) - Category management, CSS variable management with backward compatibility
 
 **Bootstrap & Settings:**
+
 - **Asset Management** (`inline-context.php`, 395 lines) - WordPress coding standards compliant PHP with CPT registration, REST API, and asset enqueuing
 - **Admin Settings** (`admin-settings.php`, 720 lines) - Tabbed admin interface (General, Categories, Styling, Uninstall) with display mode selection and organized styling sections
 - **Uninstall System** (`uninstall.php`) - Comprehensive cleanup with content removal options
@@ -35,21 +38,25 @@ This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expan
 ### Version 2.0 Modular Architecture Benefits
 
 **Separation of Concerns:**
+
 - Each class has a single, well-defined responsibility
 - CPT registration separated from REST API, sync logic, and frontend rendering
 - Taxonomy meta fields isolated in dedicated class
 
 **Maintainability:**
+
 - 83% reduction in main file size (2,291 → 395 lines)
 - Clear file organization makes navigation and debugging easier
 - Modular code easier to test and extend
 
 **Performance:**
+
 - Efficient class initialization with proper WordPress hooks
 - Lazy loading where appropriate
 - Optimized autoloading pattern
 
 **Developer Experience:**
+
 - Clean interfaces for adding features without touching core logic
 - Testable code structure
 - Full WordPress coding standards compliance
@@ -61,6 +68,7 @@ This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expan
 The plugin uses a **dual-storage approach** combining CPT management with cached content for performance:
 
 **Custom Post Type: `inline_context_note`**
+
 - Title: Note identifier/name for searching
 - Content: Rich text note content (ReactQuill HTML)
 - Taxonomy: `inline_context_category` (replaces old meta-based categories)
@@ -70,6 +78,7 @@ The plugin uses a **dual-storage approach** combining CPT management with cached
   - `usage_count`: Number of times used
 
 **Data Storage Strategy:**
+
 ```html
 <a class="wp-inline-context" 
    data-note-id="123"
@@ -84,6 +93,7 @@ The plugin uses a **dual-storage approach** combining CPT management with cached
 - `href`: Proper anchor link for accessibility
 
 **Why Dual Storage?**
+
 1. **Performance**: Frontend uses cached `data-inline-context` (zero database queries)
 2. **Reusability**: CPT enables search, tracking, and centralized management
 3. **Backward Compatibility**: Notes without `data-note-id` still work
@@ -121,6 +131,7 @@ registerFormatType('jooplaan/inline-context', {
 The editor popover has two tabbed modes:
 
 **Create Tab:**
+
 - QuillEditor for rich text input
 - Category selector dropdown
 - Creates new CPT note on save
@@ -128,6 +139,7 @@ The editor popover has two tabbed modes:
 - Assigns `data-note-id` from created CPT post
 
 **Search Tab:**
+
 - Live search input (queries CPT by title via REST API)
 - Displays results with title and excerpt
 - Click to select existing note
@@ -138,17 +150,20 @@ The editor popover has two tabbed modes:
 ### REST API Endpoints (v1.5.0)
 
 **`/wp-json/inline-context/v1/notes/search`**
+
 - Method: GET
 - Params: `s` (search term), `reusable_only` (boolean)
 - Returns: Array of notes with ID, title, content, excerpt
 
 **`/wp-json/inline-context/v1/notes/{id}/track-usage`**
+
 - Method: POST
 - Params: `post_id` (current post ID)
 - Updates: `used_in_posts` array and `usage_count`
 - Non-blocking: Failures don't prevent saving
 
 **`/wp-json/inline-context/v1/notes/handle-removals`**
+
 - Method: POST
 - Params: `post_id` (post ID), `note_ids` (array of note IDs)
 - Updates: Removes post ID from `used_in_posts` and decrements `usage_count`
@@ -157,16 +172,19 @@ The editor popover has two tabbed modes:
 ### CPT List View Enhancements (v1.5.0)
 
 **Custom Columns:**
+
 - **Title**: Default WordPress column
 - **Reusable**: "Yes" or "No" (from `is_reusable` meta)
 - **Usage Count**: Number from `usage_count` meta (sortable)
 - **Used In**: Linked list of posts using this note
 
 **Custom Filter:**
+
 - Dropdown: "All Notes" / "Reusable Notes Only"
 - Filters by `is_reusable` meta value
 
 **Bulk Delete System (v2.1):**
+
 - **Smart deletion**: Reusable notes can be deleted even when in use
 - **Automatic cleanup**: Deletes note from all posts where it's used (removes `<a>` tag, preserves text)
 - **Confirmation dialogs**: Show exact impact - "X note uses will be deleted in Y posts"
@@ -179,6 +197,7 @@ The editor popover has two tabbed modes:
 The plugin supports two display modes for showing notes on the frontend:
 
 **Inline Mode (default):**
+
 - Notes expand directly below the trigger text in the content flow
 - Uses `insertAdjacentElement` to inject note div after trigger link
 - Adds `.wp-inline-context-inline` class with slide-down animation
@@ -186,6 +205,7 @@ The plugin supports two display modes for showing notes on the frontend:
 - Vertical margins for spacing in content flow
 
 **Tooltip Mode:**
+
 - Notes appear as floating positioned elements above or below trigger
 - Smart positioning with viewport boundary detection
 - Automatically flips above/below to prevent off-screen display
@@ -196,6 +216,7 @@ The plugin supports two display modes for showing notes on the frontend:
 - Arrow pointer indicates which trigger opened it
 
 **Shared Features:**
+
 - Both modes support full keyboard navigation (Space/Enter to activate)
 - Automatic focus management (note receives focus when opened)
 - DOMPurify sanitization for security
@@ -204,12 +225,14 @@ The plugin supports two display modes for showing notes on the frontend:
 - Click toggle behavior (click again to close)
 
 **Admin Configuration:**
+
 - Setting stored as `inline_context_display_mode` option ('inline' or 'tooltip')
 - General tab in admin settings with radio button selection
 - Value passed to frontend via `wp_localize_script` in `displayMode` property
 - Frontend checks `window.inlineContextData.displayMode` to route display logic
 
 **Implementation:**
+
 - `toggleNote(trigger)` function routes to either `toggleInlineNote()` or `toggleTooltip()`
 - Both modes store event listeners on trigger element for proper cleanup
 - Tooltip positioning handled by `positionTooltip()` with viewport calculations
@@ -220,7 +243,7 @@ The plugin supports two display modes for showing notes on the frontend:
 - Single event listener on `document.body` with event delegation
 - Toggle behavior: clicking again removes revealed content
 - Multiple contexts can stay open simultaneously
-- DOM manipulation using `insertAdjacentElement` for inline insertion 
+- DOM manipulation using `insertAdjacentElement` for inline insertion
 - Auto-opens notes when page loads with matching hash (#context-note-XXX)
 - Smooth scrolling to auto-opened notes for better UX
 
@@ -276,7 +299,9 @@ Uses `@wordpress/scripts` which provides:
 - `uninstall.php` - Plugin uninstall cleanup
 - `build/` - Compiled assets (committed for WordPress.org distribution)
 - `dist/` - Packaged plugin zip files
-- `scripts/package.sh` - Plugin packaging script
+- `bin/package.sh` - Plugin packaging script
+- `bin/install-wp-tests.sh` - WordPress test suite installer
+- `bin/setup-tests.sh` - Interactive test setup wizard
 
 ## WordPress Integration Points
 
@@ -330,11 +355,13 @@ Uses WordPress i18n functions: `__('Text', 'inline-context')` with 'inline-conte
 The plugin provides comprehensive cleanup via `uninstall.php`:
 
 **CPT Deletion:**
+
 - Deletes all `inline_context_note` CPT posts
 - Removes associated taxonomy terms (`inline_context_category`)
 - Cleans up post meta (`is_reusable`, `used_in_posts`, `usage_count`)
 
 **Content Removal (Optional):**
+
 - Option: Remove inline context links from all posts/pages
 - Replaces `<a class="wp-inline-context">` with plain text
 - Uses DOMDocument to safely parse and modify HTML
@@ -342,10 +369,12 @@ The plugin provides comprehensive cleanup via `uninstall.php`:
 - Handles edge cases (malformed HTML, empty content)
 
 **Settings Cleanup:**
+
 - Removes all plugin options from database
 - Cleans up transients and cached data
 
 **Safety Features:**
+
 - Warning message before uninstall
 - Non-blocking cleanup (failures logged, not thrown)
 - Batch processing for large sites
@@ -354,12 +383,14 @@ The plugin provides comprehensive cleanup via `uninstall.php`:
 ## Version 1.0 Architecture Decisions
 
 ### Anchor-First Design
+
 - **No Legacy Support**: Version 1.0 requires all inline contexts to have anchor IDs
 - **Unique ID Generation**: Uses timestamp + random for collision-free anchor IDs
 - **Direct Linking**: Every note can be shared via URL hash (#context-note-XXX)
 - **Auto-Opening**: Notes automatically open when page loads with matching hash
 
 ### Security & Content Handling
+
 - **DOMPurify Integration**: All rich text content is sanitized before rendering
 - **Allowed HTML**: Limited to safe subset (p, strong, em, a, ol, ul, li, br)
 - **Link Hardening**: External links get rel="noopener noreferrer" automatically
@@ -367,6 +398,7 @@ The plugin provides comprehensive cleanup via `uninstall.php`:
 - **Smart Link Behavior**: Internal links stay in same tab, external links open in new tab with security attributes
 
 ### Quality Assurance
+
 - **WordPress Coding Standards**: Both PHP (PHPCS) and JavaScript (ESLint) standards enforced
 - **Pre-Release Checks**: No packages can be created without passing all quality checks
 - **Automated Workflow**: `npm run release` handles test → build → package pipeline
@@ -375,12 +407,14 @@ The plugin provides comprehensive cleanup via `uninstall.php`:
 ## Development Best Practices
 
 ### Code Organization
+
 - **Separation of Concerns**: Editor (React + ReactQuill) vs Frontend (Vanilla JS + DOMPurify)
 - **WordPress Integration**: Proper hook usage, asset enqueuing, and KSES filtering
 - **Progressive Enhancement**: Fallback accessibility attributes for edge cases
 - **Build Optimization**: Separate bundles for editor and frontend with proper dependencies
 
 ### Testing & Validation
+
 - **Demo Page**: `demo.html` for testing functionality without WordPress setup
 - **Quality Scripts**: `npm run test` for comprehensive code quality checks
 - **Package Validation**: Automated zip creation with development file exclusion
