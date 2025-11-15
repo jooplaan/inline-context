@@ -5,11 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inline Context - Demo</title>
+    <!-- Load compiled frontend styles (includes tooltip styles) -->
+    <link rel="stylesheet" href="build/style-index.css">
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
             line-height: 1.6;
-            max-width: 800px;
+            max-width: 900px;
             margin: 40px auto;
             padding: 0 20px;
             color: #333;
@@ -19,6 +21,56 @@
             color: #2271b1;
             border-bottom: 2px solid #2271b1;
             padding-bottom: 10px;
+        }
+
+        .demo-controls {
+            margin: 30px 0;
+            padding: 20px;
+            background: #fff3cd;
+            border: 1px solid #ffecb5;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-controls h2 {
+            margin-top: 0;
+            color: #856404;
+        }
+
+        .display-mode-toggle {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .display-mode-toggle label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            background: white;
+            border: 2px solid #2271b1;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .display-mode-toggle input[type="radio"] {
+            cursor: pointer;
+        }
+
+        .display-mode-toggle label:hover {
+            background: #f0f6fc;
+        }
+
+        .display-mode-toggle input[type="radio"]:checked + span {
+            font-weight: 600;
+        }
+
+        .display-mode-toggle label:has(input:checked) {
+            background: #2271b1;
+            color: white;
         }
 
         .demo-section {
@@ -139,6 +191,25 @@
 <body>
     <h1>Inline Context - Demo</h1>
 
+    <div class="demo-controls">
+        <h2>🎛️ Display Mode Selector</h2>
+        <p>Try switching between the two display modes to see how inline context notes can be shown:</p>
+        <div class="display-mode-toggle">
+            <label>
+                <input type="radio" name="displayMode" value="inline" checked>
+                <span>📄 Inline Mode</span>
+            </label>
+            <label>
+                <input type="radio" name="displayMode" value="tooltip">
+                <span>💬 Tooltip Mode</span>
+            </label>
+        </div>
+        <p style="margin-top: 15px; font-size: 0.9em; color: #856404;">
+            <strong>Inline Mode:</strong> Notes expand directly below the trigger text in the content flow.<br>
+            <strong>Tooltip Mode:</strong> Notes appear as floating tooltips above or below the trigger (v2.1+).
+        </p>
+    </div>
+
     <div class="demo-section">
         <h2>Example 1: Subtle Design (Hover to See)</h2>
         <p>
@@ -213,6 +284,7 @@
             <li>Click any highlighted text to reveal its inline context</li>
             <li>Click again to hide the context</li>
             <li>Multiple contexts can stay open at the same time</li>
+            <li><strong>Two display modes:</strong> Inline (expands in content) or Tooltip (floating popup)</li>
             <li>Supports rich HTML formatting (bold, italic, links, lists)</li>
             <li>Accessible with proper ARIA attributes</li>
             <li>Keyboard-friendly: Tab to focus, then Enter or Space to toggle</li>
@@ -220,6 +292,7 @@
             <li><strong>Direct linking:</strong> Share URLs with anchor links (#context-note-XXX)</li>
             <li><strong>Auto-open:</strong> Notes open automatically when page loads with matching hash</li>
             <li><strong>Smart links:</strong> Internal links stay in same tab, external links open in new tab</li>
+            <li><strong>Smart positioning:</strong> Tooltips automatically flip to stay on screen</li>
         </ul>
     </div>
 
@@ -228,10 +301,54 @@
         window.wp = window.wp || {};
         window.wp.hooks = window.wp.hooks || {
             applyFilters: function (hookName, value) {
-                // In demo mode, just return the original value without filtering
+                // In demo mode, allow display mode switching
+                if (hookName === 'inlineContext.displayMode') {
+                    // Return the selected mode from radio buttons
+                    const selected = document.querySelector('input[name="displayMode"]:checked');
+                    return selected ? selected.value : value;
+                }
                 return value;
             }
         };
+
+        // Mock the inline context data object
+        window.inlineContextData = window.inlineContextData || {
+            displayMode: 'inline' // Default mode
+        };
+
+        // Handle display mode changes
+        document.addEventListener('DOMContentLoaded', function() {
+            const radios = document.querySelectorAll('input[name="displayMode"]');
+            
+            radios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    // Update the global display mode
+                    window.inlineContextData.displayMode = this.value;
+                    
+                    // Close all open notes when switching modes
+                    const openTriggers = document.querySelectorAll('.wp-inline-context--open');
+                    openTriggers.forEach(trigger => {
+                        trigger.classList.remove('wp-inline-context--open');
+                        trigger.setAttribute('aria-expanded', 'false');
+                        
+                        // Remove inline notes
+                        const nextEl = trigger.nextElementSibling;
+                        if (nextEl && nextEl.classList.contains('wp-inline-context-inline')) {
+                            nextEl.remove();
+                        }
+                        
+                        // Remove tooltips
+                        const tooltipId = 'tooltip-' + trigger.getAttribute('data-anchor-id');
+                        const tooltip = document.getElementById(tooltipId);
+                        if (tooltip) {
+                            tooltip.remove();
+                        }
+                    });
+                    
+                    console.log('Display mode changed to:', this.value);
+                });
+            });
+        });
     </script>
     <script src="build/frontend.js"></script>
 </body>

@@ -7,8 +7,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const { applyFilters } = wp.hooks || { applyFilters: ( name, val ) => val };
 
 	// Get settings from localized data
-	const { categories = {}, displayMode = 'inline' } =
-		window.inlineContextData || {};
+	const { categories = {} } = window.inlineContextData || {};
+
+	// Function to get current display mode (allows dynamic switching)
+	const getDisplayMode = () => {
+		const defaultMode = window.inlineContextData?.displayMode || 'inline';
+		return applyFilters( 'inlineContext.displayMode', defaultMode );
+	};
 
 	// Allow developers to customize the CSS class used for revealed notes
 	const revealedClass = applyFilters(
@@ -409,8 +414,11 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const toggleNote = ( trigger ) => {
 		if ( ! trigger ) return;
 
+		// Get current display mode dynamically (allows switching)
+		const currentDisplayMode = getDisplayMode();
+
 		// Use tooltip mode if enabled
-		if ( displayMode === 'tooltip' ) {
+		if ( currentDisplayMode === 'tooltip' ) {
 			toggleTooltip( trigger );
 			return;
 		}

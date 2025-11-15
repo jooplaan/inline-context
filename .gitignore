@@ -23,6 +23,7 @@ composer.lock
 
 # Test coverage
 coverage/
+.phpunit.result.cache
 
 # Environment files
 .env

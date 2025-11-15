@@ -15,6 +15,7 @@ The plugin includes a `theme.json` file that registers CSS custom properties fol
 3. **Your theme's stylesheet**
 
 While this approach doesn't provide point-and-click styling controls, it does offer these benefits:
+
 - ✅ Follows WordPress theming best practices
 - ✅ Works seamlessly with block themes
 - ✅ Theme developers can easily integrate and override styles
@@ -73,6 +74,7 @@ Add custom properties directly to your theme's `style.css` or custom CSS file:
 All custom properties follow WordPress naming conventions: `--wp--custom--inline-context--{category}--{property}`
 
 ### Link Styling
+
 Control the appearance of inline context trigger links:
 
 ```css
@@ -89,6 +91,7 @@ Control the appearance of inline context trigger links:
 ```
 
 #### Note Block Styling
+
 Control the appearance of expanded context notes:
 
 ```css
@@ -114,6 +117,7 @@ Control the appearance of expanded context notes:
 ```
 
 #### Chevron Icon
+
 Control the dropdown chevron indicator:
 
 ```css
@@ -214,4 +218,3 @@ The plugin automatically uses your theme's primary color for links and accents. 
 ## Developer Filters
 
 For programmatic customization, see [FILTERS.md](FILTERS.md) for available WordPress filters.
-
