@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,7 +98,41 @@ Yes. Icons automatically switch between closed and open states when users click 
 
 == Changelog ==
 
-== Changelog ==
+= 2.2.0 =
+**Reusable Note Management & Testing Infrastructure**
+
+*Released: January 2025*
+
+**✨ Note Management Features**
+* **NEW**: Convert reusable notes to non-reusable with automatic synchronization
+* **NEW**: Modal confirmation dialog prevents accidental conversions
+* **NEW**: PopoverActions component with reusable checkbox control
+* **IMPROVED**: Note edit interface with clear reusability status
+
+**🧪 Testing & Quality**
+* **NEW**: PHPUnit testing infrastructure with WordPress Test Suite integration
+* **NEW**: 18 comprehensive test methods covering CPT, REST API, and sync functionality
+* **NEW**: .env configuration support for secure database credentials
+* **NEW**: Testing documentation (TESTING.md, tests/README.md, TESTING-SETUP.md)
+* **NEW**: Interactive test setup wizard (bin/setup-tests.sh)
+* **IMPROVED**: Code quality checks integrated into release workflow
+
+**🎨 Demo & Display**
+* **NEW**: Display mode switcher in demo.html for testing inline/tooltip modes
+* **FIX**: Dynamic display mode detection instead of static configuration
+* **FIX**: Tooltip styles properly loaded via build/style-index.css
+* **IMPROVED**: Demo page now fully demonstrates all plugin capabilities
+
+**🔧 Developer Experience**
+* **NEW**: Consolidated bin/ directory for all scripts (package.sh, test setup)
+* **IMPROVED**: Markdown linting for documentation consistency
+* **IMPROVED**: RELEASE.md documentation with complete release process
+* **IMPROVED**: Better separation of development vs production assets
+
+**Migration Notes**
+* Seamless upgrade from v2.1.0 - no breaking changes
+* Existing reusable notes can now be converted to non-reusable when needed
+* All tests passing (18 tests, 38 assertions)
 
 = 2.0.0 =
 **Major Release: Modular Architecture & Enhanced Code Quality**
