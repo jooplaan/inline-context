@@ -11,8 +11,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 	// Function to get current display mode (allows dynamic switching)
 	const getDisplayMode = () => {
-		const defaultMode =
-			window.inlineContextData?.displayMode || 'inline';
+		const defaultMode = window.inlineContextData?.displayMode || 'inline';
 		return applyFilters( 'inlineContext.displayMode', defaultMode );
 	};
 
