@@ -193,7 +193,7 @@ class Inline_Context_Frontend {
 
 		wp_enqueue_script(
 			'jooplaan-inline-context',
-			plugins_url( 'build/index.js', dirname( __FILE__ ) ),
+			plugins_url( 'build/index.js', __DIR__ ),
 			$asset['dependencies'],
 			$version,
 			true
@@ -210,12 +210,12 @@ class Inline_Context_Frontend {
 
 		// Enable JS translations for strings in the editor script.
 		if ( function_exists( 'wp_set_script_translations' ) ) {
-			wp_set_script_translations( 'jooplaan-inline-context', 'inline-context', plugin_dir_path( dirname( __FILE__ ) ) . 'languages' );
+			wp_set_script_translations( 'jooplaan-inline-context', 'inline-context', plugin_dir_path( __DIR__ ) . 'languages' );
 		}
 
 		wp_enqueue_style(
 			'jooplaan-inline-context',
-			plugins_url( 'build/index.css', dirname( __FILE__ ) ),
+			plugins_url( 'build/index.css', __DIR__ ),
 			array(),
 			defined( 'WP_DEBUG' ) && WP_DEBUG
 				? filemtime( dirname( __DIR__ ) . '/build/index.css' )
@@ -245,7 +245,7 @@ class Inline_Context_Frontend {
 
 		wp_enqueue_script(
 			'jooplaan-inline-context-frontend',
-			plugins_url( 'build/frontend.js', dirname( __FILE__ ) ),
+			plugins_url( 'build/frontend.js', __DIR__ ),
 			$dependencies,
 			$version,
 			true
@@ -267,7 +267,7 @@ class Inline_Context_Frontend {
 		// Use compiled frontend styles from SCSS build.
 		wp_enqueue_style(
 			'jooplaan-inline-context-frontend-style',
-			plugins_url( 'build/style-index.css', dirname( __FILE__ ) ),
+			plugins_url( 'build/style-index.css', __DIR__ ),
 			array(),
 			defined( 'WP_DEBUG' ) && WP_DEBUG
 				? filemtime( dirname( __DIR__ ) . '/build/style-index.css' )

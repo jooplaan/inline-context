@@ -86,7 +86,7 @@ class Inline_Context_Sync {
 			if ( ! isset( $notes_after_counts[ $note_id ] ) ) {
 				$notes_after_counts[ $note_id ] = 0;
 			}
-			$notes_after_counts[ $note_id ]++;
+			++$notes_after_counts[ $note_id ];
 		}
 
 		// Get note IDs from the previous (before) content.

@@ -399,7 +399,7 @@ class Inline_Context_CPT {
 		// "No category" option.
 		echo '<label style="display: block; margin-bottom: 8px;">';
 		echo '<input type="radio" name="inline_context_category_id" value="0"';
-		if ( $current_term_id === 0 ) {
+		if ( 0 === $current_term_id ) {
 			echo ' checked="checked"';
 		}
 		echo ' /> ';
@@ -975,7 +975,7 @@ class Inline_Context_CPT {
 
 		// Output results for CLI and logs.
 		$message = sprintf( 'Inline Context: Cleaned up %d unused note(s)', $deleted_count );
-		
+
 		// Output to CLI if running in WP-CLI context.
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			\WP_CLI::success( $message );

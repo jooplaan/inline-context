@@ -16,7 +16,6 @@ You can see examples of their inline notes in this article:
 Renée Kool’s website:  
 <https://reneekool.nl/>
 
-
 ## Version 2.0 Highlights
 
 **Major refactoring and architectural improvements:**

@@ -22,13 +22,16 @@ defined( 'ABSPATH' ) || exit;
 define( 'INLINE_CONTEXT_VERSION', '2.2.0' );
 
 // Load modular classes.
-require_once __DIR__ . '/includes/class-utils.php';
-require_once __DIR__ . '/includes/class-cpt.php';
-require_once __DIR__ . '/includes/class-taxonomy-meta.php';
-require_once __DIR__ . '/includes/class-sync.php';
-require_once __DIR__ . '/includes/class-deletion.php';
-require_once __DIR__ . '/includes/class-rest-api.php';
-require_once __DIR__ . '/includes/class-frontend.php';
+require_once __DIR__ . '/includes/class-inline-context-utils.php';
+require_once __DIR__ . '/includes/class-inline-context-cpt.php';
+require_once __DIR__ . '/includes/class-inline-context-taxonomy-meta.php';
+require_once __DIR__ . '/includes/class-inline-context-sync.php';
+require_once __DIR__ . '/includes/class-inline-context-deletion.php';
+require_once __DIR__ . '/includes/class-inline-context-rest-api.php';
+require_once __DIR__ . '/includes/class-inline-context-frontend.php';
+
+// Load backward compatibility wrapper functions.
+require_once __DIR__ . '/includes/functions.php';
 
 // Load admin-specific functionality (function-based, loaded conditionally).
 if ( is_admin() ) {

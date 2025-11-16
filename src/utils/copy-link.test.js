@@ -136,7 +136,9 @@ describe( 'copy-link.js utilities', () => {
 			expect( global.document.createElement ).toHaveBeenCalledWith(
 				'textarea'
 			);
-			expect( global.document.execCommand ).toHaveBeenCalledWith( 'copy' );
+			expect( global.document.execCommand ).toHaveBeenCalledWith(
+				'copy'
+			);
 			expect( global.document.body.appendChild ).toHaveBeenCalled();
 			expect( global.document.body.removeChild ).toHaveBeenCalled();
 			expect( onSuccess ).toHaveBeenCalled();

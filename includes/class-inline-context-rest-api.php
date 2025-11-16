@@ -327,7 +327,13 @@ class Inline_Context_REST_API {
 			}
 		}
 
-		return new WP_REST_Response( array( 'success' => true, 'results' => $results ), 200 );
+		return new WP_REST_Response(
+			array(
+				'success' => true,
+				'results' => $results,
+			),
+			200
+		);
 	}
 
 	/**

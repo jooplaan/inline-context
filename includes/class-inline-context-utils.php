@@ -42,14 +42,14 @@ class Inline_Context_Utils {
 				'icon_open'   => 'dashicons-external',
 				'color'       => '#d63638',
 			),
-			'source'       => array(
+			'source'           => array(
 				'id'          => 'source',
 				'name'        => __( 'Source', 'inline-context' ),
 				'icon_closed' => 'dashicons-book',
 				'icon_open'   => 'dashicons-book-alt',
 				'color'       => '#00a32a',
 			),
-			'infocard'              => array(
+			'infocard'         => array(
 				'id'          => 'infocard',
 				'name'        => __( 'Infocard', 'inline-context' ),
 				'icon_closed' => 'dashicons-lightbulb',
@@ -78,13 +78,17 @@ class Inline_Context_Utils {
 
 		$categories = array();
 		foreach ( $terms as $term ) {
+			$icon_closed = get_term_meta( $term->term_id, 'icon_closed', true );
+			$icon_open   = get_term_meta( $term->term_id, 'icon_open', true );
+			$color       = get_term_meta( $term->term_id, 'color', true );
+
 			$categories[ $term->slug ] = array(
 				'id'          => $term->term_id,
 				'slug'        => $term->slug,
 				'name'        => $term->name,
-				'icon_closed' => get_term_meta( $term->term_id, 'icon_closed', true ) ?: 'dashicons-info',
-				'icon_open'   => get_term_meta( $term->term_id, 'icon_open', true ) ?: 'dashicons-info',
-				'color'       => get_term_meta( $term->term_id, 'color', true ) ?: '#2271b1',
+				'icon_closed' => $icon_closed ? $icon_closed : 'dashicons-info',
+				'icon_open'   => $icon_open ? $icon_open : 'dashicons-info',
+				'color'       => $color ? $color : '#2271b1',
 			);
 		}
 
@@ -144,39 +148,5 @@ class Inline_Context_Utils {
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<style id="inline-context-custom-css">' . $css . '</style>';
-	}
-}
-
-// Backward compatibility: Keep global function wrappers for code that may still use them.
-if ( ! function_exists( 'inline_context_get_default_categories' ) ) {
-	/**
-	 * Get default categories (backward compatibility wrapper).
-	 *
-	 * @return array Default categories.
-	 */
-	function inline_context_get_default_categories() {
-		return Inline_Context_Utils::get_default_categories();
-	}
-}
-
-if ( ! function_exists( 'inline_context_get_categories' ) ) {
-	/**
-	 * Get categories (backward compatibility wrapper).
-	 *
-	 * @return array Categories.
-	 */
-	function inline_context_get_categories() {
-		return Inline_Context_Utils::get_categories();
-	}
-}
-
-if ( ! function_exists( 'inline_context_get_default_css_variables' ) ) {
-	/**
-	 * Get default CSS variables (backward compatibility wrapper).
-	 *
-	 * @return array Default CSS variables.
-	 */
-	function inline_context_get_default_css_variables() {
-		return Inline_Context_Utils::get_default_css_variables();
 	}
 }

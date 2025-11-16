@@ -83,18 +83,19 @@ describe( 'LinkControl component', () => {
 		it( 'calls onUrlChange when URL is typed', () => {
 			const onUrlChange = jest.fn();
 			render(
-				<LinkControl
-					{ ...defaultProps }
-					onUrlChange={ onUrlChange }
-				/>
+				<LinkControl { ...defaultProps } onUrlChange={ onUrlChange } />
 			);
 
-			const urlInput = screen.getByPlaceholderText( 'Search or paste URL' );
+			const urlInput = screen.getByPlaceholderText(
+				'Search or paste URL'
+			);
 			fireEvent.change( urlInput, {
 				target: { value: 'https://wordpress.org' },
 			} );
 
-			expect( onUrlChange ).toHaveBeenCalledWith( 'https://wordpress.org' );
+			expect( onUrlChange ).toHaveBeenCalledWith(
+				'https://wordpress.org'
+			);
 		} );
 
 		it( 'calls onKeyDown when keyboard events occur on URL input', () => {
@@ -103,7 +104,9 @@ describe( 'LinkControl component', () => {
 				<LinkControl { ...defaultProps } onKeyDown={ onKeyDown } />
 			);
 
-			const urlInput = screen.getByPlaceholderText( 'Search or paste URL' );
+			const urlInput = screen.getByPlaceholderText(
+				'Search or paste URL'
+			);
 			fireEvent.keyDown( urlInput, { key: 'Tab' } );
 
 			expect( onKeyDown ).toHaveBeenCalled();
@@ -131,10 +134,7 @@ describe( 'LinkControl component', () => {
 			expect( textInput ).toHaveValue( '' );
 
 			rerender(
-				<LinkControl
-					{ ...defaultProps }
-					linkText="Click here"
-				/>
+				<LinkControl { ...defaultProps } linkText="Click here" />
 			);
 
 			textInput = screen.getByPlaceholderText( 'Custom link text' );
@@ -216,9 +216,7 @@ describe( 'LinkControl component', () => {
 
 		it( 'calls onCancel when Cancel button is clicked', () => {
 			const onCancel = jest.fn();
-			render(
-				<LinkControl { ...defaultProps } onCancel={ onCancel } />
-			);
+			render( <LinkControl { ...defaultProps } onCancel={ onCancel } /> );
 
 			const cancelButton = screen.getByText( 'Cancel' );
 			fireEvent.click( cancelButton );
@@ -258,8 +256,13 @@ describe( 'LinkControl component', () => {
 		it( 'URL input has correct id for accessibility', () => {
 			render( <LinkControl { ...defaultProps } /> );
 
-			const urlInput = screen.getByPlaceholderText( 'Search or paste URL' );
-			expect( urlInput ).toHaveAttribute( 'id', 'inline-context-url-input' );
+			const urlInput = screen.getByPlaceholderText(
+				'Search or paste URL'
+			);
+			expect( urlInput ).toHaveAttribute(
+				'id',
+				'inline-context-url-input'
+			);
 		} );
 	} );
 

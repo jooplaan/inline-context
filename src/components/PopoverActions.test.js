@@ -93,10 +93,7 @@ describe( 'PopoverActions component', () => {
 		it( 'calls onKeyDown when keyboard events occur on buttons', () => {
 			const onKeyDown = jest.fn();
 			render(
-				<PopoverActions
-					{ ...defaultProps }
-					onKeyDown={ onKeyDown }
-				/>
+				<PopoverActions { ...defaultProps } onKeyDown={ onKeyDown } />
 			);
 
 			const saveButton = screen.getByText( 'Save' );

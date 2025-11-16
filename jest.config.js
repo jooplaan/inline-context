@@ -25,7 +25,5 @@ module.exports = {
 		'!src/**/*.spec.{js,jsx}',
 		'!src/**/index.js',
 	],
-	transformIgnorePatterns: [
-		'node_modules/(?!(@wordpress|memize|uuid)/)',
-	],
+	transformIgnorePatterns: [ 'node_modules/(?!(@wordpress|memize|uuid)/)' ],
 };
