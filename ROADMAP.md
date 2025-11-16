@@ -238,6 +238,20 @@ Schema.org markup for special note types:
 
 ## Completed Features
 
+### v2.3.0 - Tooltip Hover Activation ✓
+
+Released: November 16, 2025
+
+- ✅ Optional hover activation for tooltips with configurable 300ms delay
+- ✅ Admin setting to enable tooltip display on mouse hover
+- ✅ Smart hover behavior - tooltip stays open when moving mouse to tooltip content
+- ✅ Conditional admin UI - hover option only visible when tooltip mode is selected
+- ✅ 100ms grace period for smooth mouse transition between trigger and tooltip
+- ✅ Separate show/hide timeout management for robust interaction
+- ✅ Enhanced user experience for interacting with tooltip content and links
+- ✅ Settings persistence in demo.html using localStorage
+- ✅ Updated documentation (README.md, ROADMAP.md, copilot-instructions.md)
+
 ### v2.2.0 - Reusable Note Management & Testing Infrastructure ✓
 
 Released: November 15, 2025

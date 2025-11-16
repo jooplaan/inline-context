@@ -62,13 +62,15 @@ Renée Kool’s website:
 - **Dual Icon States**: Different icons for closed/open states provide visual feedback
 - **Color Coding**: Assign colors to each category for visual distinction
 
-### Display Modes (v2.1)
+### Display Modes (v2.1, enhanced in v2.3)
 
 - **Inline Mode (default)**: Notes expand directly below the trigger text in the content flow
 - **Tooltip Mode**: Notes appear as floating positioned tooltips above or below the trigger
+- **Hover Activation (v2.3)**: Optional hover to show tooltips with 300ms delay and smooth mouse transition
+- **Smart Mouse Interaction (v2.3)**: Keep tooltip open when moving mouse from trigger to tooltip content
 - **Smart Positioning**: Tooltips automatically flip position to stay within viewport
 - **Accessibility First**: Both modes support full keyboard navigation and screen readers
-- **Click/Keyboard Only**: Tooltips activate on click or keyboard (Space/Enter), not hover
+- **Click/Keyboard Activation**: Tooltips activate on click or keyboard (Space/Enter)
 - **Focus Management**: Automatic focus on note content for keyboard users
 - **Escape to Close**: Press Escape to close tooltips and return focus to trigger
 
@@ -91,14 +93,18 @@ Renée Kool’s website:
 
 ## How to use
 
-### Choosing display mode (v2.1)
+### Choosing display mode (v2.1, enhanced in v2.3)
 
 1. Go to Settings > Inline Context
 2. Click the General tab
 3. Choose between:
    - **Inline notes** (default) - Notes expand in the content flow
    - **Tooltips** - Notes appear as floating positioned elements
-4. Save your settings
+4. **NEW in v2.3**: If tooltips are selected, optionally enable "Also display the tooltip on mouse hover"
+   - Tooltips will appear after hovering for 0.3 seconds
+   - Tooltip stays open when moving mouse to the tooltip content
+   - Click and keyboard activation still work as normal
+5. Save your settings
 
 ### Managing notes library (v1.5)
 

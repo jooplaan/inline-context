@@ -73,6 +73,30 @@
             color: white;
         }
 
+        .hover-option {
+            margin-top: 15px;
+            padding: 12px;
+            background: white;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .hover-option.visible {
+            display: block;
+        }
+
+        .hover-option label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .hover-option input[type="checkbox"] {
+            cursor: pointer;
+        }
+
         .demo-section {
             margin: 40px 0;
             padding: 20px;
@@ -204,6 +228,15 @@
                 <span>💬 Tooltip Mode</span>
             </label>
         </div>
+        <div id="hover-option" class="hover-option">
+            <label>
+                <input type="checkbox" id="hoverEnabled">
+                <span>Also display the tooltip on mouse hover</span>
+            </label>
+            <p style="margin: 8px 0 0 32px; font-size: 0.85em; color: #666;">
+                When enabled, tooltips will appear when hovering over the link (0.3s delay), in addition to click/keyboard activation.
+            </p>
+        </div>
         <p style="margin-top: 15px; font-size: 0.9em; color: #856404;">
             <strong>Inline Mode:</strong> Notes expand directly below the trigger text in the content flow.<br>
             <strong>Tooltip Mode:</strong> Notes appear as floating tooltips above or below the trigger (v2.1+).
@@ -271,7 +304,7 @@
             <li><a href="#context-note-demo2">Link to the WordPress statistics note</a></li>
             <li><a href="#context-note-demo3">Link to the React definition note</a></li>
             <li><a href="#context-note-demo4">Link to the web technologies note</a></li>
-            <li><a href="#context-note-demo5">Link to the smart link behavior demo</a></li>
+            <li><a href="#context-note-demo6">Link to the smart link behavior demo</a></li>
         </ul>
         <p>
             <em>Click any of these links to auto-open the corresponding note and scroll to it!</em>
@@ -313,17 +346,48 @@
 
         // Mock the inline context data object
         window.inlineContextData = window.inlineContextData || {
-            displayMode: 'inline' // Default mode
+            displayMode: localStorage.getItem('demoDisplayMode') || 'inline', // Restore from localStorage
+            hoverEnabled: localStorage.getItem('demoHoverEnabled') === 'true' // Restore from localStorage
         };
 
         // Handle display mode changes
         document.addEventListener('DOMContentLoaded', function() {
             const radios = document.querySelectorAll('input[name="displayMode"]');
+            const hoverOption = document.getElementById('hover-option');
+            const hoverCheckbox = document.getElementById('hoverEnabled');
             
+            // Restore settings from localStorage on page load
+            const savedDisplayMode = localStorage.getItem('demoDisplayMode') || 'inline';
+            const savedHoverEnabled = localStorage.getItem('demoHoverEnabled') === 'true';
+            
+            // Set radio button state
+            const radioToCheck = document.querySelector(`input[name="displayMode"][value="${savedDisplayMode}"]`);
+            if (radioToCheck) {
+                radioToCheck.checked = true;
+            }
+            
+            // Set checkbox state
+            hoverCheckbox.checked = savedHoverEnabled;
+            
+            // Function to update hover option visibility
+            const updateHoverOptionVisibility = function() {
+                const selectedRadio = document.querySelector('input[name="displayMode"]:checked');
+                if (selectedRadio && selectedRadio.value === 'tooltip') {
+                    hoverOption.classList.add('visible');
+                } else {
+                    hoverOption.classList.remove('visible');
+                }
+            };
+            
+            // Update hover option visibility on radio change
             radios.forEach(radio => {
                 radio.addEventListener('change', function() {
                     // Update the global display mode
                     window.inlineContextData.displayMode = this.value;
+                    localStorage.setItem('demoDisplayMode', this.value);
+                    
+                    // Update hover option visibility
+                    updateHoverOptionVisibility();
                     
                     // Close all open notes when switching modes
                     const openTriggers = document.querySelectorAll('.wp-inline-context--open');
@@ -348,6 +412,19 @@
                     console.log('Display mode changed to:', this.value);
                 });
             });
+            
+            // Handle hover checkbox changes
+            hoverCheckbox.addEventListener('change', function() {
+                window.inlineContextData.hoverEnabled = this.checked;
+                localStorage.setItem('demoHoverEnabled', this.checked);
+                console.log('Hover enabled:', this.checked);
+                
+                // Reload the page to reinitialize with new hover setting
+                location.reload();
+            });
+            
+            // Initialize hover option visibility on page load
+            updateHoverOptionVisibility();
         });
     </script>
     <script src="build/frontend.js"></script>
