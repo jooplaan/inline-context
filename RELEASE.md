@@ -32,6 +32,9 @@ npm run lint:fix
 # Fix markdown linting
 npm run lint:md:fix
 
+# Run JavaScript unit tests
+npm run test:unit
+
 # Run PHP unit tests
 composer test:unit
 
@@ -233,6 +236,8 @@ git log $(git describe --tags --abbrev=0)..HEAD --pretty=format:"- %s"
 - Ensure MySQL is running for PHP unit tests
 - Check `.env` file configuration
 - Run `composer test:unit -- --verbose` for detailed output
+- For JavaScript tests: Run `npm run test:unit -- --verbose` for detailed output
+- Check that all WordPress package mocks are properly configured in `jest.setup.js`
 
 **Linting errors:**
 
