@@ -1,0 +1,23 @@
+# Test files and mocks
+jest.setup.js
+jest.config.js
+jest-mocks/
+*.test.js
+
+# Build output
+build/
+dist/
+
+# Dependencies
+node_modules/
+vendor/
+
+# Coverage
+coverage/
+
+# WordPress test library
+tests/
+
+# Misc
+.git/
+.github/

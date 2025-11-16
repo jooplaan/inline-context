@@ -47,8 +47,8 @@
 		}
 	},
 	"scripts": {
-		"lint": "vendor/bin/phpcs --standard=WordPress *.php",
-		"lint:fix": "vendor/bin/phpcbf --standard=WordPress *.php",
+		"lint": "vendor/bin/phpcs --standard=WordPress inline-context.php admin-settings.php uninstall.php includes/",
+		"lint:fix": "vendor/bin/phpcbf --standard=WordPress inline-context.php admin-settings.php uninstall.php includes/",
 		"test:setup": "bash bin/setup-tests.sh",
 		"test:install": "bash bin/install-wp-tests.sh",
 		"test:unit": "vendor/bin/phpunit",

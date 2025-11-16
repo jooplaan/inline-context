@@ -1,10 +1,10 @@
 /**
+ * Unit tests for NotesSidebar utility functions
+ *
  * @jest-environment jsdom
  */
 
-/**
- * Unit tests for NotesSidebar utility functions
- *
+/*
  * These tests focus on the core logic without requiring full React rendering.
  * For full component integration tests, use E2E tests with WordPress.
  */

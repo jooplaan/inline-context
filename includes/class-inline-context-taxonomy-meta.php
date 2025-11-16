@@ -172,7 +172,7 @@ class Inline_Context_Taxonomy_Meta {
 	 * @param WP_Term $term Current taxonomy term object.
 	 * @param string  $taxonomy Current taxonomy slug.
 	 */
-	public function edit_category_fields( $term, $taxonomy ) {
+	public function edit_category_fields( $term, $taxonomy ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$icon_closed = get_term_meta( $term->term_id, 'icon_closed', true );
 		$icon_open   = get_term_meta( $term->term_id, 'icon_open', true );
 		$color       = get_term_meta( $term->term_id, 'color', true );
@@ -283,7 +283,7 @@ class Inline_Context_Taxonomy_Meta {
 	 * @param int $term_id  Term ID.
 	 * @param int $tt_id    Term taxonomy ID.
 	 */
-	public function save_category_meta( $term_id, $tt_id ) {
+	public function save_category_meta( $term_id, $tt_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Verify nonce.
 		if ( ! isset( $_POST['inline_context_category_meta_nonce'] ) ||
 			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['inline_context_category_meta_nonce'] ) ), 'inline_context_category_meta' ) ) {

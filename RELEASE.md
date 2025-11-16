@@ -26,8 +26,11 @@ Update version numbers in the following files:
 Run all quality checks:
 
 ```bash
-# Fix linting issues
-npm run lint:fix
+# Fix JavaScript linting (targeted to avoid node_modules)
+npx wp-scripts lint-js src/ --fix
+
+# Fix PHP linting
+npm run lint:php:fix
 
 # Fix markdown linting
 npm run lint:md:fix
