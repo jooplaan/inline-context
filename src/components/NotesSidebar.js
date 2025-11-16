@@ -6,7 +6,7 @@
 
 import { __ } from '@wordpress/i18n';
 import { PanelBody, PanelRow, Button } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 
 /**
@@ -131,6 +131,9 @@ const NotesSidebar = () => {
 		};
 	}, [] );
 
+	// Get block editor dispatch actions
+	const { selectBlock } = useDispatch( 'core/block-editor' );
+
 	// Get categories from window (outside useSelect to avoid stale closure)
 	/* global globalThis */
 	const categories = globalThis.inlineContextData?.categories || {};
@@ -142,7 +145,7 @@ const NotesSidebar = () => {
 	}, [ postContent ] );
 
 	/**
-	 * Scroll to a note in the editor
+	 * Scroll to a note in the editor and select its block
 	 *
 	 * @param {string} anchorId - The anchor ID to scroll to
 	 */
@@ -159,6 +162,19 @@ const NotesSidebar = () => {
 			`a[data-anchor-id="${ anchorId }"]`
 		);
 		if ( link ) {
+			// Find the block element that contains this link
+			// Block elements have data-block attribute with the client ID
+			let blockElement = link.closest( '[data-block]' );
+			
+			if ( blockElement ) {
+				const blockClientId = blockElement.dataset.block;
+				
+				// Select the block in the editor
+				if ( blockClientId && selectBlock ) {
+					selectBlock( blockClientId );
+				}
+			}
+
 			// Scroll into view with smooth behavior
 			link.scrollIntoView( {
 				behavior: 'smooth',
