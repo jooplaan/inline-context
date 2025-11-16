@@ -2,18 +2,31 @@
 Contributors: joop
 Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
-Tested up to: 6.6
+Tested up to: 6.8.3
 Requires PHP: 7.4
 Stable tag: 2.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Add inline expandable context notes with direct anchor linking. Features reusable notes via Custom Post Type, category management, and comprehensive styling controls.
+Add inline expandable context notes with direct anchor linking. Optionally show the notes as tooltip popover.
 
 == Description ==
 Inline Context lets you enrich content with expandable context notes that maintain optimal reading flow. Create reusable notes via Custom Post Type, organize with custom categories (each with distinct icons and colors), and control all styling through a tabbed admin interface.
 
-= Key Features =
+This plugin started when Renée Kool, a visual artist operating in the fields of art in the public sphere, film and emergent media, wanted to create a website with content where she could link to multiple items in one link. We looked for inspiration at the website of the Dutch magazine "De Correspondent". They have implemented a design element to give the reader more context about the text they are reading, the text is a link with an icon. When the link is activated, another HTML element becomes visible. This HTML can have multiple links and is used to:
+
+* provide a definition
+* give more context before the user follow links in the text
+* are not in the way when the user wants to continue reading the main article
+
+Example article with different types of notes on the Correspondent:
+https://decorrespondent.nl/16239/hoe-vriendschap-de-belangrijkste-relatie-werd-van-deze-tijd/2bc79aff-1546-08e1-349f-e865e38c46da
+
+Website Renée Kool:
+https://reneekool.nl/
+
+
+= Key Features Inline Context plugin =
 * **Display Modes (NEW v2.1)**: Choose between inline expansion or floating tooltips
 * **Smart Tooltips (NEW v2.1)**: Automatic positioning that prevents off-screen display
 * **Reusable Notes (v1.5)**: Create notes as Custom Post Type entries and reuse them across multiple posts
