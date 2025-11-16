@@ -79,6 +79,7 @@ class Inline_Context_Taxonomy_Meta {
 	 * Add fields to the "Add New Category" form.
 	 */
 	public function add_category_fields() {
+		wp_nonce_field( 'inline_context_category_meta', 'inline_context_category_meta_nonce' );
 		?>
 		<div class="form-field term-icon-closed-wrap">
 			<label for="icon_closed"><?php esc_html_e( 'Icon (Closed State)', 'inline-context' ); ?></label>
@@ -171,7 +172,7 @@ class Inline_Context_Taxonomy_Meta {
 	 * @param WP_Term $term Current taxonomy term object.
 	 * @param string  $taxonomy Current taxonomy slug.
 	 */
-	public function edit_category_fields( $term, $taxonomy ) {
+	public function edit_category_fields( $term, $taxonomy ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$icon_closed = get_term_meta( $term->term_id, 'icon_closed', true );
 		$icon_open   = get_term_meta( $term->term_id, 'icon_open', true );
 		$color       = get_term_meta( $term->term_id, 'color', true );
@@ -180,6 +181,8 @@ class Inline_Context_Taxonomy_Meta {
 		$icon_closed = $icon_closed ? $icon_closed : 'dashicons-info';
 		$icon_open   = $icon_open ? $icon_open : 'dashicons-info-outline';
 		$color       = $color ? $color : '#0073aa';
+
+		wp_nonce_field( 'inline_context_category_meta', 'inline_context_category_meta_nonce' );
 		?>
 		<tr class="form-field term-icon-closed-wrap">
 			<th scope="row">
@@ -280,7 +283,13 @@ class Inline_Context_Taxonomy_Meta {
 	 * @param int $term_id  Term ID.
 	 * @param int $tt_id    Term taxonomy ID.
 	 */
-	public function save_category_meta( $term_id, $tt_id ) {
+	public function save_category_meta( $term_id, $tt_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Verify nonce.
+		if ( ! isset( $_POST['inline_context_category_meta_nonce'] ) ||
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['inline_context_category_meta_nonce'] ) ), 'inline_context_category_meta' ) ) {
+			return;
+		}
+
 		// Save icon_closed.
 		if ( isset( $_POST['icon_closed'] ) ) {
 			$icon_closed = sanitize_text_field( wp_unslash( $_POST['icon_closed'] ) );

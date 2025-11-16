@@ -342,3 +342,125 @@
 	color: #757575;
 	line-height: 1.4;
 }
+
+/* Sidebar Panel Styles */
+.wp-inline-context-sidebar-empty {
+	color: #757575;
+	font-style: italic;
+	margin: 0;
+	padding: 12px 0;
+}
+
+.wp-inline-context-sidebar-count {
+	font-size: 12px;
+	color: #757575;
+	margin: 0 0 12px 0;
+	padding: 0;
+}
+
+.wp-inline-context-sidebar-notes {
+	margin: 0;
+	padding: 0;
+}
+
+.wp-inline-context-sidebar-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	counter-reset: note-counter;
+}
+
+.wp-inline-context-sidebar-item {
+	margin: 0;
+	padding: 16px 0;
+	border-bottom: 1px solid #e0e0e0;
+	counter-increment: note-counter;
+
+	&:last-child {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+
+	&::before {
+		content: counter(note-counter);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 24px;
+		height: 24px;
+		margin-right: 8px;
+		padding: 0 6px;
+		background-color: #2271b1;
+		color: white;
+		font-size: 11px;
+		font-weight: 600;
+		border-radius: 12px;
+		float: left;
+		margin-top: 2px;
+	}
+}
+
+.wp-inline-context-sidebar-content {
+	overflow: hidden; // Contains floated number
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.wp-inline-context-sidebar-category {
+	display: inline-block;
+	font-size: 11px;
+	font-weight: 500;
+	padding: 3px 8px;
+	border-radius: 3px;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+	white-space: nowrap;
+	align-self: flex-start;
+}
+
+.wp-inline-context-sidebar-link {
+	font-size: 13px;
+	font-weight: 600;
+	color: #2271b1;
+	text-decoration: none;
+	padding: 0;
+	min-height: auto;
+	line-height: 1.4;
+	text-align: left;
+	word-break: break-word;
+	align-self: flex-start;
+
+	&:hover {
+		color: #135e96;
+		text-decoration: underline;
+	}
+
+	&:focus {
+		box-shadow: 0 0 0 1px #2271b1;
+		outline: 2px solid transparent;
+	}
+}
+
+.wp-inline-context-sidebar-excerpt {
+	font-size: 12px;
+	color: #757575;
+	line-height: 1.4;
+	word-break: break-word;
+}
+
+/* Highlight effect when scrolling to a note */
+@keyframes wp-inline-context-highlight {
+	0%,
+	100% {
+		background-color: transparent;
+	}
+	50% {
+		background-color: rgba(255, 255, 0, 0.3);
+	}
+}
+
+.wp-inline-context-highlight {
+	animation: wp-inline-context-highlight 1s ease-in-out 2;
+}

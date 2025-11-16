@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Inline Context 2.0.1\n"
+"Project-Id-Version: Inline Context 2.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/inline-context\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-11-13T05:34:47+00:00\n"
+"POT-Creation-Date: 2025-11-16T09:06:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: inline-context\n"
@@ -17,8 +17,8 @@ msgstr ""
 #. Plugin Name of the plugin
 #: inline-context.php
 #: admin-settings.php:21
-#: build/index.js:1
-#: src/index.js:9
+#: build/index.js:2
+#: src/index.js:10
 msgid "Inline Context"
 msgstr ""
 
@@ -46,382 +46,388 @@ msgstr ""
 msgid "Inline Context Settings"
 msgstr ""
 
-#: admin-settings.php:58
-msgid "Link Styling"
+#: admin-settings.php:70
+msgid "Trigger Link Styling"
 msgstr ""
 
-#: admin-settings.php:65
-msgid "Note Styling"
+#: admin-settings.php:77
+msgid "Note Appearance"
 msgstr ""
 
-#: admin-settings.php:72
-msgid "Chevron Styling"
-msgstr ""
-
-#: admin-settings.php:80
-msgid "Scroll Margin"
-msgstr ""
-
-#: admin-settings.php:83
-msgid "Space from top of screen when jumping to anchor links. Useful for fixed headers."
-msgstr ""
-
-#: admin-settings.php:86
-#: admin-settings.php:233
-msgid "Hover Color"
-msgstr ""
-
-#: admin-settings.php:89
-msgid "Text color when hovering over the link."
+#: admin-settings.php:84
+msgid "Chevron Icon"
 msgstr ""
 
 #: admin-settings.php:92
+msgid "Inline Mode Specific"
+msgstr ""
+
+#: admin-settings.php:100
+msgid "Scroll Margin"
+msgstr ""
+
+#: admin-settings.php:103
+msgid "Space from top of screen when jumping to anchor links. Useful for fixed headers."
+msgstr ""
+
+#: admin-settings.php:106
+#: admin-settings.php:235
+msgid "Hover Color"
+msgstr ""
+
+#: admin-settings.php:109
+msgid "Text color when hovering over the link."
+msgstr ""
+
+#: admin-settings.php:112
 msgid "Focus Color"
 msgstr ""
 
-#: admin-settings.php:95
+#: admin-settings.php:115
 msgid "Text color when the link is focused (keyboard navigation)."
 msgstr ""
 
-#: admin-settings.php:98
+#: admin-settings.php:118
 msgid "Focus Border Color"
 msgstr ""
 
-#: admin-settings.php:101
+#: admin-settings.php:121
 msgid "Border color of the focus outline (accessibility feature)."
 msgstr ""
 
-#: admin-settings.php:104
+#: admin-settings.php:124
 msgid "Open State Color"
 msgstr ""
 
-#: admin-settings.php:107
+#: admin-settings.php:127
 msgid "Text color when the note is currently revealed."
 msgstr ""
 
-#: admin-settings.php:130
-msgid "Vertical Margin"
-msgstr ""
-
-#: admin-settings.php:133
-msgid "Space above and below the note block."
-msgstr ""
-
-#: admin-settings.php:136
+#: admin-settings.php:150
 msgid "Vertical Padding"
 msgstr ""
 
-#: admin-settings.php:139
+#: admin-settings.php:153
 msgid "Internal spacing at top and bottom of note content."
 msgstr ""
 
-#: admin-settings.php:142
+#: admin-settings.php:156
 msgid "Horizontal Padding"
 msgstr ""
 
-#: admin-settings.php:145
+#: admin-settings.php:159
 msgid "Internal spacing at left and right of note content."
 msgstr ""
 
-#: admin-settings.php:148
+#: admin-settings.php:162
 msgid "Background Color"
 msgstr ""
 
-#: admin-settings.php:151
+#: admin-settings.php:165
 msgid "Background color of the note block."
 msgstr ""
 
-#: admin-settings.php:154
+#: admin-settings.php:168
 msgid "Border Color"
 msgstr ""
 
-#: admin-settings.php:157
+#: admin-settings.php:171
 msgid "Color of the border around the note."
 msgstr ""
 
-#: admin-settings.php:160
-msgid "Accent Width"
-msgstr ""
-
-#: admin-settings.php:163
-msgid "Width of the colored accent bar on the left side."
-msgstr ""
-
-#: admin-settings.php:166
-msgid "Accent Color"
-msgstr ""
-
-#: admin-settings.php:169
-msgid "Color of the accent bar on the left side of the note."
-msgstr ""
-
-#: admin-settings.php:172
+#: admin-settings.php:174
 msgid "Border Radius"
 msgstr ""
 
-#: admin-settings.php:175
+#: admin-settings.php:177
 msgid "Roundness of note corners. Use 0px for square corners."
 msgstr ""
 
-#: admin-settings.php:178
+#: admin-settings.php:180
 msgid "Box Shadow"
 msgstr ""
 
-#: admin-settings.php:181
-msgid "Drop shadow effect. Use CSS box-shadow format."
+#: admin-settings.php:183
+msgid "Drop shadow effect. Use CSS box-shadow format. Tooltips use enhanced shadow."
 msgstr ""
 
-#: admin-settings.php:184
+#: admin-settings.php:186
 msgid "Font Size"
 msgstr ""
 
-#: admin-settings.php:187
+#: admin-settings.php:189
 msgid "Text size within the note. Use em or px units."
 msgstr ""
 
-#: admin-settings.php:190
+#: admin-settings.php:192
 msgid "Link Color"
 msgstr ""
 
-#: admin-settings.php:193
+#: admin-settings.php:195
 msgid "Color of links within the note content."
 msgstr ""
 
-#: admin-settings.php:196
+#: admin-settings.php:198
 msgid "Link Underline"
 msgstr ""
 
-#: admin-settings.php:203
+#: admin-settings.php:205
 msgid "Whether links in notes should be underlined."
 msgstr ""
 
-#: admin-settings.php:227
+#: admin-settings.php:229
 msgid "Default Color"
 msgstr ""
 
-#: admin-settings.php:230
+#: admin-settings.php:232
 msgid "Color of the chevron in its normal state."
 msgstr ""
 
-#: admin-settings.php:236
+#: admin-settings.php:238
 msgid "Color of the chevron when hovering over the link."
 msgstr ""
 
-#: admin-settings.php:239
+#: admin-settings.php:241
 msgid "Size"
 msgstr ""
 
-#: admin-settings.php:242
+#: admin-settings.php:244
 msgid "Size of the chevron icon relative to text."
 msgstr ""
 
-#: admin-settings.php:245
+#: admin-settings.php:247
 msgid "Left Margin"
 msgstr ""
 
-#: admin-settings.php:248
+#: admin-settings.php:250
 msgid "Space between the link text and the chevron."
 msgstr ""
 
-#: admin-settings.php:251
+#: admin-settings.php:253
 msgid "Opacity"
 msgstr ""
 
-#: admin-settings.php:254
+#: admin-settings.php:256
 msgid "Transparency in normal state (0 = invisible, 1 = solid)."
 msgstr ""
 
-#: admin-settings.php:257
+#: admin-settings.php:259
 msgid "Hover Opacity"
 msgstr ""
 
-#: admin-settings.php:260
+#: admin-settings.php:262
 msgid "Transparency when hovering (0 = invisible, 1 = solid)."
 msgstr ""
 
-#: admin-settings.php:311
-msgid "Customize how inline context links appear before they are clicked. These are the underlined trigger words that users click to reveal notes."
+#: admin-settings.php:285
+msgid "Vertical Margin"
 msgstr ""
 
-#: admin-settings.php:318
-msgid "Customize the appearance of the revealed note blocks that appear below the trigger link when clicked."
+#: admin-settings.php:288
+msgid "Space above and below the inline note block. Not used in tooltip mode."
 msgstr ""
 
-#: admin-settings.php:325
-msgid "Customize the small arrow (chevron) icon that appears next to inline context links. The chevron indicates that the link can be expanded."
+#: admin-settings.php:291
+msgid "Accent Bar Width"
 msgstr ""
 
-#: admin-settings.php:380
-msgid "Styling"
+#: admin-settings.php:294
+msgid "Width of the colored accent bar on the left side. Not used in tooltip mode."
 msgstr ""
 
-#: admin-settings.php:381
-msgid "Uninstall"
+#: admin-settings.php:297
+msgid "Accent Bar Color"
 msgstr ""
 
-#: admin-settings.php:417
-msgid "Customize the appearance of inline context notes using CSS custom properties. Changes will affect all notes on your site."
+#: admin-settings.php:300
+msgid "Color of the accent bar on the left side. Not used in tooltip mode."
 msgstr ""
 
-#: admin-settings.php:426
-msgid "Save Changes"
+#: admin-settings.php:362
+msgid "Customize how trigger links appear. These settings apply to both inline and tooltip display modes."
 msgstr ""
 
-#: admin-settings.php:432
-msgid "Live Preview"
+#: admin-settings.php:369
+msgid "Customize the appearance of note content. These settings apply to both inline notes and tooltips."
 msgstr ""
 
-#: admin-settings.php:433
-msgid "See how your styling looks in action. Hover over the link and click it to reveal the note."
+#: admin-settings.php:376
+msgid "These settings only apply when Display Mode is set to \"Inline notes\". They are not used in tooltip mode."
 msgstr ""
 
-#: admin-settings.php:436
-msgid "Example Article"
+#: admin-settings.php:383
+msgid "Customize the chevron icon that appears next to trigger links. These settings apply to both display modes."
 msgstr ""
 
 #: admin-settings.php:438
-msgid "WordPress is a popular content management system. You can add"
+msgid "General"
+msgstr ""
+
+#: admin-settings.php:439
+msgid "Styling"
 msgstr ""
 
 #: admin-settings.php:440
-msgid "inline context notes"
+msgid "Uninstall"
 msgstr ""
 
-#: admin-settings.php:442
-msgid "to provide additional information without cluttering your content."
+#: admin-settings.php:476
+msgid "Display Settings"
 msgstr ""
 
-#: admin-settings.php:446
-msgid "Tip:"
+#: admin-settings.php:477
+msgid "Choose how inline context notes appear to your visitors on the frontend."
 msgstr ""
 
-#: admin-settings.php:447
-msgid "Try hovering over the link above to see hover effects, then click it to reveal the note and see how it appears with your current styling."
+#: admin-settings.php:485
+#: admin-settings.php:490
+msgid "Display Mode"
 msgstr ""
 
-#: admin-settings.php:577
+#: admin-settings.php:497
+msgid "Show notes as inline note (default)"
+msgstr ""
+
+#: admin-settings.php:502
+msgid "Show notes as tooltips"
+msgstr ""
+
+#: admin-settings.php:505
+msgid "Inline notes expand below the trigger link when clicked. Tooltips appear as a popup near the trigger link when clicked or activated with keyboard."
+msgstr ""
+
+#: admin-settings.php:513
+#: admin-settings.php:527
+msgid "Save Changes"
+msgstr ""
+
+#: admin-settings.php:518
+msgid "Customize the appearance of inline context notes. Settings are organized by what they apply to: both display modes, or inline mode only."
+msgstr ""
+
+#: admin-settings.php:572
 msgid "Important:"
 msgstr ""
 
-#: admin-settings.php:578
+#: admin-settings.php:573
 msgid "These settings determine what happens when you delete this plugin from WordPress."
 msgstr ""
 
-#: admin-settings.php:589
+#: admin-settings.php:584
 msgid "Current Usage"
 msgstr ""
 
-#: admin-settings.php:594
+#: admin-settings.php:589
 msgid "note"
 msgid_plural "notes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: admin-settings.php:598
+#: admin-settings.php:593
 msgid "post with inline context links"
 msgid_plural "posts with inline context links"
 msgstr[0] ""
 msgstr[1] ""
 
-#: admin-settings.php:603
+#: admin-settings.php:598
 msgid "View list of posts"
 msgstr ""
 
-#: admin-settings.php:609
+#: admin-settings.php:604
 msgid "(no title)"
 msgstr ""
 
 #. translators: %s: number of additional posts
-#: admin-settings.php:625
+#: admin-settings.php:620
 #, php-format
 msgid "...and %s more"
 msgstr ""
 
-#: admin-settings.php:637
+#: admin-settings.php:632
 msgid "When Plugin is Deleted"
 msgstr ""
 
-#: admin-settings.php:640
+#: admin-settings.php:635
 msgid "The following will always be removed:"
 msgstr ""
 
-#: admin-settings.php:642
+#: admin-settings.php:637
 msgid "All stored notes (Custom Post Type data)"
 msgstr ""
 
-#: admin-settings.php:643
+#: admin-settings.php:638
 msgid "All note categories"
 msgstr ""
 
-#: admin-settings.php:644
+#: admin-settings.php:639
 msgid "Plugin settings and options"
 msgstr ""
 
-#: admin-settings.php:651
+#: admin-settings.php:646
 msgid "Clean Up Post Content"
 msgstr ""
 
-#: admin-settings.php:662
+#: admin-settings.php:657
 msgid "Remove inline context links from post content"
 msgstr ""
 
-#: admin-settings.php:666
+#: admin-settings.php:661
 msgid "If checked, when the plugin is deleted, all inline context links will be converted to plain text in your posts. The link text will remain, but the expandable functionality will be removed."
 msgstr ""
 
-#: admin-settings.php:673
+#: admin-settings.php:668
 msgid "⚠️ Important:"
 msgstr ""
 
-#: admin-settings.php:674
+#: admin-settings.php:669
 msgid "Always create a complete database backup before uninstalling with this option enabled. This operation modifies your post content and cannot be automatically reversed."
 msgstr ""
 
-#: admin-settings.php:678
+#: admin-settings.php:673
 msgid "Warning:"
 msgstr ""
 
 #. translators: %s: number of posts
-#: admin-settings.php:683
+#: admin-settings.php:678
 #, php-format
 msgid "This will modify %s post in your database."
 msgid_plural "This will modify %s posts in your database."
 msgstr[0] ""
 msgstr[1] ""
 
-#: admin-settings.php:696
+#: admin-settings.php:691
 msgid "If unchecked, the links will remain in your content but will no longer be functional since the plugin code will be removed."
 msgstr ""
 
-#: admin-settings.php:705
+#: admin-settings.php:700
 msgid "Save Uninstall Settings"
 msgstr ""
 
-#: admin-settings.php:711
+#: admin-settings.php:706
 msgid "How Uninstall Works"
 msgstr ""
 
-#: admin-settings.php:713
+#: admin-settings.php:708
 msgid "Configure the settings above to choose whether to clean up post content."
 msgstr ""
 
-#: admin-settings.php:714
+#: admin-settings.php:709
 msgid "Deactivate the plugin (Plugins → Deactivate)."
 msgstr ""
 
-#: admin-settings.php:715
+#: admin-settings.php:710
 msgid "Delete the plugin (Plugins → Delete)."
 msgstr ""
 
-#: admin-settings.php:716
+#: admin-settings.php:711
 msgid "WordPress will automatically run the cleanup based on your settings above."
 msgstr ""
 
-#: admin-settings.php:721
+#: admin-settings.php:716
 msgid "Recommendation:"
 msgstr ""
 
-#: admin-settings.php:722
+#: admin-settings.php:717
 msgid "Before deleting the plugin, we recommend exporting your content as a backup. Go to Tools → Export in your WordPress admin."
 msgstr ""
 
@@ -430,7 +436,7 @@ msgid "Note Categories"
 msgstr ""
 
 #: includes/class-cpt.php:62
-#: includes/class-cpt.php:329
+#: includes/class-cpt.php:334
 msgid "Note Category"
 msgstr ""
 
@@ -503,109 +509,89 @@ msgstr ""
 msgid "No"
 msgstr ""
 
-#: includes/class-cpt.php:253
+#: includes/class-cpt.php:254
 msgid "All Notes"
 msgstr ""
 
-#: includes/class-cpt.php:255
+#: includes/class-cpt.php:256
 msgid "Reusable Only"
 msgstr ""
 
-#: includes/class-cpt.php:258
+#: includes/class-cpt.php:259
 msgid "Not Reusable"
 msgstr ""
 
-#: includes/class-cpt.php:319
+#: includes/class-cpt.php:324
 msgid "Note Content"
 msgstr ""
 
-#: includes/class-cpt.php:339
+#: includes/class-cpt.php:344
 msgid "Usage Statistics"
 msgstr ""
 
-#: includes/class-cpt.php:396
+#: includes/class-cpt.php:401
 #: build/index.js:1
 #: src/components/CategorySelector.js:24
 msgid "No category"
 msgstr ""
 
-#: includes/class-cpt.php:448
+#: includes/class-cpt.php:454
 msgid "Used in:"
 msgstr ""
 
-#: includes/class-cpt.php:451
+#: includes/class-cpt.php:457
 msgid "post"
 msgid_plural "posts"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-cpt.php:453
+#: includes/class-cpt.php:459
+msgid "times total"
+msgstr ""
+
+#: includes/class-cpt.php:462
 msgid "Not used yet"
 msgstr ""
 
-#: includes/class-cpt.php:460
+#: includes/class-cpt.php:469
 msgid "Used in these posts:"
 msgstr ""
 
-#: includes/class-cpt.php:503
+#: includes/class-cpt.php:512
 msgid "Mark as reusable"
 msgstr ""
 
-#: includes/class-cpt.php:506
+#: includes/class-cpt.php:515
 msgid "Reusable notes appear in search results and can be used across multiple posts."
 msgstr ""
 
-#: includes/class-cpt.php:514
+#: includes/class-cpt.php:523
 msgid "Note:"
 msgstr ""
 
-#: includes/class-cpt.php:515
+#: includes/class-cpt.php:524
 msgid "This note is used in multiple posts. Changes to the content will not automatically update existing usages."
 msgstr ""
 
-#: includes/class-cpt.php:524
+#: includes/class-cpt.php:533
 msgid "Before deleting this note:"
 msgstr ""
 
-#. translators: %d: number of posts
-#: includes/class-cpt.php:530
+#. translators: 1: number of times used, 2: number of posts
+#: includes/class-cpt.php:541
 #, php-format
-msgid "This note is currently used in %d post. Deleting it will not remove it from that post, but the note will no longer appear in search results."
-msgid_plural "This note is currently used in %d posts. Deleting it will not remove it from those posts, but the note will no longer appear in search results."
+msgid "Deleting this note will remove %1$d use from %2$d post."
+msgid_plural "Deleting this note will remove %1$d uses from %2$d posts."
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of posts using the note
-#: includes/class-cpt.php:622
+#: includes/class-cpt.php:635
 #, php-format
 msgid "This note is currently used in %d post. To unmark as reusable, first remove it from all posts."
 msgid_plural "This note is currently used in %d posts. To unmark as reusable, first remove it from all posts."
 msgstr[0] ""
 msgstr[1] ""
-
-#. translators: %d: number of posts using the note
-#: includes/class-deletion.php:74
-#, php-format
-msgid "This reusable note cannot be trashed because it is currently used in %d post. Please remove it from all posts first."
-msgid_plural "This reusable note cannot be trashed because it is currently used in %d posts. Please remove it from all posts first."
-msgstr[0] ""
-msgstr[1] ""
-
-#: includes/class-deletion.php:82
-msgid "Cannot Trash Note"
-msgstr ""
-
-#. translators: %d: number of posts using the note
-#: includes/class-deletion.php:132
-#, php-format
-msgid "This reusable note cannot be deleted because it is currently used in %d post. Please remove it from all posts first."
-msgid_plural "This reusable note cannot be deleted because it is currently used in %d posts. Please remove it from all posts first."
-msgstr[0] ""
-msgstr[1] ""
-
-#: includes/class-deletion.php:140
-msgid "Cannot Delete Note"
-msgstr ""
 
 #: includes/class-frontend.php:96
 msgid "Context Notes"
@@ -627,43 +613,43 @@ msgstr ""
 msgid "Post ID where the note is used"
 msgstr ""
 
-#: includes/class-taxonomy-meta.php:84
-#: includes/class-taxonomy-meta.php:186
+#: includes/class-taxonomy-meta.php:85
+#: includes/class-taxonomy-meta.php:189
 msgid "Icon (Closed State)"
 msgstr ""
 
 #. translators: %s: URL to Dashicons reference
-#: includes/class-taxonomy-meta.php:95
-#: includes/class-taxonomy-meta.php:198
+#: includes/class-taxonomy-meta.php:96
+#: includes/class-taxonomy-meta.php:201
 #, php-format
 msgid "Enter a Dashicon class (e.g., <code>dashicons-info</code>). See <a href=\"%s\" target=\"_blank\">Dashicons reference</a>."
 msgstr ""
 
-#: includes/class-taxonomy-meta.php:107
-#: includes/class-taxonomy-meta.php:211
+#: includes/class-taxonomy-meta.php:108
+#: includes/class-taxonomy-meta.php:214
 msgid "Icon (Open State)"
 msgstr ""
 
-#: includes/class-taxonomy-meta.php:115
-#: includes/class-taxonomy-meta.php:220
+#: includes/class-taxonomy-meta.php:116
+#: includes/class-taxonomy-meta.php:223
 msgid "Icon to display when the note is expanded."
 msgstr ""
 
-#: includes/class-taxonomy-meta.php:124
-#: includes/class-taxonomy-meta.php:230
+#: includes/class-taxonomy-meta.php:125
+#: includes/class-taxonomy-meta.php:233
 msgid "Icon Color"
 msgstr ""
 
-#: includes/class-taxonomy-meta.php:131
-#: includes/class-taxonomy-meta.php:239
+#: includes/class-taxonomy-meta.php:132
+#: includes/class-taxonomy-meta.php:242
 msgid "Color for the category icon."
 msgstr ""
 
-#: includes/class-taxonomy-meta.php:317
+#: includes/class-taxonomy-meta.php:326
 msgid "Icons"
 msgstr ""
 
-#: includes/class-taxonomy-meta.php:318
+#: includes/class-taxonomy-meta.php:327
 msgid "Color"
 msgstr ""
 
@@ -676,30 +662,30 @@ msgid "External Article"
 msgstr ""
 
 #: includes/class-utils.php:47
-msgid "Definition"
+msgid "Source"
 msgstr ""
 
 #: includes/class-utils.php:54
-msgid "Tip"
+msgid "Infocard"
 msgstr ""
 
-#: inline-context.php:177
+#: inline-context.php:191
 msgid "Post IDs where this note is used"
 msgstr ""
 
-#: inline-context.php:216
+#: inline-context.php:230
 msgid "Number of times this note is used"
 msgstr ""
 
-#: inline-context.php:229
+#: inline-context.php:243
 msgid "Whether this note is marked as reusable"
 msgstr ""
 
-#: inline-context.php:372
+#: inline-context.php:391
 msgid "Success!"
 msgstr ""
 
-#: inline-context.php:373
+#: inline-context.php:392
 msgid "Usage data has been rebuilt for all inline context notes."
 msgstr ""
 
@@ -769,22 +755,39 @@ msgstr ""
 
 #: build/index.js:1
 #: src/components/LinkControl.js:87
-#: src/components/PopoverActions.js:50
+#: src/components/PopoverActions.js:74
+#: src/components/PopoverActions.js:116
 msgid "Cancel"
 msgstr ""
 
 #: build/index.js:1
-#: src/components/PopoverActions.js:32
+#: src/components/PopoverActions.js:59
+msgid "Make note non-reusable?"
+msgstr ""
+
+#: build/index.js:1
+#: src/components/PopoverActions.js:64
+msgid "Are you sure you want to mark this note as no longer reusable? A new note will be created."
+msgstr ""
+
+#: build/index.js:1
+#: src/components/NoteSearch.js:98
+#: src/components/PopoverActions.js:80
+msgid "Create New Note"
+msgstr ""
+
+#: build/index.js:1
+#: src/components/PopoverActions.js:96
 msgid "Delete"
 msgstr ""
 
 #: build/index.js:1
-#: src/components/PopoverActions.js:39
+#: src/components/PopoverActions.js:103
 msgid "Use as reusable note"
 msgstr ""
 
 #: build/index.js:1
-#: src/components/PopoverActions.js:58
+#: src/components/PopoverActions.js:124
 msgid "Save"
 msgstr ""
 
@@ -796,11 +799,6 @@ msgstr ""
 #: build/index.js:1
 #: src/components/NoteSearch.js:90
 msgid "Type to search…"
-msgstr ""
-
-#: build/index.js:1
-#: src/components/NoteSearch.js:98
-msgid "Create New Note"
 msgstr ""
 
 #: build/index.js:1
@@ -824,73 +822,99 @@ msgid "Reusable note"
 msgstr ""
 
 #: build/index.js:1
-#: src/edit.js:139
-#: src/edit.js:204
-#: src/edit.js:217
+#: build/index.js:2
+#: src/components/NotesSidebar.js:219
+#: src/components/NotesSidebar.js:236
+#: src/sidebar.js:15
+#: src/sidebar.js:19
+msgid "Inline Context Notes"
+msgstr ""
+
+#: build/index.js:1
+#: src/components/NotesSidebar.js:224
+msgid "No inline context notes in this post."
+msgstr ""
+
+#: build/index.js:1
+#: src/components/NotesSidebar.js:242
+msgid "1 note in this post"
+msgstr ""
+
+#. translators: %d: number of notes
+#: build/index.js:2
+#: src/components/NotesSidebar.js:244
+#, js-format
+msgid "%d notes in this post"
+msgstr ""
+
+#: build/index.js:2
+#: src/edit.js:140
+#: src/edit.js:205
+#: src/edit.js:218
 msgid "Untitled Note"
 msgstr ""
 
-#: build/index.js:1
-#: src/edit.js:596
-#: src/edit.js:620
+#: build/index.js:2
+#: src/edit.js:642
+#: src/edit.js:666
 msgid "Inline context"
 msgstr ""
 
-#: build/index.js:1
-#: src/edit.js:671
+#: build/index.js:2
+#: src/edit.js:717
 msgid "Reusable Note"
 msgstr ""
 
-#: build/index.js:1
-#: src/edit.js:677
+#: build/index.js:2
+#: src/edit.js:723
 msgid "This note is marked as reusable and cannot be edited here. Changes must be made to the source note."
 msgstr ""
 
-#: build/index.js:1
-#: src/edit.js:695
+#: build/index.js:2
+#: src/edit.js:741
 msgid "Edit source note →"
 msgstr ""
 
-#: build/index.js:1
-#: src/edit.js:726
-#: src/edit.js:885
+#: build/index.js:2
+#: src/edit.js:772
+#: src/edit.js:931
 msgid "Link copied"
 msgstr ""
 
-#: build/index.js:1
-#: src/edit.js:732
-#: src/edit.js:891
+#: build/index.js:2
+#: src/edit.js:778
+#: src/edit.js:937
 msgid "Copying…"
 msgstr ""
 
-#: build/index.js:1
-#: src/edit.js:738
-#: src/edit.js:897
+#: build/index.js:2
+#: src/edit.js:784
+#: src/edit.js:943
 msgid "Copy link to this note"
 msgstr ""
 
-#: build/index.js:1
-#: src/edit.js:772
+#: build/index.js:2
+#: src/edit.js:818
 msgid "← Create new note instead"
 msgstr ""
 
-#: build/index.js:1
-#: src/edit.js:846
+#: build/index.js:2
+#: src/edit.js:892
 msgid "Hide Link Form"
 msgstr ""
 
-#: build/index.js:1
-#: src/edit.js:850
+#: build/index.js:2
+#: src/edit.js:896
 msgid "Add Link"
 msgstr ""
 
-#: build/index.js:1
-#: src/edit.js:906
+#: build/index.js:2
+#: src/edit.js:952
 msgid "Use the toolbar to format your inline context with bold, italic, links, and lists. Use \"Add Link\" for WordPress internal links, or click the code icon (&lt;/&gt;) to edit HTML source."
 msgstr ""
 
-#: build/index.js:1
-#: src/edit.js:925
+#: build/index.js:2
+#: src/edit.js:971
 msgid "Or search reusable notes…"
 msgstr ""
 

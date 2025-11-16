@@ -5,17 +5,20 @@
 	"scripts": {
 		"start": "wp-scripts start",
 		"build": "wp-scripts build",
-		"lint:js": "wp-scripts lint-js",
-		"lint:js:fix": "wp-scripts lint-js --fix",
-		"lint:php": "vendor/bin/phpcs --standard=WordPress *.php",
-		"lint:php:fix": "vendor/bin/phpcbf --standard=WordPress *.php",
+		"lint:js": "wp-scripts lint-js src/",
+		"lint:js:fix": "wp-scripts lint-js src/ --fix",
+		"lint:php": "vendor/bin/phpcs --standard=WordPress inline-context.php admin-settings.php uninstall.php includes/",
+		"lint:php:fix": "vendor/bin/phpcbf --standard=WordPress inline-context.php admin-settings.php uninstall.php includes/",
 		"lint:md": "npx markdownlint-cli2 \"**/*.md\" \"!node_modules\" \"!vendor\"",
 		"lint:md:fix": "npx markdownlint-cli2 --fix \"**/*.md\" \"!node_modules\" \"!vendor\"",
 		"format:js": "prettier --write \"src/**/*.{js,jsx,scss,css,json}\"",
 		"format": "npm run format:js && npm run lint:php:fix",
 		"lint": "npm run lint:js && npm run lint:php && npm run lint:md",
 		"lint:fix": "npm run lint:js:fix && npm run lint:php:fix && npm run lint:md:fix",
-		"test": "npm run lint",
+		"test:unit": "wp-scripts test-unit-js",
+		"test:unit:watch": "wp-scripts test-unit-js --watch",
+		"test:unit:coverage": "wp-scripts test-unit-js --coverage",
+		"test": "npm run lint && npm run test:unit",
 		"pot": "echo 'POT file generation requires WP-CLI. Run: wp i18n make-pot . languages/inline-context.pot --domain=inline-context'",
 		"prepackage": "npm run lint:fix && npm run build",
 		"package": "bash bin/package.sh",
@@ -27,6 +30,14 @@
 		"react-quill": "^2.0.0"
 	},
 	"devDependencies": {
+		"@testing-library/jest-dom": "^6.9.1",
+		"@testing-library/react": "^16.3.0",
+		"@testing-library/user-event": "^14.6.1",
+		"@wordpress/block-editor": "^15.8.0",
+		"@wordpress/components": "^30.8.0",
+		"@wordpress/data": "^10.35.0",
+		"@wordpress/element": "^6.35.0",
+		"@wordpress/i18n": "^6.8.0",
 		"@wordpress/scripts": "^25.0.0"
 	}
 }

@@ -22,26 +22,21 @@ defined( 'ABSPATH' ) || exit;
 define( 'INLINE_CONTEXT_VERSION', '2.2.0' );
 
 // Load modular classes.
-require_once __DIR__ . '/includes/class-utils.php';
-require_once __DIR__ . '/includes/class-cpt.php';
-require_once __DIR__ . '/includes/class-taxonomy-meta.php';
-require_once __DIR__ . '/includes/class-sync.php';
-require_once __DIR__ . '/includes/class-deletion.php';
-require_once __DIR__ . '/includes/class-rest-api.php';
-require_once __DIR__ . '/includes/class-frontend.php';
+require_once __DIR__ . '/includes/class-inline-context-utils.php';
+require_once __DIR__ . '/includes/class-inline-context-cpt.php';
+require_once __DIR__ . '/includes/class-inline-context-taxonomy-meta.php';
+require_once __DIR__ . '/includes/class-inline-context-sync.php';
+require_once __DIR__ . '/includes/class-inline-context-deletion.php';
+require_once __DIR__ . '/includes/class-inline-context-rest-api.php';
+require_once __DIR__ . '/includes/class-inline-context-frontend.php';
+
+// Load backward compatibility wrapper functions.
+require_once __DIR__ . '/includes/functions.php';
 
 // Load admin-specific functionality (function-based, loaded conditionally).
 if ( is_admin() ) {
 	require_once __DIR__ . '/admin-settings.php';
 }
-
-// Load translations.
-add_action(
-	'init',
-	function () {
-		load_plugin_textdomain( 'inline-context', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-	}
-);
 
 // Initialize utilities (CSS output).
 $inline_context_utils = new Inline_Context_Utils();
@@ -70,6 +65,28 @@ $inline_context_rest_api->init();
 // Initialize frontend rendering and assets.
 $inline_context_frontend = new Inline_Context_Frontend();
 $inline_context_frontend->init();
+
+/**
+ * Enqueue categories data for block editor
+ */
+add_action(
+	'enqueue_block_editor_assets',
+	function () {
+		// Pass categories to block editor JavaScript.
+		$categories = inline_context_get_categories();
+
+		// Add inline script to make categories available globally.
+		wp_add_inline_script(
+			'wp-block-editor',
+			sprintf(
+				'window.inlineContextData = window.inlineContextData || {}; window.inlineContextData.categories = %s;',
+				wp_json_encode( $categories )
+			),
+			'before'
+		);
+	},
+	20 // Run after other scripts are enqueued.
+);
 
 // Register theme.json for Site Editor styling support.
 add_action(
