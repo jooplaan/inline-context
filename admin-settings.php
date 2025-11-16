@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin Settings Page for Inline Context
  *
@@ -38,6 +39,17 @@ function inline_context_register_settings() {
 			'type'              => 'string',
 			'sanitize_callback' => 'inline_context_sanitize_display_mode',
 			'default'           => 'inline',
+		)
+	);
+
+	// Register tooltip hover setting.
+	register_setting(
+		'inline_context_general_settings',
+		'inline_context_tooltip_hover',
+		array(
+			'type'              => 'boolean',
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'default'           => false,
 		)
 	);
 
@@ -501,10 +513,18 @@ function inline_context_render_settings_page() {
 									<input type="radio" name="inline_context_display_mode" value="tooltip" <?php checked( $display_mode, 'tooltip' ); ?>>
 									<?php esc_html_e( 'Show notes as tooltips', 'inline-context' ); ?>
 								</label>
-								<p class="description">
-									<?php esc_html_e( 'Inline notes expand below the trigger link when clicked. Tooltips appear as a popup near the trigger link when clicked or activated with keyboard.', 'inline-context' ); ?>
+							<p class="description">
+								<?php esc_html_e( 'Inline notes expand below the trigger link when clicked. Tooltips appear as a popup near the trigger link when clicked or activated with keyboard.', 'inline-context' ); ?>
+							</p>
+							<div id="tooltip-hover-option" style="margin-left: 25px; margin-top: 10px; <?php echo ( 'tooltip' !== $display_mode ? 'display: none;' : '' ); ?>">
+								<label>
+									<input type="checkbox" name="inline_context_tooltip_hover" value="1" <?php checked( get_option( 'inline_context_tooltip_hover', false ) ); ?>>
+									<?php esc_html_e( 'Also display the tooltip on mouse hover', 'inline-context' ); ?>
+								</label>
+								<p class="description" style="margin-left: 25px;">
+									<?php esc_html_e( 'When enabled, tooltips will appear when hovering over the link, in addition to click/keyboard activation.', 'inline-context' ); ?>
 								</p>
-							</fieldset>
+							</div>							</fieldset>
 						</td>
 					</tr>
 				</table>
@@ -523,14 +543,14 @@ function inline_context_render_settings_page() {
 				do_settings_sections( 'inline-context-settings-styling' );
 				?>
 
-			<p class="submit">
-				<input type="submit" name="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 'inline-context' ); ?>">
-			</p>
-		</form>
+				<p class="submit">
+					<input type="submit" name="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 'inline-context' ); ?>">
+				</p>
+			</form>
 
-	<?php elseif ( 'uninstall' === $current_tab ) : ?>
-		<?php inline_context_render_uninstall_tab(); ?>
-	<?php endif; ?>
+		<?php elseif ( 'uninstall' === $current_tab ) : ?>
+			<?php inline_context_render_uninstall_tab(); ?>
+		<?php endif; ?>
 	</div>
 	<?php
 }
@@ -607,7 +627,7 @@ function inline_context_render_uninstall_tab() {
 												(<?php echo esc_html( get_post_type_object( $post->post_type )->labels->singular_name ); ?>
 												<?php if ( 'publish' !== $post->post_status ) : ?>
 													— <?php echo esc_html( $post->post_status ); ?>
-												<?php endif; ?>)
+													<?php endif; ?>)
 											</span>
 										</li>
 									<?php endforeach; ?>
@@ -669,22 +689,22 @@ function inline_context_render_uninstall_tab() {
 								<?php esc_html_e( 'Always create a complete database backup before uninstalling with this option enabled. This operation modifies your post content and cannot be automatically reversed.', 'inline-context' ); ?>
 							</p>
 							<?php if ( $posts_with_links > 0 ) : ?>
-							<p class="description" style="color: #d63638;">
-						<strong><?php esc_html_e( 'Warning:', 'inline-context' ); ?></strong>
-								<?php
-								printf(
-									esc_html(
-									/* translators: %s: number of posts */
-										_n(
-											'This will modify %s post in your database.',
-											'This will modify %s posts in your database.',
-											$posts_with_links,
-											'inline-context'
-										)
-									),
-									'<strong>' . esc_html( number_format_i18n( $posts_with_links ) ) . '</strong>'
-								);
-								?>
+								<p class="description" style="color: #d63638;">
+									<strong><?php esc_html_e( 'Warning:', 'inline-context' ); ?></strong>
+									<?php
+									printf(
+										esc_html(
+											/* translators: %s: number of posts */
+											_n(
+												'This will modify %s post in your database.',
+												'This will modify %s posts in your database.',
+												$posts_with_links,
+												'inline-context'
+											)
+										),
+										'<strong>' . esc_html( number_format_i18n( $posts_with_links ) ) . '</strong>'
+									);
+									?>
 								</p>
 							<?php endif; ?>
 							<p class="description">
@@ -719,3 +739,44 @@ function inline_context_render_uninstall_tab() {
 	</div>
 	<?php
 }
+
+/**
+ * Enqueue admin scripts for settings page.
+ */
+function inline_context_admin_scripts() {
+	$screen = get_current_screen();
+	if ( ! $screen || 'settings_page_inline-context' !== $screen->id ) {
+		return;
+	}
+	?>
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const radios = document.querySelectorAll('input[name="inline_context_display_mode"]');
+			const hoverOption = document.getElementById('tooltip-hover-option');
+
+			if (!hoverOption || !radios.length) {
+				return;
+			}
+
+			// Function to update hover option visibility
+			const updateHoverOptionVisibility = function() {
+				const selectedRadio = document.querySelector('input[name="inline_context_display_mode"]:checked');
+				if (selectedRadio) {
+					hoverOption.style.display = selectedRadio.value === 'tooltip' ? 'block' : 'none';
+				}
+			};
+
+			// Update visibility on radio button change
+			radios.forEach(function(radio) {
+				radio.addEventListener('change', function() {
+					updateHoverOptionVisibility();
+				});
+			});
+
+			// Update visibility immediately on page load
+			updateHoverOptionVisibility();
+		});
+	</script>
+	<?php
+}
+add_action( 'admin_footer', 'inline_context_admin_scripts' );
