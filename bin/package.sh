@@ -45,7 +45,26 @@ zip -rq "$ZIP_PATH" . \
   -x ".DS_Store" \
   -x "demo.html" \
   -x "composer.json" \
+  -x "languages/.gitkeep" \
+  -x ".editorconfig" \
+  -x ".prettierrc.json" \
+  -x ".eslintignore" \
+  -x "coverage/*" \
+  -x "bin/*" \
+  -x "vendor/*" \
+  -x ".markdownlint.json" \
+  -x "jest-mocks/*" \
+  -x "test/*" \
+  -x "jest.config.js" \
+  -x "jest.setup.js" \
+  -x "phpunit.xml" \
+  -x "RELEASE.md" \
+  -x "ROADMAP.md" \
+  -x "TESTING-SETUP.md" \
+  -x "TESTING.md" \
+  -x ".phpunit.result.cache" \
   -x "composer.lock"
+
 
 # Validate main plugin file exists in the archive context
 if [[ ! -f "inline-context.php" ]]; then
