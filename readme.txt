@@ -58,6 +58,7 @@ Create and manage notes efficiently:
 * **Filter by Reusability**: Filter notes marked as reusable in the admin list
 * **Delete Protection**: Warnings when deleting notes that are actively used
 * **Cached Performance**: Notes cached in content for fast frontend performance
+* **Automatic Cleanup (v2.2)**: Daily background job removes non-reusable notes that are no longer used (usage count = 0)
 
 = Category System =
 Create custom categories with:
@@ -122,6 +123,7 @@ Yes. Icons automatically switch between closed and open states when users click 
 * **NEW**: Convert reusable notes to non-reusable with automatic synchronization
 * **NEW**: Modal confirmation dialog prevents accidental conversions
 * **NEW**: PopoverActions component with reusable checkbox control
+* **NEW**: Automatic cleanup cron job removes unused non-reusable notes daily
 * **IMPROVED**: Note edit interface with clear reusability status
 
 **🧪 Testing & Quality**

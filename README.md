@@ -53,6 +53,7 @@ Renée Kool’s website:
 - **Bulk Delete**: Delete reusable notes with automatic cleanup from all posts
 - **Smart Deletion**: Confirmation dialogs show exactly how many uses will be removed from how many posts
 - **Cached Performance**: Notes cached in content for optimal frontend speed
+- **Automatic Cleanup (v2.2)**: Daily background job removes non-reusable notes that are no longer in use (usage count = 0)
 
 ### Category Management
 
