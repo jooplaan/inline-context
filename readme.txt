@@ -2,7 +2,7 @@
 Contributors: joop
 Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
-Tested up to: 6.8.3
+Tested up to: 6.8
 Requires PHP: 7.4
 Stable tag: 2.2.0
 License: GPLv2 or later

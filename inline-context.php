@@ -35,14 +35,6 @@ if ( is_admin() ) {
 	require_once __DIR__ . '/admin-settings.php';
 }
 
-// Load translations.
-add_action(
-	'init',
-	function () {
-		load_plugin_textdomain( 'inline-context', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-	}
-);
-
 // Initialize utilities (CSS output).
 $inline_context_utils = new Inline_Context_Utils();
 $inline_context_utils->init();

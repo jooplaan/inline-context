@@ -247,6 +247,7 @@ class Inline_Context_CPT {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Safe read-only GET parameter for filtering list table.
 		$reusable_filter = isset( $_GET['reusable_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['reusable_filter'] ) ) : '';
 		?>
 		<select name="reusable_filter">
@@ -273,13 +274,16 @@ class Inline_Context_CPT {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Safe read-only GET parameter for filtering list table.
 		if ( ! isset( $_GET['reusable_filter'] ) || empty( $_GET['reusable_filter'] ) ) {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Safe read-only GET parameter for filtering list table.
 		$reusable_filter = sanitize_text_field( wp_unslash( $_GET['reusable_filter'] ) );
 
 		if ( 'reusable' === $reusable_filter ) {
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Necessary for admin filtering, limited to CPT admin list view only.
 			$query->query_vars['meta_query'] = array(
 				array(
 					'key'     => 'is_reusable',
@@ -288,6 +292,7 @@ class Inline_Context_CPT {
 				),
 			);
 		} elseif ( 'not_reusable' === $reusable_filter ) {
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Necessary for admin filtering, limited to CPT admin list view only.
 			$query->query_vars['meta_query'] = array(
 				'relation' => 'OR',
 				array(
