@@ -18,7 +18,7 @@ import apiFetch from '@wordpress/api-fetch';
 // Utils
 import { ensureUniqueAnchorId } from './utils/anchor';
 import { getLinkedText } from './utils/text';
-import { copyAnchorLinkToClipboard } from './utils/clipboard';
+import { copyAnchorLinkToClipboard } from './utils/copy-link';
 
 // Hooks
 import {
