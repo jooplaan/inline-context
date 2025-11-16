@@ -139,6 +139,7 @@ class Inline_Context_REST_API {
 
 		// Filter by reusable notes only.
 		if ( $reusable_only ) {
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Necessary for REST API filtering, limited to 20 posts with simple key/value comparison.
 			$args['meta_query'] = array(
 				array(
 					'key'     => 'is_reusable',

@@ -9,6 +9,8 @@ module.exports = {
 		'\\.(css|less|scss|sass)$': 'identity-obj-proxy',
 		// Let WordPress packages be imported normally
 		'^@wordpress/(.*)$': '<rootDir>/node_modules/@wordpress/$1',
+		// Mock memize to avoid ESM issues
+		'^memize$': '<rootDir>/jest-mocks/memize.js',
 	},
 	coveragePathIgnorePatterns: [
 		'/node_modules/',
@@ -24,6 +26,6 @@ module.exports = {
 		'!src/**/index.js',
 	],
 	transformIgnorePatterns: [
-		'node_modules/(?!(@wordpress)/)',
+		'node_modules/(?!(@wordpress|memize|uuid)/)',
 	],
 };

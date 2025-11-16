@@ -29,7 +29,8 @@ describe( 'NotesSidebar Utility Functions', () => {
 
 		it( 'should handle nested HTML entities', () => {
 			const textarea = document.createElement( 'textarea' );
-			textarea.innerHTML = '&lt;p&gt;Test &amp; &quot;More&quot;&lt;/p&gt;';
+			textarea.innerHTML =
+				'&lt;p&gt;Test &amp; &quot;More&quot;&lt;/p&gt;';
 			expect( textarea.value ).toBe( '<p>Test & "More"</p>' );
 		} );
 	} );
@@ -154,7 +155,9 @@ describe( 'NotesSidebar Utility Functions', () => {
 		} );
 
 		it( 'should add ellipsis for truncated text', () => {
-			const text = 'This is a long text that needs truncation'.repeat( 2 );
+			const text = 'This is a long text that needs truncation'.repeat(
+				2
+			);
 			const excerpt = text.substring( 0, 60 ).trim();
 			const withEllipsis = text.length > 60 ? excerpt + '...' : excerpt;
 
@@ -219,8 +222,7 @@ describe( 'NotesSidebar Utility Functions', () => {
 			const categoryId = '1';
 			const categoryArray = Object.values( categories );
 			const category = categoryArray.find(
-				( cat ) =>
-					cat.id && cat.id.toString() === categoryId.toString()
+				( cat ) => cat.id && cat.id.toString() === categoryId.toString()
 			);
 
 			expect( category ).toBeDefined();
@@ -239,8 +241,7 @@ describe( 'NotesSidebar Utility Functions', () => {
 			const categoryId = '999';
 			const categoryArray = Object.values( categories );
 			const category = categoryArray.find(
-				( cat ) =>
-					cat.id && cat.id.toString() === categoryId.toString()
+				( cat ) => cat.id && cat.id.toString() === categoryId.toString()
 			);
 
 			expect( category ).toBeUndefined();
