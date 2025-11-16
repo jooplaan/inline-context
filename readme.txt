@@ -2,18 +2,33 @@
 Contributors: joop
 Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
-Tested up to: 6.6
+Tested up to: 6.8
 Requires PHP: 7.4
 Stable tag: 2.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Add inline expandable context notes with direct anchor linking. Features reusable notes via Custom Post Type, category management, and comprehensive styling controls.
+Add inline expandable context notes with direct anchor linking. Optionally show the notes as tooltip popover.
 
 == Description ==
 Inline Context lets you enrich content with expandable context notes that maintain optimal reading flow. Create reusable notes via Custom Post Type, organize with custom categories (each with distinct icons and colors), and control all styling through a tabbed admin interface.
 
-= Key Features =
+This plugin originated from a project with Renée Kool — a visual artist working in public art, film, and emerging media. She wanted to create a website where a single link could reveal additional content containing multiple related links.
+
+As inspiration, we looked at the Dutch journalism platform De Correspondent, which uses inline contextual notes: small linked text fragments with an icon. When activated, they reveal an extra HTML element containing supplementary information. These contextual notes can:
+
+- provide definitions
+- offer additional context before the reader follows links in the main text
+- stay out of the way to keep the article readable
+
+You can see examples of their inline notes in this article:
+https://decorrespondent.nl/16239/hoe-vriendschap-de-belangrijkste-relatie-werd-van-deze-tijd/2bc79aff-1546-08e1-349f-e865e38c46da
+
+Renée Kool’s website:
+https://reneekool.nl/
+
+
+= Key Features Inline Context plugin =
 * **Display Modes (NEW v2.1)**: Choose between inline expansion or floating tooltips
 * **Smart Tooltips (NEW v2.1)**: Automatic positioning that prevents off-screen display
 * **Reusable Notes (v1.5)**: Create notes as Custom Post Type entries and reuse them across multiple posts

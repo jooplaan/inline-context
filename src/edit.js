@@ -18,7 +18,7 @@ import apiFetch from '@wordpress/api-fetch';
 // Utils
 import { ensureUniqueAnchorId } from './utils/anchor';
 import { getLinkedText } from './utils/text';
-import { copyAnchorLinkToClipboard } from './utils/clipboard';
+import { copyAnchorLinkToClipboard } from './utils/copy-link';
 
 // Hooks
 import {
@@ -59,6 +59,7 @@ export default function Edit( { isActive, value, onChange } ) {
 	const [ selectedNote, setSelectedNote ] = useState( null );
 	const [ isReusable, setIsReusable ] = useState( false );
 	const [ hasReusableNotes, setHasReusableNotes ] = useState( false );
+	const [ noteUsageCount, setNoteUsageCount ] = useState( 0 );
 
 	// Refs
 	const prevFocusRef = useRef( null );
@@ -451,6 +452,37 @@ export default function Edit( { isActive, value, onChange } ) {
 				console.warn( 'Could not fetch note details:', error );
 			} );
 	}, [ isOpen, noteId, isReusedNote, selectedNote ] ); // Dependencies for fetching note details
+
+	// Fetch usage count for reusable notes
+	useEffect( () => {
+		if ( ! isOpen || ! noteId || ! isReusable ) {
+			setNoteUsageCount( 0 );
+			return;
+		}
+
+		// Get the current post ID
+		const postId = window?.wp?.data
+			?.select( 'core/editor' )
+			?.getCurrentPostId();
+		if ( ! postId ) {
+			return;
+		}
+
+		// Fetch usage count from track-usage endpoint
+		apiFetch( {
+			path: `/inline-context/v1/notes/${ noteId }/track-usage`,
+			method: 'POST',
+			data: { post_id: postId },
+		} )
+			.then( ( response ) => {
+				setNoteUsageCount( response.usage_count || 0 );
+			} )
+			.catch( ( error ) => {
+				// eslint-disable-next-line no-console
+				console.warn( 'Could not fetch note usage count:', error );
+				setNoteUsageCount( 0 );
+			} );
+	}, [ isOpen, noteId, isReusable ] );
 
 	// Check if reusable notes exist when popover opens
 	useEffect( () => {
@@ -961,6 +993,7 @@ export default function Edit( { isActive, value, onChange } ) {
 						isReusable={ isReusable }
 						onReusableChange={ handleReusableChange }
 						isReusedNote={ isReusedNote }
+						noteUsageCount={ noteUsageCount }
 					/>
 				</Popover>
 			) }

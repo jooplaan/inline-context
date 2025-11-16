@@ -164,11 +164,11 @@ const NotesSidebar = () => {
 		if ( link ) {
 			// Find the block element that contains this link
 			// Block elements have data-block attribute with the client ID
-			let blockElement = link.closest( '[data-block]' );
-			
+			const blockElement = link.closest( '[data-block]' );
+
 			if ( blockElement ) {
 				const blockClientId = blockElement.dataset.block;
-				
+
 				// Select the block in the editor
 				if ( blockClientId && selectBlock ) {
 					selectBlock( blockClientId );
