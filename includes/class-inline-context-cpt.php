@@ -46,6 +46,11 @@ class Inline_Context_CPT {
 		// Assets.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_cpt_editor_assets' ) );
 		add_action( 'admin_footer', array( $this, 'add_delete_warnings' ) );
+
+		// Cron job for cleanup.
+		add_action( 'inline_context_cleanup_unused_notes', array( $this, 'cleanup_unused_notes' ) );
+		add_action( 'init', array( $this, 'schedule_cleanup_cron' ) );
+		register_deactivation_hook( dirname( __DIR__ ) . '/inline-context.php', array( $this, 'unschedule_cleanup_cron' ) );
 	}
 
 	/**
@@ -247,6 +252,7 @@ class Inline_Context_CPT {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Safe read-only GET parameter for filtering list table.
 		$reusable_filter = isset( $_GET['reusable_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['reusable_filter'] ) ) : '';
 		?>
 		<select name="reusable_filter">
@@ -273,13 +279,16 @@ class Inline_Context_CPT {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Safe read-only GET parameter for filtering list table.
 		if ( ! isset( $_GET['reusable_filter'] ) || empty( $_GET['reusable_filter'] ) ) {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Safe read-only GET parameter for filtering list table.
 		$reusable_filter = sanitize_text_field( wp_unslash( $_GET['reusable_filter'] ) );
 
 		if ( 'reusable' === $reusable_filter ) {
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Necessary for admin filtering, limited to CPT admin list view only.
 			$query->query_vars['meta_query'] = array(
 				array(
 					'key'     => 'is_reusable',
@@ -288,6 +297,7 @@ class Inline_Context_CPT {
 				),
 			);
 		} elseif ( 'not_reusable' === $reusable_filter ) {
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Necessary for admin filtering, limited to CPT admin list view only.
 			$query->query_vars['meta_query'] = array(
 				'relation' => 'OR',
 				array(
@@ -389,7 +399,7 @@ class Inline_Context_CPT {
 		// "No category" option.
 		echo '<label style="display: block; margin-bottom: 8px;">';
 		echo '<input type="radio" name="inline_context_category_id" value="0"';
-		if ( $current_term_id === 0 ) {
+		if ( 0 === $current_term_id ) {
 			echo ' checked="checked"';
 		}
 		echo ' /> ';
@@ -528,7 +538,7 @@ class Inline_Context_CPT {
 			echo '🗑️ ' . esc_html__( 'Before deleting this note:', 'inline-context' );
 			echo '</p>';
 			echo '<p style="margin: 0; font-size: 0.9em; color: #721c24;">';
-			
+
 			// Show usage count and post count.
 			echo esc_html(
 				sprintf(
@@ -543,7 +553,7 @@ class Inline_Context_CPT {
 					$post_count
 				)
 			);
-			
+
 			echo '</p>';
 			echo '</div>';
 		}
@@ -666,11 +676,11 @@ class Inline_Context_CPT {
 		}
 
 		// Enqueue the CPT editor assets.
-		$asset_file = include plugin_dir_path( dirname( __FILE__ ) ) . 'build/cpt-editor.asset.php';
+		$asset_file = include plugin_dir_path( __DIR__ ) . 'build/cpt-editor.asset.php';
 
 		wp_enqueue_script(
 			'jooplaan-inline-context-cpt-editor',
-			plugins_url( 'build/cpt-editor.js', dirname( __FILE__ ) ),
+			plugins_url( 'build/cpt-editor.js', __DIR__ ),
 			$asset_file['dependencies'],
 			$asset_file['version'],
 			true
@@ -678,7 +688,7 @@ class Inline_Context_CPT {
 
 		wp_enqueue_style(
 			'jooplaan-inline-context-cpt-editor',
-			plugins_url( 'build/index.css', dirname( __FILE__ ) ),
+			plugins_url( 'build/index.css', __DIR__ ),
 			array(),
 			$asset_file['version']
 		);
@@ -699,10 +709,10 @@ class Inline_Context_CPT {
 		);
 
 		// Add delete confirmation for notes with usage.
-		$usage_count = $post_id ? (int) get_post_meta( $post_id, 'usage_count', true ) : 0;
-		$is_reusable = $post_id ? get_post_meta( $post_id, 'is_reusable', true ) : false;
+		$usage_count   = $post_id ? (int) get_post_meta( $post_id, 'usage_count', true ) : 0;
+		$is_reusable   = $post_id ? get_post_meta( $post_id, 'is_reusable', true ) : false;
 		$used_in_posts = $post_id ? get_post_meta( $post_id, 'used_in_posts', true ) : array();
-		$post_count = is_array( $used_in_posts ) ? count( $used_in_posts ) : 0;
+		$post_count    = is_array( $used_in_posts ) ? count( $used_in_posts ) : 0;
 
 		if ( $usage_count > 0 && $post_count > 0 ) {
 			if ( $is_reusable ) {
@@ -887,5 +897,95 @@ class Inline_Context_CPT {
 			</script>
 			<?php
 		endif;
+	}
+
+	/**
+	 * Schedule the cleanup cron job.
+	 *
+	 * Runs daily to clean up unused non-reusable notes.
+	 */
+	public function schedule_cleanup_cron() {
+		if ( ! wp_next_scheduled( 'inline_context_cleanup_unused_notes' ) ) {
+			wp_schedule_event( time(), 'daily', 'inline_context_cleanup_unused_notes' );
+		}
+	}
+
+	/**
+	 * Unschedule the cleanup cron job on plugin deactivation.
+	 */
+	public function unschedule_cleanup_cron() {
+		$timestamp = wp_next_scheduled( 'inline_context_cleanup_unused_notes' );
+		if ( $timestamp ) {
+			wp_unschedule_event( $timestamp, 'inline_context_cleanup_unused_notes' );
+		}
+	}
+
+	/**
+	 * Clean up unused non-reusable notes.
+	 *
+	 * Deletes notes that are:
+	 * - Not marked as reusable (is_reusable != 1 or not set)
+	 * - Have zero usage count (usage_count = 0 or not set)
+	 */
+	public function cleanup_unused_notes() {
+		// Find notes that are not reusable and have zero usage.
+		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Necessary for cleanup, runs once daily via cron.
+		$unused_notes = get_posts(
+			array(
+				'post_type'      => 'inline_context_note',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'meta_query'     => array(
+					'relation' => 'AND',
+					array(
+						'relation' => 'OR',
+						array(
+							'key'     => 'is_reusable',
+							'value'   => '1',
+							'compare' => '!=',
+						),
+						array(
+							'key'     => 'is_reusable',
+							'compare' => 'NOT EXISTS',
+						),
+					),
+					array(
+						'relation' => 'OR',
+						array(
+							'key'     => 'usage_count',
+							'value'   => '0',
+							'compare' => '=',
+						),
+						array(
+							'key'     => 'usage_count',
+							'compare' => 'NOT EXISTS',
+						),
+					),
+				),
+			)
+		);
+
+		// Delete found notes.
+		$deleted_count = 0;
+		foreach ( $unused_notes as $note_id ) {
+			if ( wp_delete_post( $note_id, true ) ) {
+				++$deleted_count;
+			}
+		}
+
+		// Output results for CLI and logs.
+		$message = sprintf( 'Inline Context: Cleaned up %d unused note(s)', $deleted_count );
+
+		// Output to CLI if running in WP-CLI context.
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			\WP_CLI::success( $message );
+		}
+
+		// Log cleanup activity.
+		if ( $deleted_count > 0 ) {
+			error_log( $message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		}
+
+		return $deleted_count;
 	}
 }

@@ -2,6 +2,20 @@
 
 Add categorized "click to reveal" notes inline with your text. Create reusable notes via Custom Post Type and manage them centrally with modular, maintainable architecture. Perfect for short explanations, definitions, and asides with custom icons and full styling control.
 
+This plugin originated from a project with **Renée Kool** — a visual artist working in public art, film, and emerging media. She wanted to create a website where a single link could reveal additional content containing multiple related links.
+
+As inspiration, we looked at the Dutch journalism platform **De Correspondent**, which uses inline contextual notes: small linked text fragments with an icon. When activated, they reveal an extra HTML element containing supplementary information. These contextual notes can:
+
+- provide definitions  
+- offer additional context before the reader follows links in the main text  
+- stay out of the way to keep the article readable  
+
+You can see examples of their inline notes in this article:  
+<https://decorrespondent.nl/16239/hoe-vriendschap-de-belangrijkste-relatie-werd-van-deze-tijd/2bc79aff-1546-08e1-349f-e865e38c46da>
+
+Renée Kool’s website:  
+<https://reneekool.nl/>
+
 ## Version 2.0 Highlights
 
 **Major refactoring and architectural improvements:**
@@ -38,6 +52,7 @@ Add categorized "click to reveal" notes inline with your text. Create reusable n
 - **Bulk Delete**: Delete reusable notes with automatic cleanup from all posts
 - **Smart Deletion**: Confirmation dialogs show exactly how many uses will be removed from how many posts
 - **Cached Performance**: Notes cached in content for optimal frontend speed
+- **Automatic Cleanup (v2.2)**: Daily background job removes non-reusable notes that are no longer in use (usage count = 0)
 
 ### Category Management
 
