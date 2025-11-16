@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.2.0
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -266,6 +266,17 @@ This release represents a fundamental architectural improvement that sets the fo
 2. Frontend rendering of an inline note
 
 == Changelog ==
+
+= 2.3.0 =
+* **NEW**: Hover activation option for tooltips with configurable 300ms delay
+* **NEW**: Admin setting to enable tooltip display on mouse hover
+* **NEW**: Smart hover behavior - keep tooltip open when moving mouse to tooltip content
+* **NEW**: Conditional admin UI - hover option only visible when tooltip mode is selected
+* **IMPROVED**: Enhanced user experience for interacting with tooltip content
+* **IMPROVED**: Smooth transition between trigger and tooltip without closing
+* **IMPROVED**: Demo.html page now includes hover functionality demonstration
+* **FIX**: Settings persistence in demo.html using localStorage
+* **FIX**: Direct link anchor reference corrected in demo.html
 
 = 2.1.0 =
 * **NEW**: Tooltip display mode as alternative to inline expansion
