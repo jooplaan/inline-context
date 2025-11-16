@@ -71,6 +71,28 @@ $inline_context_rest_api->init();
 $inline_context_frontend = new Inline_Context_Frontend();
 $inline_context_frontend->init();
 
+/**
+ * Enqueue categories data for block editor
+ */
+add_action(
+	'enqueue_block_editor_assets',
+	function () {
+		// Pass categories to block editor JavaScript.
+		$categories = inline_context_get_categories();
+
+		// Add inline script to make categories available globally.
+		wp_add_inline_script(
+			'wp-block-editor',
+			sprintf(
+				'window.inlineContextData = window.inlineContextData || {}; window.inlineContextData.categories = %s;',
+				wp_json_encode( $categories )
+			),
+			'before'
+		);
+	},
+	20 // Run after other scripts are enqueued.
+);
+
 // Register theme.json for Site Editor styling support.
 add_action(
 	'after_setup_theme',
