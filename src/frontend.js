@@ -288,6 +288,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		tooltip.className = 'wp-inline-context-tooltip';
 		tooltip.setAttribute( 'role', 'tooltip' );
 		tooltip.setAttribute( 'tabindex', '-1' ); // Make focusable but not in tab order
+		tooltip.setAttribute( 'data-anchor-id', anchorId );
 
 		// Add content
 		const isQuillContent =
@@ -530,90 +531,69 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		window.inlineContextData?.hoverEnabled &&
 		getDisplayMode() === 'tooltip'
 	) {
-		let showTimeout = null;
-		let hideTimeout = null;
-		let currentTooltipId = null;
-		let currentTrigger = null;
+		// Direct event listeners for each trigger
+		document
+			.querySelectorAll( '.wp-inline-context' )
+			.forEach( ( trigger ) => {
+				let showTimeout = null;
+				let hideTimeout = null;
 
-		const showTooltip = ( trigger ) => {
-			const tooltipId = `tooltip-${ trigger.dataset.anchorId }`;
+				const tooltipId = `tooltip-${ trigger.dataset.anchorId }`;
 
-			// Clear any pending hide timeout
-			if ( hideTimeout ) {
-				clearTimeout( hideTimeout );
-				hideTimeout = null;
-			}
-
-			// Clear any pending show timeout
-			if ( showTimeout ) {
-				clearTimeout( showTimeout );
-				showTimeout = null;
-			}
-
-			// Only show tooltip if it's not already open
-			if ( ! document.getElementById( tooltipId ) ) {
-				showTimeout = setTimeout( () => {
-					toggleTooltip( trigger );
-					currentTooltipId = tooltipId;
-					currentTrigger = trigger;
-					showTimeout = null;
-				}, 300 ); // 0.3 second delay
-			} else {
-				// Tooltip already open, just update tracking
-				currentTooltipId = tooltipId;
-				currentTrigger = trigger;
-			}
-		};
-
-		const hideTooltip = () => {
-			// Clear any pending show timeout
-			if ( showTimeout ) {
-				clearTimeout( showTimeout );
-				showTimeout = null;
-			}
-
-			// Clear any pending hide timeout
-			if ( hideTimeout ) {
-				clearTimeout( hideTimeout );
-			}
-
-			// Add a small delay before hiding to allow moving mouse to tooltip
-			hideTimeout = setTimeout( () => {
-				if ( currentTrigger && currentTooltipId ) {
-					const tooltip = document.getElementById( currentTooltipId );
-					if ( tooltip ) {
-						toggleTooltip( currentTrigger );
+				// Show tooltip on hover
+				trigger.addEventListener( 'mouseenter', () => {
+					if ( hideTimeout ) {
+						clearTimeout( hideTimeout );
+						hideTimeout = null;
 					}
-					currentTooltipId = null;
-					currentTrigger = null;
-				}
-				hideTimeout = null;
-			}, 100 ); // Small delay to allow mouse movement to tooltip
-		};
+					if ( showTimeout ) {
+						clearTimeout( showTimeout );
+					}
+					if ( ! document.getElementById( tooltipId ) ) {
+						showTimeout = setTimeout( () => {
+							toggleTooltip( trigger );
+							showTimeout = null;
+						}, 300 );
+					}
+				} );
 
-		const cancelHide = () => {
-			if ( hideTimeout ) {
-				clearTimeout( hideTimeout );
-				hideTimeout = null;
-			}
-		};
+				// Hide tooltip on mouseleave (from trigger)
+				trigger.addEventListener( 'mouseleave', () => {
+					if ( showTimeout ) {
+						clearTimeout( showTimeout );
+						showTimeout = null;
+					}
+					if ( hideTimeout ) {
+						clearTimeout( hideTimeout );
+					}
+					hideTimeout = setTimeout( () => {
+						const tooltip = document.getElementById( tooltipId );
+						if ( tooltip ) {
+							toggleTooltip( trigger );
+						}
+						hideTimeout = null;
+					}, 100 );
+				} );
+			} );
 
+		// Delegate tooltip mouseenter/mouseleave to keep open while hovering
 		document.body.addEventListener(
 			'mouseenter',
 			( e ) => {
-				const trigger = e.target.closest( '.wp-inline-context' );
-				if ( trigger ) {
-					showTooltip( trigger );
-					return;
-				}
-
-				// Check if we entered a tooltip
 				const tooltip = e.target.closest(
 					'.wp-inline-context-tooltip'
 				);
 				if ( tooltip ) {
-					// Cancel any pending hide when entering tooltip
-					cancelHide();
+					const anchorId = tooltip.getAttribute( 'data-anchor-id' );
+					if ( anchorId ) {
+						const trigger = document.querySelector(
+							`.wp-inline-context[data-anchor-id="${ anchorId }"]`
+						);
+						if ( trigger && trigger._hideTimeout ) {
+							clearTimeout( trigger._hideTimeout );
+							trigger._hideTimeout = null;
+						}
+					}
 				}
 			},
 			true
@@ -622,20 +602,25 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		document.body.addEventListener(
 			'mouseleave',
 			( e ) => {
-				const trigger = e.target.closest( '.wp-inline-context' );
-				if ( trigger ) {
-					// Start the hide process when leaving trigger
-					hideTooltip();
-					return;
-				}
-
-				// Check if we left a tooltip
 				const tooltip = e.target.closest(
 					'.wp-inline-context-tooltip'
 				);
 				if ( tooltip ) {
-					// Start the hide process when leaving tooltip
-					hideTooltip();
+					const anchorId = tooltip.getAttribute( 'data-anchor-id' );
+					if ( anchorId ) {
+						const trigger = document.querySelector(
+							`.wp-inline-context[data-anchor-id="${ anchorId }"]`
+						);
+						if ( trigger ) {
+							if ( trigger._hideTimeout ) {
+								clearTimeout( trigger._hideTimeout );
+							}
+							trigger._hideTimeout = setTimeout( () => {
+								toggleTooltip( trigger );
+								trigger._hideTimeout = null;
+							}, 100 );
+						}
+					}
 				}
 			},
 			true
