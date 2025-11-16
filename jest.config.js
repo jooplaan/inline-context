@@ -23,7 +23,5 @@ module.exports = {
 		'!src/**/*.spec.{js,jsx}',
 		'!src/**/index.js',
 	],
-	transformIgnorePatterns: [
-		'node_modules/(?!(@wordpress)/)',
-	],
+	transformIgnorePatterns: [ 'node_modules/(?!(@wordpress)/)' ],
 };

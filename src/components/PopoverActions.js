@@ -24,13 +24,20 @@ export default function PopoverActions( {
 	isReusable,
 	onReusableChange,
 	isReusedNote,
+	noteUsageCount,
 } ) {
 	const [ showConfirmDialog, setShowConfirmDialog ] = useState( false );
 
 	const handleReusableChange = ( checked ) => {
-		// If unchecking and this is a reused note, show confirmation
+		// If unchecking and this is a reused note, check usage count
 		if ( ! checked && isReusedNote && isReusable ) {
-			setShowConfirmDialog( true );
+			// Only show confirmation if used in multiple posts
+			if ( noteUsageCount > 1 ) {
+				setShowConfirmDialog( true );
+			} else {
+				// Only used in this post, directly make non-reusable
+				onReusableChange( checked );
+			}
 		} else {
 			onReusableChange( checked );
 		}
