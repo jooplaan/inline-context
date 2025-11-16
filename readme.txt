@@ -13,16 +13,18 @@ Add inline expandable context notes with direct anchor linking. Optionally show 
 == Description ==
 Inline Context lets you enrich content with expandable context notes that maintain optimal reading flow. Create reusable notes via Custom Post Type, organize with custom categories (each with distinct icons and colors), and control all styling through a tabbed admin interface.
 
-This plugin started when Renée Kool, a visual artist operating in the fields of art in the public sphere, film and emergent media, wanted to create a website with content where she could link to multiple items in one link. We looked for inspiration at the website of the Dutch magazine "De Correspondent". They have implemented a design element to give the reader more context about the text they are reading, the text is a link with an icon. When the link is activated, another HTML element becomes visible. This HTML can have multiple links and is used to:
+This plugin originated from a project with Renée Kool — a visual artist working in public art, film, and emerging media. She wanted to create a website where a single link could reveal additional content containing multiple related links.
 
-* provide a definition
-* give more context before the user follow links in the text
-* are not in the way when the user wants to continue reading the main article
+As inspiration, we looked at the Dutch journalism platform De Correspondent, which uses inline contextual notes: small linked text fragments with an icon. When activated, they reveal an extra HTML element containing supplementary information. These contextual notes can:
 
-Example article with different types of notes on the Correspondent:
+- provide definitions
+- offer additional context before the reader follows links in the main text
+- stay out of the way to keep the article readable
+
+You can see examples of their inline notes in this article:
 https://decorrespondent.nl/16239/hoe-vriendschap-de-belangrijkste-relatie-werd-van-deze-tijd/2bc79aff-1546-08e1-349f-e865e38c46da
 
-Website Renée Kool:
+Renée Kool’s website:
 https://reneekool.nl/
 
 
