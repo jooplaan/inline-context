@@ -11,14 +11,14 @@ Update version numbers in the following files:
 - [ ] `inline-context.php` - Plugin header version
 - [ ] `package.json` - npm version
 - [ ] `readme.txt` - Stable tag
-- [ ] `composer.json` - Version (if present)
+- [ ] `composer.json` - Version
 
 ### 2. Changelog & Documentation
 
 - [ ] Add changelog entry to `readme.txt` with new features, improvements, and bug fixes
-- [ ] Update `ROADMAP.md` if needed (mark completed features)
-- [ ] Review and update `README.md` if needed
-- [ ] Review and update `ROADMAP.md` if needed
+- [ ] Update `ROADMAP.md` (mark completed features)
+- [ ] Review and update `README.md`
+- [ ] Review and update `ROADMAP.md`
 - [ ] Update any relevant documentation files
 
 ### 3. Code Quality & Testing

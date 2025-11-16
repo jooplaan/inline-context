@@ -525,6 +525,123 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		}
 	} );
 
+	// Handle hover events for tooltips (if enabled)
+	if (
+		window.inlineContextData?.hoverEnabled &&
+		getDisplayMode() === 'tooltip'
+	) {
+		let showTimeout = null;
+		let hideTimeout = null;
+		let currentTooltipId = null;
+		let currentTrigger = null;
+
+		const showTooltip = ( trigger ) => {
+			const tooltipId = `tooltip-${ trigger.dataset.anchorId }`;
+
+			// Clear any pending hide timeout
+			if ( hideTimeout ) {
+				clearTimeout( hideTimeout );
+				hideTimeout = null;
+			}
+
+			// Clear any pending show timeout
+			if ( showTimeout ) {
+				clearTimeout( showTimeout );
+				showTimeout = null;
+			}
+
+			// Only show tooltip if it's not already open
+			if ( ! document.getElementById( tooltipId ) ) {
+				showTimeout = setTimeout( () => {
+					toggleTooltip( trigger );
+					currentTooltipId = tooltipId;
+					currentTrigger = trigger;
+					showTimeout = null;
+				}, 300 ); // 0.3 second delay
+			} else {
+				// Tooltip already open, just update tracking
+				currentTooltipId = tooltipId;
+				currentTrigger = trigger;
+			}
+		};
+
+		const hideTooltip = () => {
+			// Clear any pending show timeout
+			if ( showTimeout ) {
+				clearTimeout( showTimeout );
+				showTimeout = null;
+			}
+
+			// Clear any pending hide timeout
+			if ( hideTimeout ) {
+				clearTimeout( hideTimeout );
+			}
+
+			// Add a small delay before hiding to allow moving mouse to tooltip
+			hideTimeout = setTimeout( () => {
+				if ( currentTrigger && currentTooltipId ) {
+					const tooltip = document.getElementById( currentTooltipId );
+					if ( tooltip ) {
+						toggleTooltip( currentTrigger );
+					}
+					currentTooltipId = null;
+					currentTrigger = null;
+				}
+				hideTimeout = null;
+			}, 100 ); // Small delay to allow mouse movement to tooltip
+		};
+
+		const cancelHide = () => {
+			if ( hideTimeout ) {
+				clearTimeout( hideTimeout );
+				hideTimeout = null;
+			}
+		};
+
+		document.body.addEventListener(
+			'mouseenter',
+			( e ) => {
+				const trigger = e.target.closest( '.wp-inline-context' );
+				if ( trigger ) {
+					showTooltip( trigger );
+					return;
+				}
+
+				// Check if we entered a tooltip
+				const tooltip = e.target.closest(
+					'.wp-inline-context-tooltip'
+				);
+				if ( tooltip ) {
+					// Cancel any pending hide when entering tooltip
+					cancelHide();
+				}
+			},
+			true
+		);
+
+		document.body.addEventListener(
+			'mouseleave',
+			( e ) => {
+				const trigger = e.target.closest( '.wp-inline-context' );
+				if ( trigger ) {
+					// Start the hide process when leaving trigger
+					hideTooltip();
+					return;
+				}
+
+				// Check if we left a tooltip
+				const tooltip = e.target.closest(
+					'.wp-inline-context-tooltip'
+				);
+				if ( tooltip ) {
+					// Start the hide process when leaving tooltip
+					hideTooltip();
+				}
+			},
+			true
+		);
+	}
+
 	// Auto-open note if URL has a matching anchor hash
 	const autoOpenFromHash = () => {
 		const hash = window.location.hash;

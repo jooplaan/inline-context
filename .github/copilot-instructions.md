@@ -8,6 +8,8 @@ This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expan
 
 **Version 2.1** added tooltip display mode as an alternative to inline expansion, with full accessibility support.
 
+**Version 2.3** added hover activation option for tooltips with configurable delay and smart mouse interaction handling.
+
 ### Key Components
 
 **Frontend Assets:**
@@ -192,7 +194,7 @@ The editor popover has two tabbed modes:
 - **JavaScript warnings**: Edit screen, list view individual, and bulk delete all show confirmation
 - **PHP cleanup**: Hooks into `wp_trash_post` and `before_delete_post` to clean up content
 
-### Display Modes (v2.1)
+### Display Modes (v2.1, enhanced in v2.3)
 
 The plugin supports two display modes for showing notes on the frontend:
 
@@ -210,10 +212,21 @@ The plugin supports two display modes for showing notes on the frontend:
 - Smart positioning with viewport boundary detection
 - Automatically flips above/below to prevent off-screen display
 - Close button (×) in top-right corner
-- Click/keyboard activation only (no hover)
+- Click/keyboard activation by default
+- **v2.3**: Optional hover activation with 300ms delay
+- **v2.3**: Smart hover behavior - keep tooltip open when moving mouse to tooltip
 - Escape key closes tooltip and returns focus to trigger
 - Positioned absolutely with z-index 10000
 - Arrow pointer indicates which trigger opened it
+
+**Hover Activation (v2.3):**
+
+- Admin setting: `inline_context_tooltip_hover` (boolean, default: false)
+- Configurable 300ms delay before showing tooltip on hover
+- 100ms grace period when leaving trigger/tooltip for smooth mouse movement
+- Tooltip stays open when moving mouse from trigger to tooltip
+- Separate show/hide timeout management for robust interaction
+- Only available when tooltip mode is selected
 
 **Shared Features:**
 
@@ -227,16 +240,21 @@ The plugin supports two display modes for showing notes on the frontend:
 **Admin Configuration:**
 
 - Setting stored as `inline_context_display_mode` option ('inline' or 'tooltip')
+- **v2.3**: Hover setting stored as `inline_context_tooltip_hover` option (boolean)
 - General tab in admin settings with radio button selection
-- Value passed to frontend via `wp_localize_script` in `displayMode` property
-- Frontend checks `window.inlineContextData.displayMode` to route display logic
+- **v2.3**: Conditional checkbox for hover - only visible when tooltip mode selected
+- **v2.3**: JavaScript toggles hover checkbox visibility on radio change
+- Values passed to frontend via `wp_localize_script`: `displayMode` and `hoverEnabled`
+- Frontend checks `window.inlineContextData.displayMode` and `window.inlineContextData.hoverEnabled`
 
 **Implementation:**
 
 - `toggleNote(trigger)` function routes to either `toggleInlineNote()` or `toggleTooltip()`
+- **v2.3**: Hover event listeners conditionally attached when `hoverEnabled` is true
 - Both modes store event listeners on trigger element for proper cleanup
 - Tooltip positioning handled by `positionTooltip()` with viewport calculations
 - Focus moved to note content for keyboard link navigation in both modes
+- **v2.3**: Separate `showTimeout` and `hideTimeout` for hover interaction management
 
 ### Frontend Interaction Pattern
 
