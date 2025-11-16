@@ -102,6 +102,7 @@ class Inline_Context_Sync {
 		$notes_updated = array_intersect( $notes_after, $notes_before );
 
 		// Additional validation: Check all notes that claim to be used in this post.
+		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Necessary for data integrity, ensures notes tracking is accurate. Only runs on post save.
 		$all_notes = get_posts(
 			array(
 				'post_type'      => 'inline_context_note',
