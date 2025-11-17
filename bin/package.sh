@@ -63,7 +63,6 @@ zip -rq "$ZIP_PATH" . \
   -x "TESTING-SETUP.md" \
   -x "TESTING.md" \
   -x ".phpunit.result.cache" \
-  -x "tests/*" \
   -x "composer.lock"
 
 
