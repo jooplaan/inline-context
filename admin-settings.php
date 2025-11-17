@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin Settings Page for Inline Context
  *
