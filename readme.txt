@@ -259,7 +259,7 @@ This release represents a fundamental architectural improvement that sets the fo
 * Fixed: Preview shows accurate frontend styling with CSS variables
 
 == Screenshots ==
-1. Format menu option to add, edit, or delete Inline Context notes
+1. Format menu option to add, edit, or delete Inline Context notes for selected text
 2. Editor popover adding Inline Context note
 3. Editor popover search for existing Inline Context note
 4. Frontend rendering of an Inline Context note inline
