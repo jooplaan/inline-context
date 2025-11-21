@@ -54,7 +54,7 @@ zip -rq "$ZIP_PATH" . \
   -x "vendor/*" \
   -x ".markdownlint.json" \
   -x "jest-mocks/*" \
-  -x "test/*" \
+  -x "tests/*" \
   -x "jest.config.js" \
   -x "jest.setup.js" \
   -x "phpunit.xml" \
