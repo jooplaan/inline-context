@@ -15,27 +15,83 @@ import { hasDuplicateAnchorId, generateAnchorId } from '../utils/anchor';
  */
 export const useAnchorIdDuplicateCheck = ( activeFormat, value, onChange ) => {
 	useEffect( () => {
-		if ( ! activeFormat?.attributes?.[ 'data-anchor-id' ] ) {
+		// Check active format when editing
+		if ( activeFormat?.attributes?.[ 'data-anchor-id' ] ) {
+			const currentId = activeFormat.attributes[ 'data-anchor-id' ];
+
+			if ( hasDuplicateAnchorId( currentId ) ) {
+				const uniqueId = generateAnchorId();
+
+				onChange(
+					applyFormat( value, {
+						type: 'jooplaan/inline-context',
+						attributes: {
+							...activeFormat.attributes,
+							'data-anchor-id': uniqueId,
+							id: `trigger-${ uniqueId }`,
+						},
+					} )
+				);
+				return;
+			}
+		}
+
+		// Also check for duplicates in all formats (handles copy/paste)
+		if ( ! value?.formats ) {
 			return;
 		}
 
-		const currentId = activeFormat.attributes[ 'data-anchor-id' ];
+		let needsUpdate = false;
+		const newValue = { ...value };
 
-		if ( hasDuplicateAnchorId( currentId ) ) {
-			const uniqueId = generateAnchorId();
+		// Iterate through all formats in the value
+		value.formats.forEach( ( formatArray, index ) => {
+			if ( ! formatArray ) {
+				return;
+			}
 
-			onChange(
-				applyFormat( value, {
-					type: 'jooplaan/inline-context',
-					attributes: {
-						...activeFormat.attributes,
-						'data-anchor-id': uniqueId,
-						id: `trigger-${ uniqueId }`,
-					},
-				} )
-			);
+			formatArray.forEach( ( format ) => {
+				if (
+					format?.type === 'jooplaan/inline-context' &&
+					format?.attributes?.[ 'data-anchor-id' ]
+				) {
+					const anchorId = format.attributes[ 'data-anchor-id' ];
+
+					if ( hasDuplicateAnchorId( anchorId ) ) {
+						needsUpdate = true;
+						const uniqueId = generateAnchorId();
+
+						// Update the format with new unique ID
+						if ( ! newValue.formats[ index ] ) {
+							newValue.formats[ index ] = [];
+						}
+
+						const formatIndex = newValue.formats[ index ].findIndex(
+							( f ) =>
+								f?.type === 'jooplaan/inline-context' &&
+								f?.attributes?.[ 'data-anchor-id' ] === anchorId
+						);
+
+						if ( formatIndex !== -1 ) {
+							newValue.formats[ index ][ formatIndex ] = {
+								...format,
+								attributes: {
+									...format.attributes,
+									'data-anchor-id': uniqueId,
+									href: `#${ uniqueId }`,
+									id: `trigger-${ uniqueId }`,
+								},
+							};
+						}
+					}
+				}
+			} );
+		} );
+
+		if ( needsUpdate ) {
+			onChange( newValue );
 		}
-	}, [ activeFormat, onChange, value ] );
+	}, [ activeFormat, value, onChange ] );
 };
 
 /**
