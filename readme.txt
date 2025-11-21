@@ -259,8 +259,11 @@ This release represents a fundamental architectural improvement that sets the fo
 * Fixed: Preview shows accurate frontend styling with CSS variables
 
 == Screenshots ==
-1. Editor popover for adding inline context
-2. Frontend rendering of an inline note
+1. Editor popover adding inline context note
+2. Editor popover search for existing inline context note
+3. Frontend rendering of an inline context note inline
+4. Frontend rendering of an inline context note as tooltip pop-up
+5. Admin listing of Inline Context notes showing usage
 
 == Changelog ==
 
