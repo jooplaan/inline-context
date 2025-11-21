@@ -99,11 +99,8 @@ Yes. Go to Settings > Inline Context > Styling tab for comprehensive visual cust
 = How many categories can I create? =
 There's no hard limit. Create as many categories as needed to organize your notes.
 
-= Can I use any Dashicon? =
-Yes. The icon picker shows 30 commonly used icons, but you can type any dashicon class name to access all 300+ icons.
-
-= Do the open/closed icons change automatically? =
-Yes. Icons automatically switch between closed and open states when users click the note.
+= Can I use any Dashicon for the categories? =
+Yes. You can type any dashicon class name to access all 300+ icons.
 
 == Screenshots ==
 1. Editor popover for adding inline context with category selection
@@ -267,130 +264,40 @@ This release represents a fundamental architectural improvement that sets the fo
 
 == Changelog ==
 
+For complete changelog including all patch versions, see [changelog.txt](https://github.com/jooplaan/inline-context/blob/main/changelog.txt)
+
 = 2.3.0 =
-* **NEW**: Hover activation option for tooltips with configurable 300ms delay
-* **NEW**: Admin setting to enable tooltip display on mouse hover
-* **NEW**: Smart hover behavior - keep tooltip open when moving mouse to tooltip content
-* **NEW**: Conditional admin UI - hover option only visible when tooltip mode is selected
-* **IMPROVED**: Enhanced user experience for interacting with tooltip content
-* **IMPROVED**: Smooth transition between trigger and tooltip without closing
-* **IMPROVED**: Demo.html page now includes hover functionality demonstration
-* **FIX**: Settings persistence in demo.html using localStorage
-* **FIX**: Direct link anchor reference corrected in demo.html
+* **NEW**: Hover activation option for tooltips with configurable delay
+* **NEW**: Smart hover behavior - tooltip stays open when moving mouse to content
+* **NEW**: Conditional admin UI - hover option only visible in tooltip mode
+* **IMPROVED**: Enhanced tooltip interaction and user experience
+
+= 2.2.0 =
+* **NEW**: PHPUnit testing infrastructure with WordPress Test Suite integration
+* **NEW**: Convert reusable to non-reusable notes with automatic synchronization
+* **NEW**: Testing documentation and interactive setup wizard
+* **IMPROVED**: Enhanced PopoverActions component for better reusability control
 
 = 2.1.0 =
 * **NEW**: Tooltip display mode as alternative to inline expansion
-* **NEW**: General settings tab with display mode selection (inline/tooltip)
 * **NEW**: Smart tooltip positioning with viewport boundary detection
-* **NEW**: Automatic position flipping to prevent off-screen tooltips
-* **NEW**: Close button on tooltips with proper event cleanup
-* **NEW**: Full keyboard support (Space/Enter to activate, Escape to close)
-* **NEW**: Automatic focus management for keyboard users
-* **IMPROVED**: Organized styling sections (shared settings first, mode-specific after)
-* **IMPROVED**: Admin settings reorganized into 4 tabs (General, Categories, Styling, Uninstall)
-* **IMPROVED**: Click/keyboard-only activation for tooltips (no hover)
-* **IMPROVED**: Comprehensive tooltip accessibility with ARIA attributes
-* **REMOVED**: Non-functional live preview from Styling tab (will be reimplemented properly later)
-
-= 2.0.1 =
-* **NEW**: Taxonomy meta fields UI for managing category icons and colors
-* **NEW**: Live icon preview in category add/edit forms
-* **NEW**: WordPress color picker integration for category colors
-* **NEW**: Custom columns in category list showing icon previews and colors
-* **IMPROVED**: Frontend category icon rendering now works correctly
-* **IMPROVED**: Post list display in Uninstall tab shows which posts contain inline context links
-* **IMPROVED**: Uninstall cleanup query accuracy (excludes revisions, more specific matching)
-* **IMPROVED**: Added backup warning for content cleanup option in Uninstall settings
-* **FIX**: Category icons now display properly on frontend with correct colors
-* **FIX**: Default chevron appears when no category is selected (proper CSS selector)
+* **NEW**: Full keyboard support and accessibility features
+* **IMPROVED**: Admin settings reorganized into 4 tabs
 
 = 2.0.0 =
-* **NEW**: Admin settings page for customizing CSS variables in WordPress admin
-* **NEW**: 23 configurable styling options across Link, Note Block, and Chevron sections
-* **NEW**: Color pickers for easy color customization
-* **NEW**: Text inputs for dimensions, shadows, and other properties
-* **NEW**: Reset to Defaults button for quick restoration
-* **NEW**: Live preview section in settings page
-* **IMPROVED**: CSS custom properties now properly injected to frontend
-* **IMPROVED**: Clean separation of admin UI and frontend CSS output
+* **NEW**: Modular class-based architecture (83% main file reduction)
+* **NEW**: Six dedicated classes for optimal separation of concerns
+* **IMPROVED**: Full WordPress coding standards compliance
+* **IMPROVED**: Enhanced maintainability and testability
 
-= 1.1.5 =
-* **NEW**: HTML source editor toggle in ReactQuill toolbar for direct HTML editing
-* **NEW**: Visual toggle between WYSIWYG and HTML source modes with dedicated icon
-* **IMPROVED**: Better icon sizing and styling for toolbar buttons
-* **IMPROVED**: Smooth switching between visual and source editing modes
-* **FIX**: Toggle button functionality working correctly after multiple switches
-
-= 1.1.4 =
-* **NEW**: Theme.json integration for WordPress Site Editor customization
-* **NEW**: STYLING.md documentation with comprehensive theming examples
-* **IMPROVED**: Conditional asset versioning (filemtime for dev, constant for production)
-* **IMPROVED**: CSS custom properties now use --wp--custom--inline-context--* namespace
-* **REMOVED**: Legacy --jooplaan-* CSS properties (breaking change)
-
-= 1.2.1 =
-* **FIX**: Updated composer.json version number to match plugin version
-
-= 1.2.0 =
-* **NEW**: HTML source editor toggle in ReactQuill toolbar
-* **NEW**: Visual toggle between WYSIWYG and HTML source modes
-* **IMPROVED**: Better icon sizing and styling for toolbar buttons
-* **IMPROVED**: Smooth switching between visual and source editing
-* **IMPROVED**: Automated linting and fixing before releases
-* **FIX**: Toggle button functionality after multiple switches
-
-= 1.1.4 =
-
-= 1.1.3 =
-
-= 1.1.2 =
-* **NEW**: Copy link functionality - users can copy direct anchor links to any context note
-* **NEW**: Developer filters for extensive plugin customization (11 filters available)
-* **IMPROVED**: Complete namespace refactoring from trybes to jooplaan
-* **IMPROVED**: Duplicate ID prevention system for copy/paste scenarios
-* **FIX**: Frontend display issue - added wp-hooks dependency
-* **FIX**: Demo.html compatibility with standalone usage
-
-= 1.1.1 =
-* **FIX**: Added wp-hooks dependency for frontend filters support
-* **FIX**: Resolved console error preventing notes from displaying on frontend
-
-= 1.1.0 =
-* **NEW**: WordPress LinkControl integration for easy internal page/post linking
-* **NEW**: Familiar WordPress interface for selecting content and adding external URLs
-* **NEW**: Developer filters for customizing plugin behavior (see FILTERS.md)
-* **IMPROVED**: Enhanced rich text editor with better link management capabilities
-
-= 1.0.1 =
-* **IMPROVED**: Enhanced VS Code development setup with WordPress coding standards
-* **IMPROVED**: Build process optimization and error fixes
-* **IMPROVED**: Better development workflow with automated formatting configuration
-* **FIX**: Resolved SCSS compilation errors in build process
-* **FIX**: PHP coding standards compliance issues resolved
-
-= 1.1.2 =
-* **NEW**: Copy link functionality - users can copy direct anchor links to any context note
-* **IMPROVED**: HTML validity with semantic button elements instead of anchor tags
-* **IMPROVED**: Duplicate ID prevention system for copy/paste scenarios
-* **FIX**: ESLint compatibility issues with Node.js v24
-* **FIX**: Automatic unique ID generation when duplicates are detected
+= 1.5.0 =
+* **NEW**: Custom Post Type for reusable notes
+* **NEW**: Live search to find and insert existing notes
+* **NEW**: Usage tracking and enhanced list view
+* **NEW**: Auto-sync for reusable notes across all posts
 
 = 1.0.0 =
-* **NEW**: Unique anchor IDs for every context note with direct URL linking
-* **NEW**: Auto-opening notes when accessed via URL hash (#context-note-xxx)
-* **NEW**: Subtle design - context links appear as regular text with icon indicator only
-* **NEW**: Hover/focus states change text color to primary for clear interaction feedback
-* **NEW**: Smart link behavior - internal links same tab, external links new tab with security
-* **NEW**: ReactQuill rich text editor for enhanced note authoring experience
-* **NEW**: DOMPurify integration for robust XSS protection on frontend rendering
-* **IMPROVED**: Full WordPress coding standards compliance (PHP and JavaScript)
-* **IMPROVED**: Comprehensive quality assurance with automated linting pipeline
-* **IMPROVED**: Enhanced accessibility with better ARIA attributes and focus management
-* **REMOVED**: Legacy support - v1.0 requires anchor IDs for all context notes
-
-== Upgrade Notice ==
-= 2.0.0 =
-Major architectural overhaul with modular class-based structure (83% main file reduction). Full WordPress coding standards compliance. Seamless upgrade from v1.x with zero breaking changes.
-
-= 1.0.0 =
-Major release with anchor links, subtle design, and enhanced security. All context notes now get unique anchor IDs for direct linking.
+* **NEW**: Initial public release with anchor-first architecture
+* **NEW**: Unique anchor IDs for direct URL linking
+* **NEW**: ReactQuill editor and DOMPurify security
+* **NEW**: Smart link behavior and accessibility features
