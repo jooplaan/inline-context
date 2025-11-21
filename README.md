@@ -151,6 +151,8 @@ For detailed styling instructions and examples, see [STYLING.md](STYLING.md).
 
 For developer filters and programmatic customization, see [FILTERS.md](FILTERS.md).
 
+For complete version history and detailed changelog, see [changelog.txt](changelog.txt).
+
 For future feature ideas and version 2.0 roadmap, see [ROADMAP.md](ROADMAP.md).
 
 ## Architecture (v2.0)
