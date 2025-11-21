@@ -1,0 +1,217 @@
+# Inline Context - Complete Changelog
+
+This file contains the complete changelog for all versions of the Inline Context plugin.
+For major version highlights, see README.md and readme.txt.
+
+## Version 2.3.3 - November 21, 2025
+* FIX: Tooltip hover event handling refactored for multi-link reliability
+* FIX: Direct event listeners on triggers eliminate race conditions
+* FIX: Tooltip DOM association with data-anchor-id attribute
+* IMPROVED: Independent timeout management per trigger
+* IMPROVED: Robust hover/click interaction without interference
+
+## Version 2.3.2 - November 16, 2025
+* FIX: Tooltip hover logic uses WeakMap for per-trigger state
+* FIX: Event delegation improved for tooltip association
+* IMPROVED: Timeout management isolated per trigger
+
+## Version 2.3.1 - November 16, 2025
+* FIX: Tooltip hover logic refactored for reliability with multiple links
+* FIX: Each tooltip now manages its own open/close state and timeouts
+* FIX: Rapid mouse movement between links no longer causes tooltips to fail
+* FIX: Tooltip DOM association improved for robust event handling
+* IMPROVED: Release process and documentation for bugfix branch
+
+## Version 2.3.0 - November 16, 2025
+* NEW: Hover activation option for tooltips with configurable 300ms delay
+* NEW: Admin setting to enable tooltip display on mouse hover
+* NEW: Smart hover behavior - keep tooltip open when moving mouse to tooltip content
+* NEW: Conditional admin UI - hover option only visible when tooltip mode is selected
+* NEW: 100ms grace period for smooth mouse transition between trigger and tooltip
+* NEW: Separate show/hide timeout management for robust interaction
+* IMPROVED: Enhanced user experience for interacting with tooltip content and links
+* IMPROVED: Smooth transition between trigger and tooltip without closing
+* IMPROVED: Demo.html page now includes hover functionality demonstration
+* FIX: Settings persistence in demo.html using localStorage
+* FIX: Direct link anchor reference corrected in demo.html
+
+## Version 2.2.0 - November 15, 2025
+* NEW: Convert reusable notes to non-reusable with automatic synchronization
+* NEW: Modal confirmation dialog prevents accidental conversions
+* NEW: PopoverActions component with reusable checkbox control
+* NEW: PHPUnit testing infrastructure with WordPress Test Suite integration
+* NEW: 18 comprehensive test methods covering CPT, REST API, and sync functionality
+* NEW: .env configuration support for secure database credentials
+* NEW: Testing documentation (TESTING.md, tests/README.md, TESTING-SETUP.md)
+* NEW: Interactive test setup wizard (bin/setup-tests.sh)
+* NEW: Display mode switcher in demo.html for testing inline/tooltip modes
+* NEW: Dynamic display mode detection instead of static configuration
+* NEW: Consolidated bin/ directory for all scripts
+* NEW: Markdown linting for documentation consistency
+* NEW: RELEASE.md documentation with complete release process
+* IMPROVED: Enhanced PopoverActions component for better reusability control
+* IMPROVED: Documentation structure and testing guides
+
+## Version 2.1.0 - November 14, 2025
+* NEW: Tooltip display mode as alternative to inline expansion
+* NEW: General settings tab with display mode selection (inline/tooltip)
+* NEW: Smart tooltip positioning with viewport boundary detection
+* NEW: Automatic position flipping to prevent off-screen tooltips
+* NEW: Close button on tooltips with proper event cleanup
+* NEW: Full keyboard support (Space/Enter to activate, Escape to close)
+* NEW: Automatic focus management for keyboard users
+* NEW: DOMPurify integration for secure HTML rendering
+* NEW: CSS animations for smooth tooltip reveal
+* NEW: Click toggle behavior (click again to close)
+* IMPROVED: Organized styling sections (shared settings first, mode-specific after)
+* IMPROVED: Admin settings reorganized into 4 tabs (General, Categories, Styling, Uninstall)
+* IMPROVED: Click/keyboard-only activation for tooltips (no hover by default)
+* IMPROVED: Comprehensive tooltip accessibility with ARIA attributes
+* REMOVED: Non-functional live preview from Styling tab (will be reimplemented properly later)
+
+## Version 2.0.1 - November 12, 2025
+* NEW: Taxonomy meta fields UI for managing category icons and colors
+* NEW: Live icon preview in category add/edit forms
+* NEW: WordPress color picker integration for category colors
+* NEW: Custom columns in category list showing icon previews and colors
+* IMPROVED: Frontend category icon rendering now works correctly
+* IMPROVED: Post list display in Uninstall tab shows which posts contain inline context links
+* IMPROVED: Uninstall cleanup query accuracy (excludes revisions, more specific matching)
+* IMPROVED: Added backup warning for content cleanup option in Uninstall settings
+* FIX: Category icons now display properly on frontend with correct colors
+* FIX: Default chevron appears when no category is selected (proper CSS selector)
+
+## Version 2.0.0 - November 12, 2025
+* NEW: Complete modular class-based architecture (83% main file reduction from 2,291 to 395 lines)
+* NEW: Six dedicated class-based modules for optimal separation of concerns
+* NEW: Inline_Context_CPT class (855 lines) for Custom Post Type management
+* NEW: Inline_Context_Taxonomy_Meta class (372 lines) for taxonomy meta fields
+* NEW: Inline_Context_Sync class (496 lines) for synchronization and usage tracking
+* NEW: Inline_Context_Deletion class (198 lines) for bulk deletion with cleanup
+* NEW: Inline_Context_REST_API class (340 lines) for REST API endpoints
+* NEW: Inline_Context_Frontend class (276 lines) for frontend rendering
+* NEW: Inline_Context_Utils class (182 lines) for utility functions
+* IMPROVED: Full WordPress coding standards compliance (JavaScript and PHP)
+* IMPROVED: ESLint and PHPCS compliance with pre-release gates
+* IMPROVED: Clean bootstrap pattern with class initialization
+* IMPROVED: Enhanced maintainability and testability
+* IMPROVED: Backward compatibility preserved (zero breaking changes)
+
+## Version 1.5.0 - 2025
+* NEW: Custom Post Type (inline_context_note) for reusable notes
+* NEW: Category Taxonomy (inline_context_category)
+* NEW: Editor popup with live search (AJAX query CPT by title)
+* NEW: Two modes: Create new note / Select existing note
+* NEW: Dual data storage: data-note-id + cached data-inline-context
+* NEW: Frontend uses cached content (zero performance penalty)
+* NEW: Usage tracking via REST API (non-blocking)
+* NEW: Auto-sync for reusable notes - content automatically syncs to all posts using it
+* NEW: Automatic data-inline-context attribute updates across all using posts
+* NEW: Enhanced CPT list view with custom columns (Reusable, Usage Count, Used In)
+* NEW: Filter dropdown for reusable notes
+* NEW: Delete warnings in 3 locations (post list, quick edit, single post delete)
+* NEW: QuillEditor component for rich text editing
+* NEW: Comprehensive uninstall system with content cleanup options
+
+## Version 1.4.1 - 2025
+* NEW: Server-side rendering with endnotes for no-JS environments
+* NEW: Full support for text-based browsers (Lynx, w3m, links)
+* NEW: NoScript fallback with endnotes at bottom
+* NEW: Print-friendly auto-expand all notes
+* NEW: RSS feed content inclusion
+* IMPROVED: Graceful degradation across all user agents
+
+## Version 1.4.0 - 2025
+* NEW: Progressive enhancement with server-side rendering
+* NEW: NoScript fallback support
+* IMPROVED: Text-based browser compatibility
+
+## Version 1.3.0 - 2025
+* NEW: Category management system with custom icons and colors
+* NEW: Visual icon picker with 30 curated Dashicons
+* NEW: Support for all 300+ Dashicons via manual entry
+* NEW: Dual icon states (closed/open) with automatic toggling
+* NEW: Keyboard-accessible icon picker (Esc, Tab navigation)
+* NEW: Tabbed admin interface (Categories and Styling)
+* NEW: Comprehensive styling controls
+* NEW: Live preview with interactive note reveal
+* NEW: CSS variable integration
+
+## Version 1.2.1 - 2025
+* FIX: Updated composer.json version number to match plugin version
+
+## Version 1.2.0 - 2025
+* NEW: HTML source editor toggle in ReactQuill toolbar
+* NEW: Visual toggle between WYSIWYG and HTML source modes
+* IMPROVED: Better icon sizing and styling for toolbar buttons
+* IMPROVED: Smooth switching between visual and source editing
+* IMPROVED: Automated linting and fixing before releases
+* FIX: Toggle button functionality after multiple switches
+
+## Version 1.1.5 - 2025
+* NEW: HTML source editor toggle in ReactQuill toolbar for direct HTML editing
+* NEW: Visual toggle between WYSIWYG and HTML source modes with dedicated icon
+* IMPROVED: Better icon sizing and styling for toolbar buttons
+* IMPROVED: Smooth switching between visual and source editing modes
+* FIX: Toggle button functionality working correctly after multiple switches
+
+## Version 1.1.4 - 2025
+* NEW: Theme.json integration for WordPress Site Editor customization
+* NEW: STYLING.md documentation with comprehensive theming examples
+* IMPROVED: Conditional asset versioning (filemtime for dev, constant for production)
+* IMPROVED: CSS custom properties now use --wp--custom--inline-context--* namespace
+* REMOVED: Legacy --jooplaan-* CSS properties (breaking change)
+
+## Version 1.1.3 - 2025
+* IMPROVED: Minor updates and refinements
+* FIX: Bug fixes and stability improvements
+
+## Version 1.1.2 - 2025
+* NEW: Copy link functionality - users can copy direct anchor links to any context note
+* NEW: Developer filters for extensive plugin customization (11 filters available)
+* IMPROVED: Complete namespace refactoring from trybes to jooplaan
+* IMPROVED: Duplicate ID prevention system for copy/paste scenarios
+* IMPROVED: HTML validity with semantic button elements instead of anchor tags
+* IMPROVED: Automatic unique ID generation when duplicates are detected
+* FIX: Frontend display issue - added wp-hooks dependency
+* FIX: Demo.html compatibility with standalone usage
+* FIX: ESLint compatibility issues with Node.js v24
+
+## Version 1.1.1 - 2025
+* FIX: Added wp-hooks dependency for frontend filters support
+* FIX: Resolved console error preventing notes from displaying on frontend
+
+## Version 1.1.0 - 2025
+* NEW: WordPress LinkControl integration for easy internal page/post linking
+* NEW: Familiar WordPress interface for selecting content and adding external URLs
+* NEW: Developer filters for customizing plugin behavior (see FILTERS.md)
+* IMPROVED: Enhanced rich text editor with better link management capabilities
+
+## Version 1.0.1 - 2025
+* IMPROVED: Enhanced VS Code development setup with WordPress coding standards
+* IMPROVED: Build process optimization and error fixes
+* IMPROVED: Better development workflow with automated formatting configuration
+* FIX: Resolved SCSS compilation errors in build process
+* FIX: PHP coding standards compliance issues resolved
+
+## Version 1.0.0 - 2025
+* NEW: Initial public release with anchor-first architecture
+* NEW: Unique anchor IDs for every context note with direct URL linking
+* NEW: Auto-opening notes when accessed via URL hash (#context-note-xxx)
+* NEW: Subtle design - context links appear as regular text with icon indicator only
+* NEW: Hover/focus states change text color to primary for clear interaction feedback
+* NEW: Smart link behavior - internal links same tab, external links new tab with security
+* NEW: ReactQuill rich text editor for enhanced note authoring experience
+* NEW: DOMPurify integration for robust XSS protection on frontend rendering
+* IMPROVED: Full WordPress coding standards compliance (PHP and JavaScript)
+* IMPROVED: Comprehensive quality assurance with automated linting pipeline
+* IMPROVED: Enhanced accessibility with better ARIA attributes and focus management
+* REMOVED: Legacy support - v1.0 requires anchor IDs for all context notes
+
+---
+
+## Legend
+* **NEW**: New feature or capability
+* **IMPROVED**: Enhancement to existing feature
+* **FIX**: Bug fix or correction
+* **REMOVED**: Deprecated or removed feature
