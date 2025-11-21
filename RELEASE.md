@@ -17,8 +17,9 @@ Update version numbers in the following files:
 
 - [ ] Add changelog entry to `readme.txt` with new features, improvements, and bug fixes
 - [ ] Update `ROADMAP.md` (mark completed features)
+- [ ] Review and update `changelog.txt
 - [ ] Review and update `README.md`
-- [ ] Review and update `ROADMAP.md`
+- [ ] Review and update `ROADMAP.md``
 - [ ] Update any relevant documentation files
 
 ### 3. Code Quality & Testing
