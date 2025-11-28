@@ -64,7 +64,12 @@ zip -rq "$ZIP_PATH" . \
   -x "TESTING.md" \
   -x ".phpunit.result.cache" \
   -x "composer.lock" \
-  -x "screenshot-*.png" \
+  -x "screenshot-1.png" \
+  -x "screenshot-2.png" \
+  -x "screenshot-3.png" \
+  -x "screenshot-4.png" \
+  -x "screenshot-5.png" \
+  -x "screenshot-6.png" \
   -x ".distignore"
 
 
