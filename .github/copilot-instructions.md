@@ -328,14 +328,14 @@ Uses `@wordpress/scripts` which provides:
 ```php
 // Editor assets (Block Editor only)
 add_action('enqueue_block_editor_assets', function() {
-    wp_enqueue_script('jooplaan-inline-context', 'build/index.js', [...]);
-    wp_enqueue_style('jooplaan-inline-context', 'build/index.css', [...]);
+    wp_enqueue_script('inline-context-editor', 'build/index.js', [...]);
+    wp_enqueue_style('inline-context-editor-style', 'build/index.css', [...]);
 });
 
 // Frontend assets (Public site)
 add_action('wp_enqueue_scripts', function() {
-    wp_enqueue_script('jooplaan-inline-context-frontend', 'build/frontend.js', [...]);
-    wp_enqueue_style('jooplaan-inline-context-frontend-style', 'build/style-index.css', [...]);
+    wp_enqueue_script('inline-context-frontend', 'build/frontend.js', [...]);
+    wp_enqueue_style('inline-context-frontend-style', 'build/style-index.css', [...]);
 });
 ```
 

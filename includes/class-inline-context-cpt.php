@@ -679,7 +679,7 @@ class Inline_Context_CPT {
 		$asset_file = include plugin_dir_path( __DIR__ ) . 'build/cpt-editor.asset.php';
 
 		wp_enqueue_script(
-			'jooplaan-inline-context-cpt-editor',
+			'inline-context-cpt-editor',
 			plugins_url( 'build/cpt-editor.js', __DIR__ ),
 			$asset_file['dependencies'],
 			$asset_file['version'],
@@ -687,7 +687,7 @@ class Inline_Context_CPT {
 		);
 
 		wp_enqueue_style(
-			'jooplaan-inline-context-cpt-editor',
+			'inline-context-cpt-editor-style',
 			plugins_url( 'build/index.css', __DIR__ ),
 			array(),
 			$asset_file['version']
@@ -699,7 +699,7 @@ class Inline_Context_CPT {
 		$content    = $post_id ? get_post_field( 'post_content', $post_id ) : '';
 
 		wp_localize_script(
-			'jooplaan-inline-context-cpt-editor',
+			'inline-context-cpt-editor',
 			'inlineContextCPTEditor',
 			array(
 				'categories' => $categories,
@@ -809,94 +809,110 @@ class Inline_Context_CPT {
 			}
 		}
 
-		if ( ! empty( $note_usage ) ) :
-			?>
-			<script>
-			jQuery(document).ready(function($) {
-				var noteUsage = <?php echo wp_json_encode( $note_usage ); ?>;
-				var notePostCount = <?php echo wp_json_encode( $note_post_count ); ?>;
-				var reusableInUse = <?php echo wp_json_encode( $reusable_in_use ); ?>;
+		if ( ! empty( $note_usage ) ) {
+			// Register and enqueue a plugin-specific script handle.
+			wp_register_script(
+				'inline-context-cpt-delete-warnings',
+				false,
+				array( 'jquery' ),
+				INLINE_CONTEXT_VERSION,
+				true
+			);
+			wp_enqueue_script( 'inline-context-cpt-delete-warnings' );
 
-				// Confirm bulk delete.
-				$('#doaction, #doaction2').on('click', function(e) {
-					var form = $(this).closest('form');
-					var action = form.find('select[name="action"]').val();
-					if (!action || action === '-1') {
-						action = form.find('select[name="action2"]').val();
-					}
+			// Add inline script for delete warnings.
+			$inline_script = sprintf(
+				"
+				jQuery(document).ready(function(\$) {
+					var noteUsage = %s;
+					var notePostCount = %s;
+					var reusableInUse = %s;
 
-					if (action === 'trash') {
-						var checkedPosts = form.find('input[name="post[]"]:checked');
-						var totalNotesCount = 0;
-						var totalUsageCount = 0;
-						var totalPostsAffected = 0;
+					// Confirm bulk delete.
+					\$('#doaction, #doaction2').on('click', function(e) {
+						var form = \$(this).closest('form');
+						var action = form.find('select[name=\"action\"]').val();
+						if (!action || action === '-1') {
+							action = form.find('select[name=\"action2\"]').val();
+						}
 
-						checkedPosts.each(function() {
-							var postId = $(this).val();
-							if (noteUsage[postId] && reusableInUse[postId]) {
-								totalNotesCount++;
-								totalUsageCount += noteUsage[postId];
-								totalPostsAffected += notePostCount[postId];
-							}
-						});
+						if (action === 'trash') {
+							var checkedPosts = form.find('input[name=\"post[]\"]' + ':checked');
+							var totalNotesCount = 0;
+							var totalUsageCount = 0;
+							var totalPostsAffected = 0;
 
-						// Show confirmation for reusable notes that are in use
-						if (totalNotesCount > 0 && totalPostsAffected > 0) {
-							var message = 'Are you sure you want to delete ' +
-								(totalNotesCount === 1 ? 'this reusable note' : 'these ' + totalNotesCount + ' reusable notes') +
-								'?\n\n' + totalUsageCount + ' note ' + (totalUsageCount === 1 ? 'use' : 'uses') +
-								' will be deleted in ' + totalPostsAffected + ' post' +
-								(totalPostsAffected === 1 ? '' : 's') + '.';
+							checkedPosts.each(function() {
+								var postId = \$(this).val();
+								if (noteUsage[postId] && reusableInUse[postId]) {
+									totalNotesCount++;
+									totalUsageCount += noteUsage[postId];
+									totalPostsAffected += notePostCount[postId];
+								}
+							});
 
-							if (!confirm(message)) {
-								e.preventDefault();
-								return false;
+							// Show confirmation for reusable notes that are in use
+							if (totalNotesCount > 0 && totalPostsAffected > 0) {
+								var message = 'Are you sure you want to delete ' +
+									(totalNotesCount === 1 ? 'this reusable note' : 'these ' + totalNotesCount + ' reusable notes') +
+									'?\\n\\n' + totalUsageCount + ' note ' + (totalUsageCount === 1 ? 'use' : 'uses') +
+									' will be deleted in ' + totalPostsAffected + ' post' +
+									(totalPostsAffected === 1 ? '' : 's') + '.';
+
+								if (!confirm(message)) {
+									e.preventDefault();
+									return false;
+								}
 							}
 						}
-					}
+					});
+
+					// Confirm individual delete (trash link in row actions).
+					\$('span.trash a').on('click', function(e) {
+						var link = \$(this);
+						var row = link.closest('tr');
+						var checkbox = row.find('input[name=\"post[]\"]');
+
+						if (checkbox.length) {
+							var postId = checkbox.val();
+
+							// Show confirmation for reusable notes that are in use.
+							if (reusableInUse[postId]) {
+								var usage = noteUsage[postId];
+								var postCount = notePostCount[postId];
+								var message = 'Are you sure you want to delete this reusable note?\\n\\n' +
+									usage + ' note ' + (usage === 1 ? 'use' : 'uses') +
+									' will be deleted in ' + postCount + ' post' + (postCount === 1 ? '' : 's') + '.';
+
+								if (!confirm(message)) {
+									e.preventDefault();
+									return false;
+								}
+							}
+
+							// Warn about non-reusable notes that are in use (but allow deletion).
+							if (noteUsage[postId] && !reusableInUse[postId]) {
+								var usage = noteUsage[postId];
+								var postCount = notePostCount[postId];
+								var message = 'This note is currently used ' + usage + ' ' + (usage === 1 ? 'time' : 'times') +
+									' in ' + postCount + ' post' + (postCount === 1 ? '' : 's') + '.\\n\\n' +
+									'Deleting it will also remove it from ' + (postCount === 1 ? 'that post' : 'those posts') + '.\\n\\nContinue?';
+								if (!confirm(message)) {
+									e.preventDefault();
+									return false;
+								}
+							}
+						}
+					});
 				});
+				",
+				wp_json_encode( $note_usage ),
+				wp_json_encode( $note_post_count ),
+				wp_json_encode( $reusable_in_use )
+			);
 
-				// Confirm individual delete (trash link in row actions).
-				$('span.trash a').on('click', function(e) {
-					var link = $(this);
-					var row = link.closest('tr');
-					var checkbox = row.find('input[name="post[]"]');
-
-					if (checkbox.length) {
-						var postId = checkbox.val();
-
-						// Show confirmation for reusable notes that are in use.
-						if (reusableInUse[postId]) {
-							var usage = noteUsage[postId];
-							var postCount = notePostCount[postId];
-							var message = 'Are you sure you want to delete this reusable note?\n\n' +
-								usage + ' note ' + (usage === 1 ? 'use' : 'uses') +
-								' will be deleted in ' + postCount + ' post' + (postCount === 1 ? '' : 's') + '.';
-
-							if (!confirm(message)) {
-								e.preventDefault();
-								return false;
-							}
-						}
-
-						// Warn about non-reusable notes that are in use (but allow deletion).
-						if (noteUsage[postId] && !reusableInUse[postId]) {
-							var usage = noteUsage[postId];
-							var postCount = notePostCount[postId];
-							var message = 'This note is currently used ' + usage + ' ' + (usage === 1 ? 'time' : 'times') +
-								' in ' + postCount + ' post' + (postCount === 1 ? '' : 's') + '.\n\n' +
-								'Deleting it will also remove it from ' + (postCount === 1 ? 'that post' : 'those posts') + '.\n\nContinue?';
-							if (!confirm(message)) {
-								e.preventDefault();
-								return false;
-							}
-						}
-					}
-				});
-			});
-			</script>
-			<?php
-		endif;
+			wp_add_inline_script( 'inline-context-cpt-delete-warnings', $inline_script );
+		}
 	}
 
 	/**
