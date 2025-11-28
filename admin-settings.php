@@ -747,10 +747,21 @@ function inline_context_admin_scripts() {
 	if ( ! $screen || 'settings_page_inline-context' !== $screen->id ) {
 		return;
 	}
-	?>
-	<script>
+
+	// Register and enqueue a plugin-specific script handle.
+	wp_register_script(
+		'inline-context-admin-settings',
+		false,
+		array( 'jquery' ),
+		INLINE_CONTEXT_VERSION,
+		true
+	);
+	wp_enqueue_script( 'inline-context-admin-settings' );
+
+	// Add inline script for display mode toggling.
+	$inline_script = "
 		document.addEventListener('DOMContentLoaded', function() {
-			const radios = document.querySelectorAll('input[name="inline_context_display_mode"]');
+			const radios = document.querySelectorAll('input[name=\"inline_context_display_mode\"]');
 			const hoverOption = document.getElementById('tooltip-hover-option');
 
 			if (!hoverOption || !radios.length) {
@@ -759,7 +770,7 @@ function inline_context_admin_scripts() {
 
 			// Function to update hover option visibility
 			const updateHoverOptionVisibility = function() {
-				const selectedRadio = document.querySelector('input[name="inline_context_display_mode"]:checked');
+				const selectedRadio = document.querySelector('input[name=\"inline_context_display_mode\"]:checked');
 				if (selectedRadio) {
 					hoverOption.style.display = selectedRadio.value === 'tooltip' ? 'block' : 'none';
 				}
@@ -775,7 +786,8 @@ function inline_context_admin_scripts() {
 			// Update visibility immediately on page load
 			updateHoverOptionVisibility();
 		});
-	</script>
-	<?php
+	";
+
+	wp_add_inline_script( 'inline-context-admin-settings', $inline_script );
 }
 add_action( 'admin_footer', 'inline_context_admin_scripts' );

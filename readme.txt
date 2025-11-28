@@ -24,9 +24,24 @@ As inspiration, we looked at the Dutch journalism platform De Correspondent, whi
 You can see examples of their inline notes in this article:
 https://decorrespondent.nl/16239/hoe-vriendschap-de-belangrijkste-relatie-werd-van-deze-tijd/2bc79aff-1546-08e1-349f-e865e38c46da
 
-Renée Kool’s website:
+Renée Kool's website:
 https://reneekool.nl/
 
+= Source Code =
+
+This plugin uses build tools (npm and webpack via @wordpress/scripts) to compile JavaScript and CSS.
+
+**Source code repository:** https://github.com/jooplaan/inline-context
+
+The complete source code, including all uncompiled JavaScript and CSS files, is available in the `/src` directory of the GitHub repository. You can review, build, and modify the source code following the instructions in the repository's README.md.
+
+**Build instructions:**
+1. Clone the repository
+2. Run `npm install` to install dependencies
+3. Run `npm run build` to compile production assets
+4. Run `npm run start` for development mode with hot reload
+
+All compiled files in the `/build` directory are generated from the source files in `/src`.
 
 = Key Features Inline Context plugin =
 * **Display Modes (NEW v2.1)**: Choose between inline expansion or floating tooltips
