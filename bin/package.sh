@@ -63,7 +63,9 @@ zip -rq "$ZIP_PATH" . \
   -x "TESTING-SETUP.md" \
   -x "TESTING.md" \
   -x ".phpunit.result.cache" \
-  -x "composer.lock"
+  -x "composer.lock" \
+  -x "screenshot-*.png" \
+  -x ".distignore"
 
 
 # Validate main plugin file exists in the archive context
