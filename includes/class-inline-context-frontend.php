@@ -192,7 +192,7 @@ class Inline_Context_Frontend {
 			: INLINE_CONTEXT_VERSION;
 
 		wp_enqueue_script(
-			'jooplaan-inline-context',
+			'inline-context-editor',
 			plugins_url( 'build/index.js', __DIR__ ),
 			$asset['dependencies'],
 			$version,
@@ -201,7 +201,7 @@ class Inline_Context_Frontend {
 
 		// Pass categories to the editor.
 		wp_localize_script(
-			'jooplaan-inline-context',
+			'inline-context-editor',
 			'inlineContextData',
 			array(
 				'categories' => inline_context_get_categories(),
@@ -210,11 +210,11 @@ class Inline_Context_Frontend {
 
 		// Enable JS translations for strings in the editor script.
 		if ( function_exists( 'wp_set_script_translations' ) ) {
-			wp_set_script_translations( 'jooplaan-inline-context', 'inline-context', plugin_dir_path( __DIR__ ) . 'languages' );
+			wp_set_script_translations( 'inline-context-editor', 'inline-context', plugin_dir_path( __DIR__ ) . 'languages' );
 		}
 
 		wp_enqueue_style(
-			'jooplaan-inline-context',
+			'inline-context-editor-style',
 			plugins_url( 'build/index.css', __DIR__ ),
 			array(),
 			defined( 'WP_DEBUG' ) && WP_DEBUG
@@ -244,7 +244,7 @@ class Inline_Context_Frontend {
 			: INLINE_CONTEXT_VERSION;
 
 		wp_enqueue_script(
-			'jooplaan-inline-context-frontend',
+			'inline-context-frontend',
 			plugins_url( 'build/frontend.js', __DIR__ ),
 			$dependencies,
 			$version,
@@ -253,7 +253,7 @@ class Inline_Context_Frontend {
 
 		// Pass settings and categories to frontend.
 		wp_localize_script(
-			'jooplaan-inline-context-frontend',
+			'inline-context-frontend',
 			'inlineContextData',
 			array(
 				'categories'   => inline_context_get_categories(),
@@ -267,7 +267,7 @@ class Inline_Context_Frontend {
 
 		// Use compiled frontend styles from SCSS build.
 		wp_enqueue_style(
-			'jooplaan-inline-context-frontend-style',
+			'inline-context-frontend-style',
 			plugins_url( 'build/style-index.css', __DIR__ ),
 			array(),
 			defined( 'WP_DEBUG' ) && WP_DEBUG

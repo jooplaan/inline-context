@@ -324,7 +324,7 @@ function mytheme_inline_context_filters() {
         wp_enqueue_script(
             'mytheme-inline-context',
             get_template_directory_uri() . '/js/inline-context-filters.js',
-            array( 'wp-hooks', 'jooplaan-inline-context-frontend' ),
+            array( 'wp-hooks', 'inline-context-frontend' ),
             '1.0.0',
             true
         );
