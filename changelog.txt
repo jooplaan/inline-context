@@ -3,6 +3,13 @@
 This file contains the complete changelog for all versions of the Inline Context plugin.
 For major version highlights, see README.md and readme.txt.
 
+## Version 2.3.4 - November 28, 2025
+* FIX: WordPress.org compliance - replaced all inline <script> tags with wp_add_inline_script()
+* FIX: WordPress.org compliance - added source code documentation section to readme.txt
+* NEW: Created .distignore file to exclude screenshots from plugin zip (belong in SVN assets only)
+* IMPROVED: Script enqueueing follows WordPress best practices and plugin guidelines
+* IMPROVED: Better separation of concerns - scripts properly enqueued via admin hooks
+
 ## Version 2.3.3 - November 21, 2025
 * FIX: Tooltip hover event handling refactored for multi-link reliability
 * FIX: Direct event listeners on triggers eliminate race conditions

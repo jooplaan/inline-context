@@ -73,6 +73,40 @@ class Inline_Context_Taxonomy_Meta {
 				$(".inline-context-color-picker").wpColorPicker();
 			});'
 		);
+
+		// Add inline script for icon preview functionality.
+		$icon_preview_script = "
+			jQuery(document).ready(function(\$) {
+				// Icon preview for add/edit forms
+				function updateIconPreview(inputId, previewId) {
+					var input = \$('#' + inputId);
+					var preview = \$('#' + previewId);
+
+					input.on('input', function() {
+						var iconClass = \$(this).val().trim();
+						if (iconClass) {
+							preview.attr('class', 'dashicons ' + iconClass);
+							preview.css({
+								'font-size': '20px',
+								'width': '20px',
+								'height': '20px',
+								'display': 'inline-block'
+							});
+						} else {
+							preview.attr('class', '').text('');
+						}
+					});
+
+					// Trigger initial update
+					input.trigger('input');
+				}
+
+				updateIconPreview('icon_closed', 'icon-closed-preview');
+				updateIconPreview('icon_open', 'icon-open-preview');
+			});
+		";
+
+		wp_add_inline_script( 'wp-color-picker', $icon_preview_script );
 	}
 
 	/**
@@ -132,37 +166,6 @@ class Inline_Context_Taxonomy_Meta {
 				<?php esc_html_e( 'Color for the category icon.', 'inline-context' ); ?>
 			</p>
 		</div>
-
-		<script>
-		jQuery(document).ready(function($) {
-			// Icon preview for add form
-			function updateIconPreview(inputId, previewId) {
-				var input = $('#' + inputId);
-				var preview = $('#' + previewId);
-
-				input.on('input', function() {
-					var iconClass = $(this).val().trim();
-					if (iconClass) {
-						preview.attr('class', 'dashicons ' + iconClass);
-						preview.css({
-							'font-size': '20px',
-							'width': '20px',
-							'height': '20px',
-							'display': 'inline-block'
-						});
-					} else {
-						preview.attr('class', '').text('');
-					}
-				});
-
-				// Trigger initial update
-				input.trigger('input');
-			}
-
-			updateIconPreview('icon_closed', 'icon-closed-preview');
-			updateIconPreview('icon_open', 'icon-open-preview');
-		});
-		</script>
 		<?php
 	}
 
@@ -243,37 +246,6 @@ class Inline_Context_Taxonomy_Meta {
 				</p>
 			</td>
 		</tr>
-
-		<script>
-		jQuery(document).ready(function($) {
-			// Icon preview for edit form
-			function updateIconPreview(inputId, previewId) {
-				var input = $('#' + inputId);
-				var preview = $('#' + previewId);
-
-				input.on('input', function() {
-					var iconClass = $(this).val().trim();
-					if (iconClass) {
-						preview.attr('class', 'dashicons ' + iconClass);
-						preview.css({
-							'font-size': '24px',
-							'width': '24px',
-							'height': '24px',
-							'display': 'inline-block'
-						});
-					} else {
-						preview.attr('class', 'dashicons').text('');
-					}
-				});
-
-				// Trigger initial update
-				input.trigger('input');
-			}
-
-			updateIconPreview('icon_closed', 'icon-closed-preview');
-			updateIconPreview('icon_open', 'icon-open-preview');
-		});
-		</script>
 		<?php
 	}
 
