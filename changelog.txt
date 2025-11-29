@@ -3,6 +3,9 @@
 This file contains the complete changelog for all versions of the Inline Context plugin.
 For major version highlights, see README.md and readme.txt.
 
+## Version 2.3.5 - 2.3.7 - November 29, 2025
+* Minor fixes, updated documentation and readme.txt, added Dutch translations
+
 ## Version 2.3.4 - November 28, 2025
 * FIX: WordPress.org compliance - replaced all inline <script> tags with wp_add_inline_script()
 * FIX: WordPress.org compliance - added source code documentation section to readme.txt
