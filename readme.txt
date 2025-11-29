@@ -26,14 +26,6 @@ As inspiration, we looked at the Dutch journalism platform De Correspondent, whi
 You can see examples of their inline notes in this article:
 [Hoe Nederland kampioen deeltijdwerken werd](https://decorrespondent.nl/15887/hoe-nederland-kampioen-deeltijdwerken-werd/9053b712-3591-0002-29b3-8c7b69eae0c3)
 
-= Source Code =
-
-This plugin uses build tools (npm and webpack via @wordpress/scripts) to compile JavaScript and CSS.
-
-**Source code repository:** [https://github.com/jooplaan/inline-context](https://github.com/jooplaan/inline-context)
-
-The complete source code, including all uncompiled JavaScript and CSS files, is available in the `/src` directory of the GitHub repository. You can review, build, and modify the source code following the instructions in the repository's README.md.
-
 = Key Features Inline Context plugin =
 
 * **Display Modes**: Choose between inline expansion or floating tooltips
@@ -82,6 +74,14 @@ There's no hard limit. Create as many categories as needed to organize your note
 
 = Can I use any Dashicon for the categories? =
 Yes. You can type any dashicon class name to access all 300+ icons.
+
+= Source Code =
+
+This plugin uses build tools (npm and webpack via @wordpress/scripts) to compile JavaScript and CSS.
+
+**Source code repository:** [https://github.com/jooplaan/inline-context](https://github.com/jooplaan/inline-context)
+
+The complete source code, including all uncompiled JavaScript and CSS files, is available in the `/src` directory of the GitHub repository. You can review, build, and modify the source code following the instructions in the repository's README.md.
 
 == Screenshots ==
 1. Editor popover for adding inline context with category selection
