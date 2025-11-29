@@ -60,9 +60,6 @@ Customize every aspect of appearance:
 * **Chevron Styling**: Size, color, opacity for the expand indicator
 * **Live Preview**: See changes immediately with interactive example
 
-= Security =
-Inline Context renders note content on the frontend. Content authored in the editor is sanitized before display. We recommend using the latest WordPress for improved security and KSES handling.
-
 = Internationalization =
 This plugin is translation-ready. POT files can be generated from source with `npm run pot` and placed under the `languages/` directory.
 
