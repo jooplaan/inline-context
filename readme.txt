@@ -30,7 +30,7 @@ You can see examples of their inline notes in this article:
 
 This plugin uses build tools (npm and webpack via @wordpress/scripts) to compile JavaScript and CSS.
 
-**Source code repository:** https://github.com/jooplaan/inline-context
+**Source code repository:** [https://github.com/jooplaan/inline-context](https://github.com/jooplaan/inline-context)
 
 The complete source code, including all uncompiled JavaScript and CSS files, is available in the `/src` directory of the GitHub repository. You can review, build, and modify the source code following the instructions in the repository's README.md.
 
@@ -54,6 +54,7 @@ The complete source code, including all uncompiled JavaScript and CSS files, is 
 
 = Styling Controls =
 Customize every aspect of appearance:
+
 * **Link Styling**: Hover colors, focus states, open state colors
 * **Note Styling**: Padding, margins, background, borders, accent bar, shadows
 * **Chevron Styling**: Size, color, opacity for the expand indicator
