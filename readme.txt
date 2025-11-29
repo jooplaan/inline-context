@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, reveal, context
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.3.6
+Stable tag: 2.3.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,8 +26,8 @@ As inspiration, we looked at the Dutch journalism platform De Correspondent, whi
 You can see examples of their inline notes in this article:
 [Hoe Nederland kampioen deeltijdwerken werd](https://decorrespondent.nl/15887/hoe-nederland-kampioen-deeltijdwerken-werd/9053b712-3591-0002-29b3-8c7b69eae0c3)
 
-
 = Source Code =
+
 This plugin uses build tools (npm and webpack via @wordpress/scripts) to compile JavaScript and CSS.
 
 **Source code repository:** https://github.com/jooplaan/inline-context
@@ -35,6 +35,7 @@ This plugin uses build tools (npm and webpack via @wordpress/scripts) to compile
 The complete source code, including all uncompiled JavaScript and CSS files, is available in the `/src` directory of the GitHub repository. You can review, build, and modify the source code following the instructions in the repository's README.md.
 
 = Key Features Inline Context plugin =
+
 * **Display Modes**: Choose between inline expansion or floating tooltips
 * **Smart Tooltips**: Automatic positioning that prevents off-screen display
 * **Reusable Notes**: Create notes as Custom Post Type entries and reuse them across multiple posts
