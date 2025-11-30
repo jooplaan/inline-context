@@ -64,6 +64,7 @@ You can also create **reusable** notes from a dedicated Custom Post Type. Updati
 
 = Styling & customization =
 Full styling control from **Settings → Inline Context**:
+
 * Link colors, hover, and focus states
 * Note padding, spacing, borders, backgrounds, shadows
 * Tooltip appearance
