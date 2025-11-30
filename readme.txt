@@ -20,7 +20,7 @@ Notes can be **reusable**, categorized, styled, centrally managed, and automatic
 
 ---
 
-### Why This Is Valuable for Content-Heavy Websites
+### Why this is valuable for content-heavy websites
 
 Websites with substantial text often need:
 
@@ -35,7 +35,7 @@ Inline Context delivers all of this with a frictionless, accessible user experie
 
 ---
 
-### How It Works
+### How it works
 
 1. Highlight text in the Block Editor.
 2. Click **Inline Context**.
@@ -56,19 +56,19 @@ You can also create **reusable** notes from a dedicated Custom Post Type. Updati
 * Direct anchor links (`#context-note-xxx`) for deep linking
 * Auto-open on page load when accessed via link
 
-### Editor Productivity
+### Editor productivity
 * Reusable notes with global updates
 * Notes Library with usage tracking (shows where each note is used)
 * Quick Search inside the editor to insert existing notes
 * Rich text support via ReactQuill (bold, italic, lists, links)
 * Clean, integrated Rich Text toolbar button
 
-### Categories & Icons
+### Categories & icons
 * Create unlimited categories (Definition, Reference, External Article, Tip, Warning, etc.)
 * Choose from curated Dashicons or any of 300+ icons
 * Separate icons for open and closed states
 
-### Styling & Customization
+### Styling & customization
 Full styling control from **Settings → Inline Context**:
 * Link colors, hover, and focus states
 * Note padding, spacing, borders, backgrounds, shadows
@@ -76,7 +76,7 @@ Full styling control from **Settings → Inline Context**:
 * Chevron/indicator styling
 * Live interactive preview of all style changes
 
-### Accessibility & Security
+### Accessibility & security
 * ARIA support, focus lock, Escape key behavior
 * Keyboard-navigable for both link and note
 * DOMPurify sanitization of note content
@@ -89,13 +89,13 @@ Inline Context is fully translation-ready.
 
 ---
 
-== Examples & Inspiration ==
+== Examples & inspiration ==
 
 The idea for this plugin originated from a project with Renée Kool — a visual artist working in public art, film, and emerging media. She wanted to create a website where a single link could reveal additional content containing multiple related links. We looked at the Dutch journalism platform De Correspondent, which use subtle inline notes to provide context without interrupting the flow of reading. You can see examples of their inline notes in this article: [Hoe Nederland kampioen deeltijdwerken werd](https://decorrespondent.nl/15887/hoe-nederland-kampioen-deeltijdwerken-werd/9053b712-3591-0002-29b3-8c7b69eae0c3)
 
 ---
 
-== Source Code ==
+== Source code ==
 
 Inline Context uses `@wordpress/scripts` with webpack and npm to build assets.
 
