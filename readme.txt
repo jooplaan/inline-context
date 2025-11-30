@@ -1,6 +1,6 @@
 === Inline Context ===
 Contributors: joop
-Tags: inline, footnote, tooltip, reveal, context, annotations, content notes, documentation
+Tags: inline, footnote, tooltip, context, annotations
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
@@ -8,7 +8,8 @@ Stable tag: 2.3.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Add expandable inline notes, contextual annotations, and tooltip-style explanations directly inside your content. Perfect for long-form articles, documentation, academic writing, and content-heavy websites that need to provide definitions, references, or extra context without disrupting the reading flow.
+Add inline expandable notes or tooltips to provide context, definitions, and references without disrupting the reading flow.
+
 == Description ==
 
 **Inline Context** is a powerful Block Editor enhancement that lets you create inline expandable notes or clean tooltip-style popovers anywhere in your content. It is ideal for **content-rich websites**, including editorial platforms, research sites, online magazines, documentation hubs, and educational blogs that rely on clear explanation without breaking the reader’s focus.
@@ -22,12 +23,13 @@ Notes can be **reusable**, categorized, styled, centrally managed, and automatic
 ### Why This Is Valuable for Content-Heavy Websites
 
 Websites with substantial text often need:
-- definitions and terminology
-- source references
-- background information
-- contextual inline explanations
-- mini footnotes without scrolling
-- inline callouts, tips, or warnings
+
+* definitions and terminology
+* source references
+* background information
+* contextual inline explanations
+* mini footnotes without scrolling
+* inline callouts, tips, or warnings
 
 Inline Context delivers all of this with a frictionless, accessible user experience. It helps readers stay focused, reduces navigation fatigue, and improves knowledge retention — especially in long articles or research-based content.
 
@@ -84,17 +86,12 @@ Full styling control from **Settings → Inline Context**:
 == Internationalization ==
 
 Inline Context is fully translation-ready.
-Generate POT files from source using:
-
-`npm run pot`
-
-Add translations in the `languages/` directory.
 
 ---
 
 == Examples & Inspiration ==
 
-The idea for this plugin originated from a project with Renée Kool — a visual artist working in public art, film, and emerging media. She wanted to create a website where a single link could reveal additional content containing multiple related links. We looked at a Dutch journalism platform like De Correspondent, which use subtle inline notes to provide context without interrupting the flow of reading. You can see examples of their inline notes in this article: [Hoe Nederland kampioen deeltijdwerken werd](https://decorrespondent.nl/15887/hoe-nederland-kampioen-deeltijdwerken-werd/9053b712-3591-0002-29b3-8c7b69eae0c3)
+The idea for this plugin originated from a project with Renée Kool — a visual artist working in public art, film, and emerging media. She wanted to create a website where a single link could reveal additional content containing multiple related links. We looked at the Dutch journalism platform De Correspondent, which use subtle inline notes to provide context without interrupting the flow of reading. You can see examples of their inline notes in this article: [Hoe Nederland kampioen deeltijdwerken werd](https://decorrespondent.nl/15887/hoe-nederland-kampioen-deeltijdwerken-werd/9053b712-3591-0002-29b3-8c7b69eae0c3)
 
 ---
 
