@@ -18,9 +18,7 @@ Instead of sending readers to glossary pages or external links, Inline Context a
 
 Notes can be **reusable**, categorized, styled, centrally managed, and automatically updated everywhere they appear.
 
----
-
-### Why this is valuable for content-heavy websites
+= Why this is valuable for content-heavy websites =
 
 Websites with substantial text often need:
 
@@ -33,9 +31,7 @@ Websites with substantial text often need:
 
 Inline Context delivers all of this with a frictionless, accessible user experience. It helps readers stay focused, reduces navigation fatigue, and improves knowledge retention — especially in long articles or research-based content.
 
----
-
-### How it works
+= How it works =
 
 1. Highlight text in the Block Editor.
 2. Click **Inline Context**.
@@ -45,30 +41,28 @@ Inline Context delivers all of this with a frictionless, accessible user experie
 
 You can also create **reusable** notes from a dedicated Custom Post Type. Updating a reusable note updates all instances site-wide.
 
----
-
 == Key Features ==
 
-### Display Modes
+= Display modes =
 * Inline expansion (reveals a small content panel)
 * Tooltip popovers (floating contextual bubbles)
 * Smart tooltip positioning to avoid off-screen display
 * Direct anchor links (`#context-note-xxx`) for deep linking
 * Auto-open on page load when accessed via link
 
-### Editor productivity
+= Editor productivity =
 * Reusable notes with global updates
 * Notes Library with usage tracking (shows where each note is used)
 * Quick Search inside the editor to insert existing notes
 * Rich text support via ReactQuill (bold, italic, lists, links)
 * Clean, integrated Rich Text toolbar button
 
-### Categories & icons
+= Categories & icons =
 * Create unlimited categories (Definition, Reference, External Article, Tip, Warning, etc.)
 * Choose from curated Dashicons or any of 300+ icons
 * Separate icons for open and closed states
 
-### Styling & customization
+= Styling & customization =
 Full styling control from **Settings → Inline Context**:
 * Link colors, hover, and focus states
 * Note padding, spacing, borders, backgrounds, shadows
@@ -76,24 +70,18 @@ Full styling control from **Settings → Inline Context**:
 * Chevron/indicator styling
 * Live interactive preview of all style changes
 
-### Accessibility & security
+= Accessibility & security =
 * ARIA support, focus lock, Escape key behavior
 * Keyboard-navigable for both link and note
 * DOMPurify sanitization of note content
-
----
 
 == Internationalization ==
 
 Inline Context is fully translation-ready.
 
----
-
 == Examples & inspiration ==
 
 The idea for this plugin originated from a project with Renée Kool — a visual artist working in public art, film, and emerging media. She wanted to create a website where a single link could reveal additional content containing multiple related links. We looked at the Dutch journalism platform De Correspondent, which use subtle inline notes to provide context without interrupting the flow of reading. You can see examples of their inline notes in this article: [Hoe Nederland kampioen deeltijdwerken werd](https://decorrespondent.nl/15887/hoe-nederland-kampioen-deeltijdwerken-werd/9053b712-3591-0002-29b3-8c7b69eae0c3)
-
----
 
 == Source code ==
 
@@ -102,8 +90,6 @@ Inline Context uses `@wordpress/scripts` with webpack and npm to build assets.
 Full source (including uncompiled JS and CSS) is available at:
 [https://github.com/jooplaan/inline-context](https://github.com/jooplaan/inline-context)
 
----
-
 == Installation ==
 
 1. Upload the plugin files to `/wp-content/plugins/inline-context`, or install via the Plugins screen.
@@ -111,8 +97,6 @@ Full source (including uncompiled JS and CSS) is available at:
 3. Configure categories and styling under **Settings → Inline Context**.
 4. In the Block Editor, select text and click **Inline Context**.
 5. Add your note content and choose a category (optional).
-
----
 
 == Frequently Asked Questions ==
 
@@ -127,8 +111,6 @@ No. Create as many categories as your content structure requires.
 
 = Can I use any Dashicon? =
 Yes. You can type any Dashicon class name to use all 300+ icons.
-
----
 
 == Screenshots ==
 
