@@ -18,6 +18,8 @@ Instead of sending readers to glossary pages or external links, Inline Context a
 
 Notes can be **reusable**, categorized, styled, centrally managed, and automatically updated everywhere they appear.
 
+[Check the live preview](https://wordpress.org/plugins/inline-context/?preview=1)
+
 = Why this is valuable for content-heavy websites =
 
 Websites with substantial text often need:
