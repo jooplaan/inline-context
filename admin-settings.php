@@ -52,6 +52,28 @@ function inline_context_register_settings() {
 		)
 	);
 
+	// Register animation setting.
+	register_setting(
+		'inline_context_general_settings',
+		'inline_context_enable_animations',
+		array(
+			'type'              => 'boolean',
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'default'           => true,
+		)
+	);
+
+	// Register CSS variables setting.
+	register_setting(
+		'inline_context_general_settings',
+		'inline_context_enable_animations',
+		array(
+			'type'              => 'boolean',
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'default'           => true,
+		)
+	);
+
 	// Register CSS variables setting.
 	register_setting(
 		'inline_context_styling_settings',
@@ -524,11 +546,23 @@ function inline_context_render_settings_page() {
 									<?php esc_html_e( 'When enabled, tooltips will appear when hovering over the link, in addition to click/keyboard activation.', 'inline-context' ); ?>
 								</p>
 							</div>							</fieldset>
-						</td>
-					</tr>
-				</table>
-
-				<p class="submit">
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Animations', 'inline-context' ); ?></th>
+					<td>
+						<fieldset>
+							<label>
+								<input type="checkbox" name="inline_context_enable_animations" value="1" <?php checked( get_option( 'inline_context_enable_animations', true ) ); ?>>
+								<?php esc_html_e( 'Enable subtle animations when notes appear', 'inline-context' ); ?>
+							</label>
+							<p class="description">
+								<?php esc_html_e( 'When enabled, notes will smoothly fade and slide in. When disabled, notes appear instantly. Always respects user preference for reduced motion.', 'inline-context' ); ?>
+							</p>
+						</fieldset>
+					</td>
+				</tr>
+			</table>				<p class="submit">
 					<input type="submit" name="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 'inline-context' ); ?>">
 				</p>
 			</form>
