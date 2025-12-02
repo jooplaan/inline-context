@@ -256,9 +256,10 @@ class Inline_Context_Frontend {
 			'inline-context-frontend',
 			'inlineContextData',
 			array(
-				'categories'   => inline_context_get_categories(),
-				'displayMode'  => get_option( 'inline_context_display_mode', 'inline' ),
-				'hoverEnabled' => (bool) get_option( 'inline_context_tooltip_hover', false ),
+				'categories'        => inline_context_get_categories(),
+				'displayMode'       => get_option( 'inline_context_display_mode', 'inline' ),
+				'hoverEnabled'      => (bool) get_option( 'inline_context_tooltip_hover', false ),
+				'animationsEnabled' => (bool) get_option( 'inline_context_enable_animations', true ),
 			)
 		);
 

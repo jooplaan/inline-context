@@ -4,6 +4,11 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	// Add 'js' class to body to enable JS-specific styles
 	document.body.classList.add( 'js' );
 
+	// Add 'no-animations' class if animations are disabled
+	if ( window.inlineContextData?.animationsEnabled === false ) {
+		document.body.classList.add( 'wp-inline-context-no-animations' );
+	}
+
 	const { applyFilters } = wp.hooks || { applyFilters: ( name, val ) => val };
 
 	// Get settings from localized data
@@ -240,7 +245,15 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 		// If tooltip exists, remove it (toggle off)
 		if ( tooltip ) {
-			tooltip.remove();
+			// Add closing animation class
+			tooltip.classList.add( 'wp-inline-context--closing' );
+			
+			// Wait for animation to complete before removing
+			const animationDuration = window.inlineContextData?.animationsEnabled === false ? 0 : 150;
+			setTimeout( () => {
+				tooltip.remove();
+			}, animationDuration );
+			
 			trigger.classList.remove( revealedClass );
 			trigger.setAttribute( 'aria-expanded', 'false' );
 			trigger.removeAttribute( 'aria-describedby' );
@@ -426,7 +439,15 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		// Check if note already exists (toggle off)
 		const existing = trigger.nextElementSibling;
 		if ( existing?.classList.contains( 'wp-inline-context-inline' ) ) {
-			existing.remove();
+			// Add closing animation class
+			existing.classList.add( 'wp-inline-context--closing' );
+			
+			// Wait for animation to complete before removing
+			const animationDuration = window.inlineContextData?.animationsEnabled === false ? 0 : 200;
+			setTimeout( () => {
+				existing.remove();
+			}, animationDuration );
+			
 			trigger.classList.remove( revealedClass );
 			trigger.setAttribute( 'aria-expanded', 'false' );
 			trigger.removeAttribute( 'aria-describedby' );

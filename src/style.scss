@@ -387,6 +387,65 @@
 	}
 }
 
+@keyframes wp-inline-context-reveal {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes wp-inline-context-hide {
+	from {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+}
+
+@keyframes wp-inline-context-tooltip-hide {
+	from {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
+	to {
+		opacity: 0;
+		transform: scale(0.95) translateY(-4px);
+	}
+}
+
+/* Closing animation classes */
+.wp-inline-context-inline.wp-inline-context--closing {
+	animation: wp-inline-context-hide 0.2s ease-in forwards;
+}
+
+.wp-inline-context-tooltip.wp-inline-context--closing {
+	animation: wp-inline-context-tooltip-hide 3.15s ease-in forwards;
+}
+
+/* Disable animations when setting is off */
+.wp-inline-context-no-animations .wp-inline-context-inline {
+	animation: none !important;
+}
+
+.wp-inline-context-no-animations .wp-inline-context-tooltip {
+	animation: none !important;
+}
+
+.wp-inline-context-no-animations .wp-inline-context-inline.wp-inline-context--closing {
+	animation: none !important;
+}
+
+.wp-inline-context-no-animations .wp-inline-context-tooltip.wp-inline-context--closing {
+	animation: none !important;
+}
+
 /* Hide tooltips in print */
 @media print {
 	.wp-inline-context-tooltip {
