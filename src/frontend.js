@@ -257,6 +257,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			trigger.classList.remove( revealedClass );
 			trigger.setAttribute( 'aria-expanded', 'false' );
 			trigger.removeAttribute( 'aria-describedby' );
+			trigger.removeAttribute( 'aria-controls' );
 
 			// Clean up event listeners stored on the trigger
 			if ( trigger._handleOutsideClick ) {
@@ -334,6 +335,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		trigger.classList.add( revealedClass );
 		trigger.setAttribute( 'aria-expanded', 'true' );
 		trigger.setAttribute( 'aria-describedby', tooltipId );
+		trigger.setAttribute( 'aria-controls', tooltipId );
 
 		// Update icon to open state
 		const categoryId = trigger.dataset.categoryId;
@@ -451,6 +453,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			trigger.classList.remove( revealedClass );
 			trigger.setAttribute( 'aria-expanded', 'false' );
 			trigger.removeAttribute( 'aria-describedby' );
+			trigger.removeAttribute( 'aria-controls' );
 			trigger.removeAttribute( 'aria-controls' );
 
 			// Update icon to closed state
