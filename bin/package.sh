@@ -71,7 +71,9 @@ zip -rq "$ZIP_PATH" . \
   -x "screenshot-5.png" \
   -x "screenshot-6.png" \
   -x ".distignore" \
-  -x "blueprints/*"
+  -x "blueprints/*" \
+  -x "ABILITIES-API-TESTS.md" \ 
+  -x "FILTERS.md"
 
 # Validate main plugin file exists in the archive context
 if [[ ! -f "inline-context.php" ]]; then

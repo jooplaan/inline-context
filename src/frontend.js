@@ -134,6 +134,12 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			trigger.setAttribute( 'role', 'button' );
 		}
 
+		// Apply link style class based on setting
+		const linkStyle = window.inlineContextData?.linkStyle || 'text';
+		if ( linkStyle === 'pill' ) {
+			trigger.classList.add( 'wp-inline-context--pill' );
+		}
+
 		// Add category icon if category is set
 		const categoryId = trigger.dataset.categoryId;
 		if ( categoryId ) {
@@ -247,13 +253,14 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		if ( tooltip ) {
 			// Add closing animation class
 			tooltip.classList.add( 'wp-inline-context--closing' );
-			
+
 			// Wait for animation to complete before removing
-			const animationDuration = window.inlineContextData?.animationsEnabled === false ? 0 : 150;
+			const animationDuration =
+				window.inlineContextData?.animationsEnabled === false ? 0 : 150;
 			setTimeout( () => {
 				tooltip.remove();
 			}, animationDuration );
-			
+
 			trigger.classList.remove( revealedClass );
 			trigger.setAttribute( 'aria-expanded', 'false' );
 			trigger.removeAttribute( 'aria-describedby' );
@@ -443,13 +450,14 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		if ( existing?.classList.contains( 'wp-inline-context-inline' ) ) {
 			// Add closing animation class
 			existing.classList.add( 'wp-inline-context--closing' );
-			
+
 			// Wait for animation to complete before removing
-			const animationDuration = window.inlineContextData?.animationsEnabled === false ? 0 : 200;
+			const animationDuration =
+				window.inlineContextData?.animationsEnabled === false ? 0 : 200;
 			setTimeout( () => {
 				existing.remove();
 			}, animationDuration );
-			
+
 			trigger.classList.remove( revealedClass );
 			trigger.setAttribute( 'aria-expanded', 'false' );
 			trigger.removeAttribute( 'aria-describedby' );

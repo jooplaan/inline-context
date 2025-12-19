@@ -258,6 +258,8 @@ class Inline_Context_Frontend {
 			array(
 				'categories'        => inline_context_get_categories(),
 				'displayMode'       => get_option( 'inline_context_display_mode', 'inline' ),
+				'linkStyle'         => get_option( 'inline_context_link_style', 'text' ),
+				'iconPlacement'     => get_option( 'inline_context_icon_placement', 'middle' ),
 				'hoverEnabled'      => (bool) get_option( 'inline_context_tooltip_hover', false ),
 				'animationsEnabled' => (bool) get_option( 'inline_context_enable_animations', true ),
 			)

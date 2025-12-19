@@ -42,6 +42,16 @@ Renée Kool’s website:
 
 ## Key Features
 
+### AI-Powered Content Enhancement (v2.4+)
+
+- **Browser AI Integration**: Claude, ChatGPT, and other AI assistants can discover and use plugin capabilities
+- **REST API Discovery**: All features exposed via WordPress Abilities API for AI agents
+- **Automatic Note Creation**: AI can create inline context notes while generating content
+- **Smart Reuse**: AI can search and reuse existing notes to maintain consistency
+- **One-Step HTML Generation**: `create-inline-note` ability returns ready-to-embed markup
+- **Authentication Support**: Works with cookie auth (browser) or Application Passwords
+- **Complete Documentation**: See [ABILITIES-API.md](ABILITIES-API.md) for full API reference and AI workflows
+
 ### Reusable Notes System (v1.5)
 
 - **Custom Post Type**: Notes stored as `inline_context_note` CPT for centralized management
@@ -148,6 +158,21 @@ The plugin supports extensive styling customization through:
 - **Live Preview**: See changes in real-time before saving
 
 For detailed styling instructions and examples, see [STYLING.md](STYLING.md).
+
+## AI Integration
+
+The plugin exposes all its functionality via the WordPress Abilities API, allowing browser-based AI assistants (Claude, ChatGPT, etc.) to discover and use the plugin automatically.
+
+**Available Abilities:**
+
+- `create-note` - Create new notes
+- `search-notes` - Find existing notes
+- `get-categories` - List available categories
+- `get-note` - Fetch specific note by ID
+- `create-inline-note` - Create note and get ready-to-embed HTML (AI helper)
+
+**Complete Documentation:**  
+See [ABILITIES-API.md](ABILITIES-API.md) for full API reference, authentication details, workflows, and code examples.
 
 For developer filters and programmatic customization, see [FILTERS.md](FILTERS.md).
 
