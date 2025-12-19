@@ -116,10 +116,12 @@ No. Create as many categories as your content structure requires.
 Yes. You can type any Dashicon class name to use all 300+ icons.
 
 == Screenshots ==
-
-1. Editor popover for adding inline context with category selection
-2. Modal window for writing an inline context note
-3. Search interface for inserting reusable notes
-4. Inline context note on the frontend (default expanded mode)
-5. Tooltip version of the inline note on the frontend
-6. Notes Library in the admin area showing usage count and linked posts
+1. Inline context note link with pill style
+2. Inline context note link with pill style expanded
+3. Inline context note link with pill style as tooltip
+4. Editor popover for adding inline context with category selection
+5. Modal window for writing an inline context note
+6. Search interface for inserting reusable notes
+7. Inline context note on the frontend (default expanded mode)
+8. Tooltip version of the inline note on the frontend
+9. Notes Library in the admin area showing usage count and linked posts
