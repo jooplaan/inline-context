@@ -3,7 +3,25 @@
 This file contains the complete changelog for all versions of the Inline Context plugin.
 For major version highlights, see README.md and readme.txt.
 
-## Version 2.3.5 - 2.3.8 - November 29, 2025
+## Version 2.4.0 - December 19, 2025
+* NEW: WordPress 6.9+ Abilities API integration for AI assistant discovery
+* NEW: Five REST API abilities for AI-powered content enhancement
+* NEW: `create-note` ability - Create new inline context notes via API
+* NEW: `search-notes` ability - Search existing notes by title/content
+* NEW: `get-categories` ability - Retrieve all available categories
+* NEW: `get-note` ability - Fetch specific note by ID
+* NEW: `create-inline-note` ability - Create note and get ready-to-embed HTML markup (AI helper)
+* NEW: Browser-based AI integration (Claude, ChatGPT) with automatic capability discovery
+* NEW: Comprehensive ABILITIES-API.md documentation with workflows and examples
+* NEW: Test infrastructure for Abilities API (test-abilities.sh, tests/test-abilities.php)
+* NEW: AIFeatures component for future in-editor AI UI (currently disabled by default)
+* IMPROVED: Authentication support via cookie auth (browser) or Application Passwords
+* IMPROVED: Complete JSON Schema validation for all ability inputs
+* IMPROVED: Permission callbacks ensure proper WordPress capability checks
+* IMPROVED: Backward compatible - works on WordPress 6.0+ (Abilities API optional on 6.9+)
+* IMPROVED: Updated "Tested up to" WordPress 6.9
+
+## Version 2.3.5 - 2.3.9 - November 29, 2025
 * Minor fixes, updated documentation and readme.txt, added Dutch translations
 
 ## Version 2.3.4 - November 28, 2025
