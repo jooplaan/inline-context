@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Plugin Name: Inline Context
  * Plugin URI: https://wordpress.org/plugins/inline-context/
  * Description: Add inline expandable context to selected text in the block editor with direct anchor linking. Click to reveal, click again to hide.
- * Version: 2.4.0
+ * Version: 2.4.1
  * Author: Joop Laan
  * Author URI: https://profiles.wordpress.org/joop/
  * License: GPL-2.0-or-later
@@ -17,9 +18,9 @@
  * @package InlineContext
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
-define( 'INLINE_CONTEXT_VERSION', '2.4.0' );
+define('INLINE_CONTEXT_VERSION', '2.4.1');
 
 // Load modular classes.
 require_once __DIR__ . '/includes/class-inline-context-utils.php';
@@ -35,7 +36,7 @@ require_once __DIR__ . '/includes/class-inline-context-abilities.php';
 require_once __DIR__ . '/includes/functions.php';
 
 // Load admin-specific functionality (function-based, loaded conditionally).
-if ( is_admin() ) {
+if (is_admin()) {
 	require_once __DIR__ . '/admin-settings.php';
 }
 
@@ -56,7 +57,7 @@ $inline_context_sync = new Inline_Context_Sync();
 $inline_context_sync->init();
 
 // Initialize deletion functionality.
-$inline_context_deletion = new Inline_Context_Deletion( $inline_context_sync );
+$inline_context_deletion = new Inline_Context_Deletion($inline_context_sync);
 $inline_context_deletion->init();
 
 // Initialize REST API.
@@ -98,7 +99,7 @@ add_action(
 			'inline-context-editor',
 			sprintf(
 				'window.inlineContextData = window.inlineContextData || {}; window.inlineContextData.categories = %s; window.inlineContextData.aiEnabled = %s;',
-				wp_json_encode( $categories ),
+				wp_json_encode($categories),
 				$ai_enabled ? 'true' : 'false'
 			),
 			'before'
@@ -114,13 +115,13 @@ add_action(
 		// Add theme.json support for customizing inline context styles in Site Editor.
 		add_filter(
 			'wp_theme_json_data_default',
-			function ( $theme_json ) {
+			function ($theme_json) {
 				$plugin_theme_json_path = __DIR__ . '/theme.json';
-				if ( file_exists( $plugin_theme_json_path ) ) {
+				if (file_exists($plugin_theme_json_path)) {
 					// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local theme.json file.
-					$plugin_theme_json_data = json_decode( file_get_contents( $plugin_theme_json_path ), true );
-					if ( is_array( $plugin_theme_json_data ) ) {
-						$theme_json->update_with( $plugin_theme_json_data );
+					$plugin_theme_json_data = json_decode(file_get_contents($plugin_theme_json_path), true);
+					if (is_array($plugin_theme_json_data)) {
+						$theme_json->update_with($plugin_theme_json_data);
 					}
 				}
 				return $theme_json;
@@ -136,25 +137,25 @@ add_action(
 	'admin_init',
 	function () {
 		// Check if migration has already been done.
-		if ( get_option( 'inline_context_categories_migrated' ) ) {
+		if (get_option('inline_context_categories_migrated')) {
 			return;
 		}
 
 		// Get the old meta-based categories.
-		$old_categories = get_option( 'inline_context_categories', inline_context_get_default_categories() );
+		$old_categories = get_option('inline_context_categories', inline_context_get_default_categories());
 
-		if ( ! is_array( $old_categories ) || empty( $old_categories ) ) {
+		if (! is_array($old_categories) || empty($old_categories)) {
 			$old_categories = inline_context_get_default_categories();
 		}
 
 		// Create taxonomy terms from old categories.
-		foreach ( $old_categories as $category_id => $category_data ) {
+		foreach ($old_categories as $category_id => $category_data) {
 			$term_name = $category_data['name'] ?? $category_id;
 
 			// Check if term already exists.
-			$existing_term = get_term_by( 'slug', $category_id, 'inline_context_category' );
+			$existing_term = get_term_by('slug', $category_id, 'inline_context_category');
 
-			if ( ! $existing_term ) {
+			if (! $existing_term) {
 				// Create the term.
 				$term = wp_insert_term(
 					$term_name,
@@ -164,37 +165,37 @@ add_action(
 					)
 				);
 
-				if ( ! is_wp_error( $term ) ) {
+				if (! is_wp_error($term)) {
 					$term_id = $term['term_id'];
 
 					// Store the icon and color as term meta.
-					if ( isset( $category_data['icon_closed'] ) ) {
-						update_term_meta( $term_id, 'icon_closed', $category_data['icon_closed'] );
+					if (isset($category_data['icon_closed'])) {
+						update_term_meta($term_id, 'icon_closed', $category_data['icon_closed']);
 					}
-					if ( isset( $category_data['icon_open'] ) ) {
-						update_term_meta( $term_id, 'icon_open', $category_data['icon_open'] );
+					if (isset($category_data['icon_open'])) {
+						update_term_meta($term_id, 'icon_open', $category_data['icon_open']);
 					}
-					if ( isset( $category_data['color'] ) ) {
-						update_term_meta( $term_id, 'color', $category_data['color'] );
+					if (isset($category_data['color'])) {
+						update_term_meta($term_id, 'color', $category_data['color']);
 					}
 				}
 			} else {
 				// Update existing term meta.
 				$term_id = $existing_term->term_id;
-				if ( isset( $category_data['icon_closed'] ) ) {
-					update_term_meta( $term_id, 'icon_closed', $category_data['icon_closed'] );
+				if (isset($category_data['icon_closed'])) {
+					update_term_meta($term_id, 'icon_closed', $category_data['icon_closed']);
 				}
-				if ( isset( $category_data['icon_open'] ) ) {
-					update_term_meta( $term_id, 'icon_open', $category_data['icon_open'] );
+				if (isset($category_data['icon_open'])) {
+					update_term_meta($term_id, 'icon_open', $category_data['icon_open']);
 				}
-				if ( isset( $category_data['color'] ) ) {
-					update_term_meta( $term_id, 'color', $category_data['color'] );
+				if (isset($category_data['color'])) {
+					update_term_meta($term_id, 'color', $category_data['color']);
 				}
 			}
 		}
 
 		// Mark migration as complete.
-		update_option( 'inline_context_categories_migrated', true );
+		update_option('inline_context_categories_migrated', true);
 	}
 );
 
@@ -210,20 +211,20 @@ add_action(
 			'used_in_posts',
 			array(
 				'type'              => 'array',
-				'description'       => __( 'Post IDs where this note is used', 'inline-context' ),
+				'description'       => __('Post IDs where this note is used', 'inline-context'),
 				'single'            => true,
 				'default'           => array(),
-				'sanitize_callback' => function ( $value ) {
-					if ( ! is_array( $value ) ) {
+				'sanitize_callback' => function ($value) {
+					if (! is_array($value)) {
 						return array();
 					}
 					// Clean and validate the usage tracking data structure.
 					$sanitized = array();
-					foreach ( $value as $usage_data ) {
-						if ( is_array( $usage_data ) && isset( $usage_data['post_id'] ) ) {
+					foreach ($value as $usage_data) {
+						if (is_array($usage_data) && isset($usage_data['post_id'])) {
 							$sanitized[] = array(
-								'post_id' => absint( $usage_data['post_id'] ),
-								'count'   => absint( $usage_data['count'] ?? 1 ),
+								'post_id' => absint($usage_data['post_id']),
+								'count'   => absint($usage_data['count'] ?? 1),
 							);
 						}
 					}
@@ -235,8 +236,8 @@ add_action(
 						'items' => array(
 							'type'       => 'object',
 							'properties' => array(
-								'post_id' => array( 'type' => 'integer' ),
-								'count'   => array( 'type' => 'integer' ),
+								'post_id' => array('type' => 'integer'),
+								'count'   => array('type' => 'integer'),
 							),
 						),
 					),
@@ -249,7 +250,7 @@ add_action(
 			'usage_count',
 			array(
 				'type'              => 'integer',
-				'description'       => __( 'Number of times this note is used', 'inline-context' ),
+				'description'       => __('Number of times this note is used', 'inline-context'),
 				'single'            => true,
 				'default'           => 0,
 				'sanitize_callback' => 'absint',
@@ -262,7 +263,7 @@ add_action(
 			'is_reusable',
 			array(
 				'type'              => 'boolean',
-				'description'       => __( 'Whether this note is marked as reusable', 'inline-context' ),
+				'description'       => __('Whether this note is marked as reusable', 'inline-context'),
 				'single'            => true,
 				'default'           => false,
 				'sanitize_callback' => 'rest_sanitize_boolean',
@@ -282,10 +283,10 @@ add_action(
 add_filter(
 	'rest_prepare_inline_context_note',
 	// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
-	function ( $response, $post, $request ) {
+	function ($response, $post, $request) {
 		$data                = $response->get_data();
-		$data['is_reusable'] = (bool) get_post_meta( $post->ID, 'is_reusable', true );
-		$response->set_data( $data );
+		$data['is_reusable'] = (bool) get_post_meta($post->ID, 'is_reusable', true);
+		$response->set_data($data);
 		return $response;
 	},
 	10,
@@ -302,7 +303,7 @@ add_filter(
 add_action(
 	'admin_init',
 	function () {
-		if ( ! isset( $_GET['inline_context_rebuild'] ) || ! current_user_can( 'manage_options' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin URL parameter for rebuild action.
+		if (! isset($_GET['inline_context_rebuild']) || ! current_user_can('manage_options')) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin URL parameter for rebuild action.
 			return;
 		}
 
@@ -316,7 +317,7 @@ add_action(
 		);
 
 		global $wpdb;
-		foreach ( $all_notes as $note_id ) {
+		foreach ($all_notes as $note_id) {
 			// @codingStandardsIgnoreStart - Direct DB operations intentional for rebuild.
 			// Delete from database directly to avoid cache issues.
 			$wpdb->delete(
@@ -335,11 +336,11 @@ add_action(
 			);
 			// @codingStandardsIgnoreEnd
 			// Clear the cache for this post.
-			wp_cache_delete( $note_id, 'post_meta' );
+			wp_cache_delete($note_id, 'post_meta');
 		} // Scan all posts and pages to rebuild usage data.
 		$all_posts = get_posts(
 			array(
-				'post_type'      => array( 'post', 'page' ),
+				'post_type'      => array('post', 'page'),
 				'post_status'    => 'any',
 				'posts_per_page' => -1,
 			)
@@ -347,27 +348,27 @@ add_action(
 
 		// Build usage data structure: note_id => [['post_id' => X, 'count' => Y], ...].
 		$all_usage_data = array();
-		foreach ( $all_posts as $post ) {
+		foreach ($all_posts as $post) {
 			// Get note IDs from content and count occurrences.
-			preg_match_all( '/data-note-id="(\d+)"/i', $post->post_content, $matches );
-			$notes_raw = ! empty( $matches[1] ) ? array_map( 'intval', $matches[1] ) : array();
+			preg_match_all('/data-note-id="(\d+)"/i', $post->post_content, $matches);
+			$notes_raw = ! empty($matches[1]) ? array_map('intval', $matches[1]) : array();
 
 			// Count occurrences of each note.
 			$notes_counts = array();
-			foreach ( $notes_raw as $note_id ) {
-				if ( ! isset( $notes_counts[ $note_id ] ) ) {
-					$notes_counts[ $note_id ] = 0;
+			foreach ($notes_raw as $note_id) {
+				if (! isset($notes_counts[$note_id])) {
+					$notes_counts[$note_id] = 0;
 				}
-				$notes_counts[ $note_id ]++;
+				$notes_counts[$note_id]++;
 			}
 
 			// Accumulate usage data for each note.
-			foreach ( $notes_counts as $note_id => $count ) {
-				if ( ! isset( $all_usage_data[ $note_id ] ) ) {
-					$all_usage_data[ $note_id ] = array();
+			foreach ($notes_counts as $note_id => $count) {
+				if (! isset($all_usage_data[$note_id])) {
+					$all_usage_data[$note_id] = array();
 				}
 
-				$all_usage_data[ $note_id ][] = array(
+				$all_usage_data[$note_id][] = array(
 					'post_id' => $post->ID,
 					'count'   => $count,
 				);
@@ -375,15 +376,15 @@ add_action(
 		}
 
 		// Now save all the accumulated usage data.
-		foreach ( $all_usage_data as $note_id => $used_in ) {
-			update_post_meta( $note_id, 'used_in_posts', $used_in );
+		foreach ($all_usage_data as $note_id => $used_in) {
+			update_post_meta($note_id, 'used_in_posts', $used_in);
 
 			// Recalculate total usage count.
 			$total_count = 0;
-			foreach ( $used_in as $usage_data ) {
+			foreach ($used_in as $usage_data) {
 				$total_count += $usage_data['count'] ?? 1;
 			}
-			update_post_meta( $note_id, 'usage_count', $total_count );
+			update_post_meta($note_id, 'usage_count', $total_count);
 		}
 
 		// Redirect to notes list with success message.
@@ -393,7 +394,7 @@ add_action(
 					'post_type' => 'inline_context_note',
 					'rebuilt'   => '1',
 				),
-				admin_url( 'edit.php' )
+				admin_url('edit.php')
 			)
 		);
 		exit;
@@ -408,28 +409,28 @@ add_action(
 	function () {
 		// @codingStandardsIgnoreStart - Checking URL parameters for display-only admin notices.
 		// Display rebuild success notice.
-		if ( isset( $_GET['rebuilt'] ) && '1' === $_GET['rebuilt'] && isset( $_GET['post_type'] ) && 'inline_context_note' === $_GET['post_type'] ) {
+		if (isset($_GET['rebuilt']) && '1' === $_GET['rebuilt'] && isset($_GET['post_type']) && 'inline_context_note' === $_GET['post_type']) {
 			echo '<div class="notice notice-success is-dismissible">';
-			echo '<p><strong>' . esc_html__( 'Success!', 'inline-context' ) . '</strong> ';
-			echo esc_html__( 'Usage data has been rebuilt for all inline context notes.', 'inline-context' );
+			echo '<p><strong>' . esc_html__('Success!', 'inline-context') . '</strong> ';
+			echo esc_html__('Usage data has been rebuilt for all inline context notes.', 'inline-context');
 			echo '</p>';
 			echo '</div>';
 		}
 
-	// Display transient admin notices (for post save validations).
-	$screen = get_current_screen();
-	if ( $screen && isset( $_GET['post'] ) && 'inline_context_note' === $screen->id ) {
-		$post_id = intval( $_GET['post'] );
-		$notices = get_transient( 'inline_context_admin_notice_' . $post_id );
-		// @codingStandardsIgnoreEnd.
-			if ( $notices ) {
-				foreach ( $notices as $notice ) {
+		// Display transient admin notices (for post save validations).
+		$screen = get_current_screen();
+		if ($screen && isset($_GET['post']) && 'inline_context_note' === $screen->id) {
+			$post_id = intval($_GET['post']);
+			$notices = get_transient('inline_context_admin_notice_' . $post_id);
+			// @codingStandardsIgnoreEnd.
+			if ($notices) {
+				foreach ($notices as $notice) {
 					$type = 'error' === $notice['type'] ? 'error' : 'warning';
-					echo '<div class="notice notice-' . esc_attr( $type ) . ' is-dismissible">';
-					echo '<p>' . esc_html( $notice['message'] ) . '</p>';
+					echo '<div class="notice notice-' . esc_attr($type) . ' is-dismissible">';
+					echo '<p>' . esc_html($notice['message']) . '</p>';
 					echo '</div>';
 				}
-				delete_transient( 'inline_context_admin_notice_' . $post_id );
+				delete_transient('inline_context_admin_notice_' . $post_id);
 			}
 		}
 	}
