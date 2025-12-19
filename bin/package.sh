@@ -22,6 +22,7 @@ cd "$ROOT_DIR"
 
 zip -rq "$ZIP_PATH" . \
   -x ".git/*" \
+  -x ".claude/*" \
   -x ".github/*" \
   -x ".vscode/*" \
   -x "node_modules/*" \
