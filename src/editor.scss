@@ -168,10 +168,7 @@
 	background-color: #e0e0e0;
 }
 
-.wp-reveal-quill-editor .ql-toolbar button.ql-active {
-	background-color: #2271b1;
-	color: white;
-}
+/* Let Quill handle active state styling (blue text, no background) */
 
 /* Source code view (code-block) styling */
 .wp-reveal-quill-editor .ql-editor pre.ql-syntax {
@@ -213,8 +210,12 @@
 		color: #06c;
 	}
 
-	&.ql-active::before {
-		color: #06c;
+	&.ql-active {
+		background-color: #2271b1;
+
+		&::before {
+			color: white;
+		}
 	}
 }
 
