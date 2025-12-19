@@ -4,6 +4,11 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	// Add 'js' class to body to enable JS-specific styles
 	document.body.classList.add( 'js' );
 
+	// Add 'no-animations' class if animations are disabled
+	if ( window.inlineContextData?.animationsEnabled === false ) {
+		document.body.classList.add( 'wp-inline-context-no-animations' );
+	}
+
 	const { applyFilters } = wp.hooks || { applyFilters: ( name, val ) => val };
 
 	// Get settings from localized data
@@ -129,6 +134,12 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			trigger.setAttribute( 'role', 'button' );
 		}
 
+		// Apply link style class based on setting
+		const linkStyle = window.inlineContextData?.linkStyle || 'text';
+		if ( linkStyle === 'pill' ) {
+			trigger.classList.add( 'wp-inline-context--pill' );
+		}
+
 		// Add category icon if category is set
 		const categoryId = trigger.dataset.categoryId;
 		if ( categoryId ) {
@@ -240,10 +251,20 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 		// If tooltip exists, remove it (toggle off)
 		if ( tooltip ) {
-			tooltip.remove();
+			// Add closing animation class
+			tooltip.classList.add( 'wp-inline-context--closing' );
+
+			// Wait for animation to complete before removing
+			const animationDuration =
+				window.inlineContextData?.animationsEnabled === false ? 0 : 150;
+			setTimeout( () => {
+				tooltip.remove();
+			}, animationDuration );
+
 			trigger.classList.remove( revealedClass );
 			trigger.setAttribute( 'aria-expanded', 'false' );
 			trigger.removeAttribute( 'aria-describedby' );
+			trigger.removeAttribute( 'aria-controls' );
 
 			// Clean up event listeners stored on the trigger
 			if ( trigger._handleOutsideClick ) {
@@ -321,6 +342,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		trigger.classList.add( revealedClass );
 		trigger.setAttribute( 'aria-expanded', 'true' );
 		trigger.setAttribute( 'aria-describedby', tooltipId );
+		trigger.setAttribute( 'aria-controls', tooltipId );
 
 		// Update icon to open state
 		const categoryId = trigger.dataset.categoryId;
@@ -426,10 +448,20 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		// Check if note already exists (toggle off)
 		const existing = trigger.nextElementSibling;
 		if ( existing?.classList.contains( 'wp-inline-context-inline' ) ) {
-			existing.remove();
+			// Add closing animation class
+			existing.classList.add( 'wp-inline-context--closing' );
+
+			// Wait for animation to complete before removing
+			const animationDuration =
+				window.inlineContextData?.animationsEnabled === false ? 0 : 200;
+			setTimeout( () => {
+				existing.remove();
+			}, animationDuration );
+
 			trigger.classList.remove( revealedClass );
 			trigger.setAttribute( 'aria-expanded', 'false' );
 			trigger.removeAttribute( 'aria-describedby' );
+			trigger.removeAttribute( 'aria-controls' );
 			trigger.removeAttribute( 'aria-controls' );
 
 			// Update icon to closed state

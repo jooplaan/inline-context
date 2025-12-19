@@ -107,6 +107,14 @@ class Inline_Context_Utils {
 			'link-focus-color'        => '#2271b1',
 			'link-focus-border-color' => '#2271b1',
 			'link-open-color'         => '#2271b1',
+			'pill-border-color'       => '#d4850a',
+			'pill-border-width'       => '1.5px',
+			'pill-border-radius'      => '0.25rem',
+			'pill-padding-y'          => '2px',
+			'pill-padding-x'          => '8px',
+			'pill-background'         => '#FFF4E6',
+			'pill-hover-background'   => 'rgba(212, 133, 10, 0.08)',
+			'pill-hover-border-color' => '#b87409',
 			'note-margin-y'           => '8px',
 			'note-padding-y'          => '12px',
 			'note-padding-x'          => '16px',
@@ -144,6 +152,32 @@ class Inline_Context_Utils {
 				esc_attr( $value )
 			);
 		}
+
+		// Add icon placement setting as CSS variables.
+		// Map setting values to CSS vertical-align values (for inline) and align-self (for flex).
+		$icon_placement       = get_option( 'inline_context_icon_placement', 'middle' );
+		$css_placement_map    = array(
+			'top'    => 'super',       // Superscript position.
+			'middle' => 'middle',      // Middle alignment.
+			'bottom' => 'text-bottom', // Bottom of text (doesn't expand line height).
+		);
+		$css_flex_align_map   = array(
+			'top'    => 'flex-start', // Align to top of flex container.
+			'middle' => 'center',     // Align to center of flex container.
+			'bottom' => 'flex-end',   // Align to bottom of flex container.
+		);
+		$css_placement_value  = isset( $css_placement_map[ $icon_placement ] ) ? $css_placement_map[ $icon_placement ] : 'middle';
+		$css_flex_align_value = isset( $css_flex_align_map[ $icon_placement ] ) ? $css_flex_align_map[ $icon_placement ] : 'center';
+
+		$css .= sprintf(
+			'--wp--custom--inline-context--icon-placement: %s;',
+			esc_attr( $css_placement_value )
+		);
+		$css .= sprintf(
+			'--wp--custom--inline-context--icon-flex-align: %s;',
+			esc_attr( $css_flex_align_value )
+		);
+
 		$css .= '}';
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
