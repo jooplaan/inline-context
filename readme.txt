@@ -1,94 +1,127 @@
 === Inline Context ===
 Contributors: joop
-Tags: inline, footnote, tooltip, reveal, context
+Tags: inline, footnote, tooltip, context, annotations
 Requires at least: 6.0
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.3.8
+Stable tag: 2.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Add inline expandable context notes with direct anchor linking. Optionally show the notes as tooltip popover.
+Add inline expandable notes or tooltips to provide context, definitions, and references without disrupting the reading flow.
 
 == Description ==
-Inline Context lets you enrich content with expandable context notes that maintain optimal reading flow. Alternatively, the context notes can be displayed as tooltips. The context notes can be re-usable. When a reusable inline context is updated, all instances where the note is used will be updated.
 
-Create reusable notes via Custom Post Type, organize with categories (each with distinct icons and colors), and control all styling through a tabbed admin interface.
+**Inline Context** is a powerful Block Editor enhancement that lets you create inline expandable notes or clean tooltip-style popovers anywhere in your content. It is ideal for **content-rich websites**, including editorial platforms, research sites, online magazines, documentation hubs, and educational blogs that rely on clear explanation without breaking the reader’s focus.
 
-This plugin originated from a project with Renée Kool — a visual artist working in public art, film, and emerging media. She wanted to create a website where a single link could reveal additional content containing multiple related links.
+Instead of sending readers to glossary pages or external links, Inline Context allows you to provide definitions, references, clarifications, and annotations *in place* — keeping readers engaged and your content structured.
 
-As inspiration, we looked at the Dutch journalism platform De Correspondent, which uses inline contextual notes: small linked text fragments with an icon. When activated, they reveal an extra HTML element containing supplementary information. These contextual notes can:
+Notes can be **reusable**, categorized, styled, centrally managed, and automatically updated everywhere they appear.
 
-- provide definitions
-- offer additional context before the reader follows links in the main text
-- stay out of the way to keep the article readable
+[Check the live preview](https://wordpress.org/plugins/inline-context/?preview=1)
 
-You can see examples of their inline notes in this article:
-[Hoe Nederland kampioen deeltijdwerken werd](https://decorrespondent.nl/15887/hoe-nederland-kampioen-deeltijdwerken-werd/9053b712-3591-0002-29b3-8c7b69eae0c3)
+= Why this is valuable for content-heavy websites =
 
-= Source Code =
+Websites with substantial text often need:
 
-This plugin uses build tools (npm and webpack via @wordpress/scripts) to compile JavaScript and CSS.
+* definitions and terminology
+* source references
+* background information
+* contextual inline explanations
+* mini footnotes without scrolling
+* inline callouts, tips, or warnings
 
-**Source code repository:** https://github.com/jooplaan/inline-context
+Inline Context delivers all of this with a frictionless, accessible user experience. It helps readers stay focused, reduces navigation fatigue, and improves knowledge retention — especially in long articles or research-based content.
 
-The complete source code, including all uncompiled JavaScript and CSS files, is available in the `/src` directory of the GitHub repository. You can review, build, and modify the source code following the instructions in the repository's README.md.
+= How it works =
 
-= Key Features Inline Context plugin =
+1. Highlight text in the Block Editor.
+2. Click **Inline Context**.
+3. Enter your note content (rich text supported).
+4. Optionally assign a category with custom icon & color.
+5. Publish — your note appears inline or as a tooltip, depending on settings.
 
-* **Display Modes**: Choose between inline expansion or floating tooltips
-* **Smart Tooltips**: Automatic positioning that prevents off-screen display
-* **Reusable Notes**: Create notes as Custom Post Type entries and reuse them across multiple posts
-* **Notes Library**: Centralized management of all notes with usage tracking
-* **Quick Search**: Find and insert existing notes instantly from the editor
-* **Category Management**: Organize notes with custom categories (Internal Article, External Article, Definition, Tip, etc.)
-* **Custom Icons**: Choose from 30 curated Dashicons or use any of 300+ available icons
-* **Icon States**: Different icons for closed/open states provide visual feedback
-* **Direct Anchor Links**: Every note gets a unique URL anchor for easy sharing (#context-note-xxx)
-* **Auto-Opening**: Notes automatically open when accessed via direct link
-* **Rich Text Support**: Notes support bold, italic, links, lists with ReactQuill editor
-* **Comprehensive Styling**: Control colors, spacing, borders, shadows for links and notes
-* **Security First**: Content sanitized with DOMPurify before frontend display
-* **Full Accessibility**: ARIA support, keyboard navigation, focus management, Escape key support
-* **WordPress Integration**: Clean toolbar button in Rich Text format controls
+You can also create **reusable** notes from a dedicated Custom Post Type. Updating a reusable note updates all instances site-wide.
 
-= Styling Controls =
-Customize every aspect of appearance:
-* **Link Styling**: Hover colors, focus states, open state colors
-* **Note Styling**: Padding, margins, background, borders, accent bar, shadows
-* **Chevron Styling**: Size, color, opacity for the expand indicator
-* **Live Preview**: See changes immediately with interactive example
+== Key Features ==
 
-= Security =
-Inline Context renders note content on the frontend. Content authored in the editor is sanitized before display. We recommend using the latest WordPress for improved security and KSES handling.
+= Display modes =
+* Inline expansion (reveals a small content panel)
+* Tooltip popovers (floating contextual bubbles)
+* Smart tooltip positioning to avoid off-screen display
+* Direct anchor links (`#context-note-xxx`) for deep linking
+* Auto-open on page load when accessed via link
 
-= Internationalization =
-This plugin is translation-ready. POT files can be generated from source with `npm run pot` and placed under the `languages/` directory.
+= Editor productivity =
+* Reusable notes with global updates
+* Notes Library with usage tracking (shows where each note is used)
+* Quick Search inside the editor to insert existing notes
+* Rich text support via ReactQuill (bold, italic, lists, links)
+* Clean, integrated Rich Text toolbar button
+
+= Categories & icons =
+* Create unlimited categories (Definition, Reference, External Article, Tip, Warning, etc.)
+* Choose from curated Dashicons or any of 300+ icons
+* Separate icons for open and closed states
+
+= Styling & customization =
+Full styling control from **Settings → Inline Context**:
+
+* Link colors, hover, and focus states
+* Note padding, spacing, borders, backgrounds, shadows
+* Tooltip appearance
+* Chevron/indicator styling
+* Live interactive preview of all style changes
+
+= Accessibility & security =
+* ARIA support, focus lock, Escape key behavior
+* Keyboard-navigable for both link and note
+* DOMPurify sanitization of note content
+
+== Internationalization ==
+
+Inline Context is fully translation-ready.
+
+== Examples & inspiration ==
+
+The idea for this plugin originated from a project with Renée Kool — a visual artist working in public art, film, and emerging media. She wanted to create a website where a single link could reveal additional content containing multiple related links. We looked at the Dutch journalism platform De Correspondent, which use subtle inline notes to provide context without interrupting the flow of reading. You can see examples of their inline notes in this article: [Hoe Nederland kampioen deeltijdwerken werd](https://decorrespondent.nl/15887/hoe-nederland-kampioen-deeltijdwerken-werd/9053b712-3591-0002-29b3-8c7b69eae0c3)
+
+== Source code ==
+
+Inline Context uses `@wordpress/scripts` with webpack and npm to build assets.
+
+Full source (including uncompiled JS and CSS) is available at:
+[https://github.com/jooplaan/inline-context](https://github.com/jooplaan/inline-context)
 
 == Installation ==
-1. Upload the plugin files to the `/wp-content/plugins/inline-context` directory, or install the plugin through the WordPress plugins screen directly.
-2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Configure categories and styling in Settings > Inline Context.
-4. In the editor, select text and click the "Inline Context" button to add a note.
-5. Choose a category (optional) and write your note content.
+
+1. Upload the plugin files to `/wp-content/plugins/inline-context`, or install via the Plugins screen.
+2. Activate the plugin.
+3. Configure categories and styling under **Settings → Inline Context**.
+4. In the Block Editor, select text and click **Inline Context**.
+5. Add your note content and choose a category (optional).
 
 == Frequently Asked Questions ==
-= Does it work with classic editor? =
-No. This plugin extends the block editor's Rich Text controls.
+
+= Does this work with the Classic Editor? =
+No. Inline Context is built specifically for the WordPress Block Editor (Gutenberg).
 
 = Can I change the styles? =
-Yes. Go to Settings > Inline Context > Styling tab for comprehensive visual customization.
+Yes. Extensive visual customization options are available under **Settings → Inline Context → Styling**.
 
-= How many categories can I create? =
-There's no hard limit. Create as many categories as needed to organize your notes.
+= Is there a limit to the number of categories? =
+No. Create as many categories as your content structure requires.
 
-= Can I use any Dashicon for the categories? =
-Yes. You can type any dashicon class name to access all 300+ icons.
+= Can I use any Dashicon? =
+Yes. You can type any Dashicon class name to use all 300+ icons.
 
 == Screenshots ==
-1. Editor popover for adding inline context with category selection
-2. Pop up in editor to add a inline context note to content
-3. Search existing re-usable notes in the editor pop-up
-4. The inline context note displayed on website, default view
-5. The inline context note displayed as tooltip on website
-6. List of inline context notes in WordPress admin, showing usage count and where it is used in content
+1. Inline context note link with pill style
+2. Inline context note link with pill style expanded
+3. Inline context note link with pill style as tooltip
+4. Editor popover for adding inline context with category selection
+5. Modal window for writing an inline context note
+6. Search interface for inserting reusable notes
+7. Inline context note on the frontend (default expanded mode)
+8. Tooltip version of the inline note on the frontend
+9. Notes Library in the admin area showing usage count and linked posts

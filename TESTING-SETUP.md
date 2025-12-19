@@ -26,9 +26,12 @@ composer require --dev yoast/phpunit-polyfills:"^1.0"
 
 - **`tests/test-cpt.php`** - Custom Post Type tests (7 test methods)
 - **`tests/test-rest-api.php`** - REST API tests (7 test methods)
-- **`tests/test-sync.php`** - Synchronization tests (5 test methods)
+- **`tests/test-sync.php`** - Synchronization tests (4 test methods)
+- **`tests/test-abilities.php`** - Abilities API tests (14 test methods)
 
-**Total**: 19 test methods covering core functionality
+**Total**: 32 test methods covering core functionality
+
+**Current Status**: ✅ All 32 tests passing, 104 assertions, 0 skipped (WordPress 6.9+)
 
 ## 🎯 Test Coverage
 
@@ -59,6 +62,39 @@ composer require --dev yoast/phpunit-polyfills:"^1.0"
 - ✅ Multiple usage tracking
 - ✅ Category synchronization
 
+### Abilities API Tests (WordPress 6.9+)
+
+**Status**: ✅ All 14 tests passing on WordPress 6.9+
+
+The Abilities API tests validate the plugin's integration with WordPress 6.9's new Abilities API feature. These tests required special handling due to loading order issues.
+
+**Test Coverage:**
+
+- ✅ Create note ability execution
+- ✅ Search notes with filters (reusable_only)
+- ✅ Get categories ability
+- ✅ Get specific note by ID
+- ✅ Create inline note (AI content generator helper)
+- ✅ Empty title handling (WordPress allows at execute level)
+- ✅ Non-existent note handling
+- ✅ Search limit bounds (1-50)
+- ✅ HTML sanitization (XSS prevention)
+- ✅ Permission requirements (edit_posts capability)
+- ✅ HTML markup structure validation
+- ✅ Anchor ID generation
+- ✅ Category assignment
+- ✅ Reusability flags
+
+**Loading Order Solution:**
+
+The plugin loads via `muplugins_loaded` hook in test bootstrap, but WordPress Abilities API actions fire later. The test suite solves this by:
+
+1. Manually triggering abilities registration in `setUp()` method
+2. Using a static flag to register abilities only once across all tests
+3. Setting expected incorrect usage warnings for "already registered" messages
+
+See `tests/test-abilities.php` lines 23-68 for implementation details.
+
 ## 🚀 How to Use
 
 ### First Time Setup (Recommended)
@@ -80,6 +116,7 @@ The setup script will:
 - Create `.env` from `.env.example` if it doesn't exist
 - Prompt you to edit database credentials
 - Install WordPress test suite using your `.env` configuration
+- **Drop and recreate** the test database to ensure clean state
 - Verify the setup
 
 **Default `.env` Configuration:**
@@ -91,6 +128,8 @@ DB_PASS=
 DB_HOST=localhost
 WP_VERSION=latest
 ```
+
+**Note**: The install script will drop and recreate the test database on each run to ensure a clean testing environment. This idempotent behavior was added to handle cases where the database already exists from previous test runs.
 
 ### Manual Setup (Advanced)
 
@@ -121,17 +160,20 @@ vendor/bin/phpunit --coverage-html coverage/
 
 ### Updated Composer Scripts
 
-```json
-{
-  "scripts": {
-    "lint": "vendor/bin/phpcs --standard=WordPress *.php",
-    "lint:fix": "vendor/bin/phpcbf --standard=WordPress *.php",
-    "test:setup": "bash bin/setup-tests.sh",
-    "test:install": "bash bin/install-wp-tests.sh",
-    "test:unit": "vendor/bin/phpunit",
-    "test": "composer run lint && composer run test:unit"
-  }
-}
+```text
+inline-context/
+├── bin/
+│   ├── install-wp-tests.sh    # WordPress test suite installer
+│   └── setup-tests.sh          # Interactive setup wizard
+├── tests/
+│   ├── bootstrap.php           # Test bootstrap
+│   ├── README.md               # Testing docs
+│   ├── test-cpt.php           # CPT tests (7 tests)
+│   ├── test-rest-api.php      # REST API tests (7 tests)
+│   ├── test-sync.php          # Sync tests (4 tests)
+│   └── test-abilities.php     # Abilities API tests (14 tests)
+├── phpunit.xml                 # PHPUnit config
+└── composer.json               # Updated with test scripts
 ```
 
 Now `composer test` runs both linting AND unit tests! 🎉
@@ -164,9 +206,13 @@ inline-context/
 
 ### WordPress Test Environment
 
-- **Test library**: `/tmp/wordpress-tests-lib`
-- **WordPress core**: `/tmp/wordpress/`
+- **WordPress Version**: 6.9+ (includes Abilities API)
+- **Test library**: `/tmp/wordpress-tests-lib` (or macOS system temp)
+- **WordPress core**: `/tmp/wordpress/` (or macOS system temp)
 - **Database**: `wordpress_test` (configurable)
+- **Abilities API**: Automatically tested when WordPress 6.9+ is present
+
+**Note**: On macOS, WordPress may install to `/var/folders/.../T/wordpress/` instead of `/tmp/wordpress/`.
 
 ## 🎓 Next Steps
 
@@ -312,6 +358,7 @@ Add to `phpunit.xml` or create `.phpcs.xml.dist`:
 **Capabilities:**
 
 - Test WordPress integration (CPT, REST API, hooks)
+- Test WordPress 6.9+ Abilities API integration
 - Test plugin functionality in isolation
 - Generate code coverage reports
 - CI/CD ready
@@ -320,8 +367,9 @@ Add to `phpunit.xml` or create `.phpcs.xml.dist`:
 
 - `composer test:unit` - Run PHPUnit tests
 - `composer test` - Run linting + tests
-- `vendor/bin/phpunit` - Direct PHPUnit access
 
-**Test Count**: 19 test methods across 3 test files
+**Test Count**: 32 test methods across 4 test files, 104 assertions
+
+**Test Results**: ✅ All tests passing on WordPress 6.9+ (0 skipped, 0 failures)
 
 **Ready for**: Development, CI/CD, code coverage analysis

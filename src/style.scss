@@ -23,10 +23,8 @@
 	/* Use inline to allow text wrapping, but keep icon with last word via ::after */
 	display: inline;
 	// Add scroll margin for smooth anchor navigation
-	scroll-margin-top: var(
-		--wp--custom--inline-context--link--scroll-margin,
-		2rem
-	);
+	scroll-margin-top: var(--wp--custom--inline-context--link--scroll-margin,
+			2rem);
 
 	/* SVG chevron icon indicator - inline-block keeps it with last word */
 	&::after {
@@ -34,11 +32,9 @@
 		display: inline-block;
 		width: var(--wp--custom--inline-context--chevron--size, 0.7em);
 		height: var(--wp--custom--inline-context--chevron--size, 0.7em);
-		margin-left: var(
-			--wp--custom--inline-context--chevron--margin-left,
-			0.25em
-		);
-		vertical-align: middle;
+		margin-left: var(--wp--custom--inline-context--chevron--margin-left,
+				0.25em);
+		vertical-align: var(--wp--custom--inline-context--icon-placement, middle);
 		text-decoration: none;
 		background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23666"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
 		background-repeat: no-repeat;
@@ -56,15 +52,21 @@
 }
 
 /* Category icon styling */
+/* Category icon styling */
 .wp-inline-context-category-icon {
-	display: inline-block;
+	display: inline-block !important;
 	margin-left: 0.15em;
 	margin-right: 0;
 	font-size: 0.6em;
-	vertical-align: super;
-	line-height: 0;
-	position: relative;
-	top: -0.1em;
+	line-height: 1 !important;
+	/* Works for inline/text style */
+	vertical-align: var(--wp--custom--inline-context--icon-placement, middle) !important;
+	/* Works for flex/pill style */
+	align-self: var(--wp--custom--inline-context--icon-flex-align, center) !important;
+	/* Reset any positioning that might interfere */
+	position: static !important;
+	top: auto !important;
+	float: none !important;
 	transition: color 0.2s ease, transform 0.2s ease;
 	text-decoration: none;
 }
@@ -88,39 +90,62 @@
 /* Hover and focus states - change text color to primary */
 .wp-inline-context:hover,
 .wp-inline-context:focus-visible {
-	color: var(
-		--wp--custom--inline-context--link--hover-color,
-		var(--wp--preset--color--primary, #0073aa)
-	);
+	color: var(--wp--custom--inline-context--link--hover-color,
+			var(--wp--preset--color--primary, #0073aa));
+}
+
+/* ============================================
+   Pill Style - Button-like appearance
+   ============================================ */
+.wp-inline-context--pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25em;
+	border: var(--wp--custom--inline-context--pill--border-width, 1.5px) solid var(--wp--custom--inline-context--pill--border-color, #d4850a);
+	border-radius: var(--wp--custom--inline-context--pill--border-radius,
+			0.25rem);
+	padding: var(--wp--custom--inline-context--pill--padding-y, 2px) var(--wp--custom--inline-context--pill--padding-x, 8px);
+	background: var(--wp--custom--inline-context--pill--background,
+			#FFF4E6);
+	transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+	/* Prevent awkward text wrapping */
+	white-space: nowrap;
+
+	/* Override chevron spacing in pill style */
+	&::after {
+		margin-left: 0;
+	}
+
+	/* Hover and focus states for pill */
+	&:hover,
+	&:focus-visible {
+		background: var(--wp--custom--inline-context--pill--hover-background,
+				rgba(212, 133, 10, 0.08));
+		border-color: var(--wp--custom--inline-context--pill--hover-border-color,
+				#b87409);
+	}
+
+	/* Pill with category icon */
+	&:has(.wp-inline-context-category-icon) {
+		gap: 0.15em;
+	}
 }
 
 .wp-inline-context-inline {
 	display: block;
 	/* Spacing */
 	margin: var(--wp--custom--inline-context--note--margin-y, 8px) 0;
-	padding: var(--wp--custom--inline-context--note--padding-y, 0.75em)
-		var(--wp--custom--inline-context--note--padding-x, 1em);
+	padding: var(--wp--custom--inline-context--note--padding-y, 0.75em) var(--wp--custom--inline-context--note--padding-x, 1em);
 	/* Surface */
-	background: var(
-		--wp--custom--inline-context--note--background,
-		rgba(0, 0, 0, 0.04)
-	);
-	border: 1px solid
-		var(
-			--wp--custom--inline-context--note--border-color,
-			rgba(0, 0, 0, 0.08)
-		);
-	border-left: var(--wp--custom--inline-context--note--accent-width, 3px)
-		solid
-		var(
-			--wp--custom--inline-context--note--accent-color,
-			var(--wp--preset--color--primary, #0073aa)
-		);
+	background: var(--wp--custom--inline-context--note--background,
+			rgba(0, 0, 0, 0.04));
+	border: 1px solid var(--wp--custom--inline-context--note--border-color,
+			rgba(0, 0, 0, 0.08));
+	border-left: var(--wp--custom--inline-context--note--accent-width, 3px) solid var(--wp--custom--inline-context--note--accent-color,
+			var(--wp--preset--color--primary, #0073aa));
 	border-radius: var(--wp--custom--inline-context--note--radius, 6px);
-	box-shadow: var(
-		--wp--custom--inline-context--note--shadow,
-		0 1px 2px rgba(0, 0, 0, 0.05)
-	);
+	box-shadow: var(--wp--custom--inline-context--note--shadow,
+			0 1px 2px rgba(0, 0, 0, 0.05));
 	/* Typography */
 	font-size: var(--wp--custom--inline-context--note--font-size, 0.95em);
 	/* Progressive enhancement: smooth reveal animation */
@@ -179,46 +204,45 @@
 
 @media print {
 	.wp-inline-context-inline {
-		display: block !important; /* Ensure notes are visible for printing */
+		display: block !important;
+		/* Ensure notes are visible for printing */
 		animation: none;
 		box-shadow: none;
 		border: 1px solid #ccc;
 	}
 
 	.wp-inline-context::after {
-		display: none; /* Hide interactive chevron */
+		display: none;
+		/* Hide interactive chevron */
 	}
 }
 
-.wp-inline-context-inline > :first-child {
+.wp-inline-context-inline> :first-child {
 	margin-top: 0;
 }
 
-.wp-inline-context-inline > :last-child {
+.wp-inline-context-inline> :last-child {
 	margin-bottom: 0;
 }
 
 .wp-inline-context-tooltip>*:first-of-type {
 	margin-top: 0;
 }
-.wp-inline-context-tooltip > *:last-of-type {
+
+.wp-inline-context-tooltip>*:last-of-type {
 	margin-bottom: 0;
 }
 
 /* Optional link styling inside notes (theme-overridable) */
 .wp-inline-context-inline a {
 	color: var(--wp--custom--inline-context--note--link-color, inherit);
-	text-decoration-color: var(
-		--wp--custom--inline-context--note--link-underline,
-		currentColor
-	);
+	text-decoration-color: var(--wp--custom--inline-context--note--link-underline,
+			currentColor);
 }
 
 .wp-inline-context--open {
-	color: var(
-		--wp--custom--inline-context--link--open-color,
-		var(--wp--preset--color--primary, #0073aa)
-	);
+	color: var(--wp--custom--inline-context--link--open-color,
+			var(--wp--preset--color--primary, #0073aa));
 }
 
 /* Rotate chevron up when expanded */
@@ -237,20 +261,14 @@
 	max-width: 400px;
 	min-width: 200px;
 	/* Spacing - extra padding-right to avoid close button collision */
-	padding: var(--wp--custom--inline-context--note--padding-y, 0.75em)
-		2.5em /* Extra space for close button */
-		var(--wp--custom--inline-context--note--padding-y, 0.75em)
-		var(--wp--custom--inline-context--note--padding-x, 1em);
+	padding: var(--wp--custom--inline-context--note--padding-y, 0.75em) 2.5em
+		/* Extra space for close button */
+		var(--wp--custom--inline-context--note--padding-y, 0.75em) var(--wp--custom--inline-context--note--padding-x, 1em);
 	/* Surface */
-	background: var(
-		--wp--custom--inline-context--note--background,
-		#fff
-	);
-	border: 1px solid
-		var(
-			--wp--custom--inline-context--note--border-color,
-			rgba(0, 0, 0, 0.15)
-		);
+	background: var(--wp--custom--inline-context--note--background,
+			#fff);
+	border: 1px solid var(--wp--custom--inline-context--note--border-color,
+			rgba(0, 0, 0, 0.15));
 	border-radius: var(--wp--custom--inline-context--note--radius, 6px);
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
 	/* Typography */
@@ -298,11 +316,8 @@
 	height: 0;
 	border-left: 8px solid transparent;
 	border-right: 8px solid transparent;
-	border-top: 8px solid
-		var(
-			--wp--custom--inline-context--note--background,
-			#fff
-		);
+	border-top: 8px solid var(--wp--custom--inline-context--note--background,
+			#fff);
 	filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.1));
 }
 
@@ -316,11 +331,8 @@
 	height: 0;
 	border-left: 8px solid transparent;
 	border-right: 8px solid transparent;
-	border-bottom: 8px solid
-		var(
-			--wp--custom--inline-context--note--background,
-			#fff
-		);
+	border-bottom: 8px solid var(--wp--custom--inline-context--note--background,
+			#fff);
 	filter: drop-shadow(0 -2px 1px rgba(0, 0, 0, 0.1));
 }
 
@@ -358,21 +370,19 @@
 }
 
 /* Content spacing inside tooltip */
-.wp-inline-context-tooltip > :first-child {
+.wp-inline-context-tooltip> :first-child {
 	margin-top: 0;
 }
 
-.wp-inline-context-tooltip > :last-child:not(.wp-inline-context-tooltip-close) {
+.wp-inline-context-tooltip> :last-child:not(.wp-inline-context-tooltip-close) {
 	margin-bottom: 0;
 }
 
 /* Links inside tooltips */
 .wp-inline-context-tooltip a {
 	color: var(--wp--custom--inline-context--note--link-color, #0073aa);
-	text-decoration-color: var(
-		--wp--custom--inline-context--note--link-underline,
-		currentColor
-	);
+	text-decoration-color: var(--wp--custom--inline-context--note--link-underline,
+			currentColor);
 }
 
 /* Animations */
@@ -381,10 +391,73 @@
 		opacity: 0;
 		transform: scale(0.95) translateY(-4px);
 	}
+
 	to {
 		opacity: 1;
 		transform: scale(1) translateY(0);
 	}
+}
+
+@keyframes wp-inline-context-reveal {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes wp-inline-context-hide {
+	from {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	to {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+}
+
+@keyframes wp-inline-context-tooltip-hide {
+	from {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
+
+	to {
+		opacity: 0;
+		transform: scale(0.95) translateY(-4px);
+	}
+}
+
+/* Closing animation classes */
+.wp-inline-context-inline.wp-inline-context--closing {
+	animation: wp-inline-context-hide 0.2s ease-in forwards;
+}
+
+.wp-inline-context-tooltip.wp-inline-context--closing {
+	animation: wp-inline-context-tooltip-hide 0.15s ease-in forwards;
+}
+
+/* Disable animations when setting is off */
+.wp-inline-context-no-animations .wp-inline-context-inline {
+	animation: none !important;
+}
+
+.wp-inline-context-no-animations .wp-inline-context-tooltip {
+	animation: none !important;
+}
+
+.wp-inline-context-no-animations .wp-inline-context-inline.wp-inline-context--closing {
+	animation: none !important;
+}
+
+.wp-inline-context-no-animations .wp-inline-context-tooltip.wp-inline-context--closing {
+	animation: none !important;
 }
 
 /* Hide tooltips in print */
