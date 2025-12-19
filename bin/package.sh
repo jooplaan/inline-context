@@ -78,7 +78,9 @@ zip -rq "$ZIP_PATH" . \
   -x "blueprints/*" \
   -x "blueprint.json" \
   -x "ABILITIES-API-TESTS.md" \
-  -x "test-abilities.sh"
+  -x "test-abilities.sh" \
+  -x ".DS_Store" \
+  -x ".php-cs-fixer.php"
 
 # Validate main plugin file exists in the archive context
 if [[ ! -f "inline-context.php" ]]; then
