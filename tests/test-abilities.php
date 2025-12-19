@@ -184,10 +184,12 @@ class Test_Inline_Context_Abilities extends WP_UnitTestCase {
 		$result = $this->abilities->execute_search_notes( $input );
 
 		$this->assertIsArray( $result );
-		$this->assertGreaterThanOrEqual( 2, count( $result ) );
+		$this->assertArrayHasKey( 'notes', $result );
+		$this->assertArrayHasKey( 'total', $result );
+		$this->assertGreaterThanOrEqual( 2, count( $result['notes'] ) );
 
 		// Verify note structure.
-		$note = $result[0];
+		$note = $result['notes'][0];
 		$this->assertArrayHasKey( 'id', $note );
 		$this->assertArrayHasKey( 'title', $note );
 		$this->assertArrayHasKey( 'content', $note );
@@ -232,9 +234,10 @@ class Test_Inline_Context_Abilities extends WP_UnitTestCase {
 		$result = $this->abilities->execute_search_notes( $input );
 
 		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'notes', $result );
 
 		// Should only return reusable note.
-		$ids = wp_list_pluck( $result, 'id' );
+		$ids = wp_list_pluck( $result['notes'], 'id' );
 		$this->assertContains( $reusable_id, $ids );
 		$this->assertNotContains( $non_reusable_id, $ids );
 	}
@@ -261,10 +264,11 @@ class Test_Inline_Context_Abilities extends WP_UnitTestCase {
 		$result = $this->abilities->execute_get_categories( $input );
 
 		$this->assertIsArray( $result );
-		$this->assertGreaterThan( 0, count( $result ) );
+		$this->assertArrayHasKey( 'categories', $result );
+		$this->assertGreaterThan( 0, count( $result['categories'] ) );
 
 		// Verify category structure.
-		$category = $result[0];
+		$category = $result['categories'][0];
 		$this->assertArrayHasKey( 'id', $category );
 		$this->assertArrayHasKey( 'name', $category );
 		$this->assertArrayHasKey( 'slug', $category );
@@ -291,7 +295,7 @@ class Test_Inline_Context_Abilities extends WP_UnitTestCase {
 		update_post_meta( $note_id, 'usage_count', 5 );
 
 		$input = array(
-			'id' => $note_id,
+			'note_id' => $note_id,
 		);
 
 		$result = $this->abilities->execute_get_note( $input );
@@ -317,7 +321,7 @@ class Test_Inline_Context_Abilities extends WP_UnitTestCase {
 		}
 
 		$input = array(
-			'id' => 999999, // Non-existent ID.
+			'note_id' => 999999, // Non-existent ID.
 		);
 
 		$result = $this->abilities->execute_get_note( $input );
@@ -414,6 +418,7 @@ class Test_Inline_Context_Abilities extends WP_UnitTestCase {
 
 		$result = $this->abilities->execute_search_notes( $input );
 		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'notes', $result );
 
 		// Test maximum limit.
 		$input = array(
@@ -424,7 +429,8 @@ class Test_Inline_Context_Abilities extends WP_UnitTestCase {
 
 		$result = $this->abilities->execute_search_notes( $input );
 		$this->assertIsArray( $result );
-		$this->assertLessThanOrEqual( 50, count( $result ) );
+		$this->assertArrayHasKey( 'notes', $result );
+		$this->assertLessThanOrEqual( 50, count( $result['notes'] ) );
 	}
 
 	/**
