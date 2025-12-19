@@ -13,6 +13,7 @@
  */
 class Inline_Context_REST_API {
 
+
 	/**
 	 * API namespace for all endpoints.
 	 */

@@ -19,7 +19,7 @@
 
 /* React Quill Editor Styles */
 .wp-reveal-quill-editor {
-	width: 400px;
+	width: 500px;
 	max-width: 90vw;
 	min-height: 400px; /* Ensure enough space for URLInput suggestions */
 }
@@ -95,6 +95,22 @@
 /* Button styling within popover */
 .wp-reveal-popover .components-flex {
 	margin-top: 12px;
+}
+
+/* Ensure proper alignment of bottom action bar */
+.wp-reveal-popover .components-flex .components-checkbox-control {
+	margin-bottom: 0;
+	display: flex;
+	align-items: center;
+}
+
+.wp-reveal-popover .components-flex .components-checkbox-control__input-container {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+.wp-reveal-popover .components-flex .components-checkbox-control__label {
+	margin-bottom: 0;
 }
 
 .wp-reveal-popover .components-button.is-destructive {

@@ -3,7 +3,7 @@
  * Plugin Name: Inline Context
  * Plugin URI: https://wordpress.org/plugins/inline-context/
  * Description: Add inline expandable context to selected text in the block editor with direct anchor linking. Click to reveal, click again to hide.
- * Version: 2.3.9
+ * Version: 2.4.0
  * Author: Joop Laan
  * Author URI: https://profiles.wordpress.org/joop/
  * License: GPL-2.0-or-later
@@ -19,7 +19,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'INLINE_CONTEXT_VERSION', '2.3.9' );
+define( 'INLINE_CONTEXT_VERSION', '2.4.0' );
 
 // Load modular classes.
 require_once __DIR__ . '/includes/class-inline-context-utils.php';
@@ -29,6 +29,7 @@ require_once __DIR__ . '/includes/class-inline-context-sync.php';
 require_once __DIR__ . '/includes/class-inline-context-deletion.php';
 require_once __DIR__ . '/includes/class-inline-context-rest-api.php';
 require_once __DIR__ . '/includes/class-inline-context-frontend.php';
+require_once __DIR__ . '/includes/class-inline-context-abilities.php';
 
 // Load backward compatibility wrapper functions.
 require_once __DIR__ . '/includes/functions.php';
@@ -66,6 +67,18 @@ $inline_context_rest_api->init();
 $inline_context_frontend = new Inline_Context_Frontend();
 $inline_context_frontend->init();
 
+// Initialize Abilities API integration (WordPress 6.9+).
+// Hook early to ensure abilities are registered before discovery.
+add_action(
+	'init',
+	function () {
+		global $inline_context_abilities;
+		$inline_context_abilities = new Inline_Context_Abilities();
+		$inline_context_abilities->init();
+	},
+	5 // Early priority to catch wp_abilities_api_init hook.
+);
+
 /**
  * Enqueue categories data for block editor
  */
@@ -75,12 +88,18 @@ add_action(
 		// Pass categories to block editor JavaScript.
 		$categories = inline_context_get_categories();
 
-		// Add inline script to make categories available globally.
+		// In-editor AI UI features (Generate with AI button) disabled by default.
+		// Note: Abilities API is always enabled for AI agents (see class-abilities.php).
+		$ai_enabled = false;
+
+		// Add inline script to make data available globally.
+		// Must run BEFORE our inline-context-editor script loads.
 		wp_add_inline_script(
-			'wp-block-editor',
+			'inline-context-editor',
 			sprintf(
-				'window.inlineContextData = window.inlineContextData || {}; window.inlineContextData.categories = %s;',
-				wp_json_encode( $categories )
+				'window.inlineContextData = window.inlineContextData || {}; window.inlineContextData.categories = %s; window.inlineContextData.aiEnabled = %s;',
+				wp_json_encode( $categories ),
+				$ai_enabled ? 'true' : 'false'
 			),
 			'before'
 		);
