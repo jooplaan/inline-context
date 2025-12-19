@@ -19,7 +19,7 @@
 
 /* React Quill Editor Styles */
 .wp-reveal-quill-editor {
-	width: 400px;
+	width: 500px;
 	max-width: 90vw;
 	min-height: 400px; /* Ensure enough space for URLInput suggestions */
 }
@@ -97,6 +97,22 @@
 	margin-top: 12px;
 }
 
+/* Ensure proper alignment of bottom action bar */
+.wp-reveal-popover .components-flex .components-checkbox-control {
+	margin-bottom: 0;
+	display: flex;
+	align-items: center;
+}
+
+.wp-reveal-popover .components-flex .components-checkbox-control__input-container {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+.wp-reveal-popover .components-flex .components-checkbox-control__label {
+	margin-bottom: 0;
+}
+
 .wp-reveal-popover .components-button.is-destructive {
 	color: #d63638;
 	border-color: #d63638;
@@ -152,10 +168,7 @@
 	background-color: #e0e0e0;
 }
 
-.wp-reveal-quill-editor .ql-toolbar button.ql-active {
-	background-color: #2271b1;
-	color: white;
-}
+/* Let Quill handle active state styling (blue text, no background) */
 
 /* Source code view (code-block) styling */
 .wp-reveal-quill-editor .ql-editor pre.ql-syntax {
@@ -197,8 +210,12 @@
 		color: #06c;
 	}
 
-	&.ql-active::before {
-		color: #06c;
+	&.ql-active {
+		background-color: #2271b1;
+
+		&::before {
+			color: white;
+		}
 	}
 }
 

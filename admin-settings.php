@@ -52,6 +52,50 @@ function inline_context_register_settings() {
 		)
 	);
 
+	// Register animation setting.
+	register_setting(
+		'inline_context_general_settings',
+		'inline_context_enable_animations',
+		array(
+			'type'              => 'boolean',
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'default'           => true,
+		)
+	);
+
+	// Register link style setting.
+	register_setting(
+		'inline_context_general_settings',
+		'inline_context_link_style',
+		array(
+			'type'              => 'string',
+			'sanitize_callback' => 'inline_context_sanitize_link_style',
+			'default'           => 'text',
+		)
+	);
+
+	// Register icon placement setting.
+	register_setting(
+		'inline_context_general_settings',
+		'inline_context_icon_placement',
+		array(
+			'type'              => 'string',
+			'sanitize_callback' => 'inline_context_sanitize_icon_placement',
+			'default'           => 'middle',
+		)
+	);
+
+	// Register CSS variables setting.
+	register_setting(
+		'inline_context_general_settings',
+		'inline_context_enable_animations',
+		array(
+			'type'              => 'boolean',
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'default'           => true,
+		)
+	);
+
 	// Register CSS variables setting.
 	register_setting(
 		'inline_context_styling_settings',
@@ -80,6 +124,13 @@ function inline_context_register_settings() {
 		'inline_context_link_section',
 		__( 'Trigger Link Styling', 'inline-context' ),
 		'inline_context_link_section_callback',
+		'inline-context-settings-styling'
+	);
+
+	add_settings_section(
+		'inline_context_pill_section',
+		__( 'Pill Style Settings', 'inline-context' ),
+		'inline_context_pill_section_callback',
 		'inline-context-settings-styling'
 	);
 
@@ -146,6 +197,74 @@ function inline_context_register_settings() {
 			'inline_context_render_field',
 			'inline-context-settings-styling',
 			'inline_context_link_section',
+			array(
+				'key'         => $key,
+				'type'        => $field['type'],
+				'default'     => $field['default'],
+				'description' => $field['description'] ?? '',
+			)
+		);
+	}
+
+	// Pill style settings (only applicable when pill style is selected).
+	$pill_fields = array(
+		'pill-border-color'       => array(
+			'label'       => __( 'Border Color', 'inline-context' ),
+			'default'     => '#d4850a',
+			'type'        => 'color',
+			'description' => __( 'Color of the border around the link button.', 'inline-context' ),
+		),
+		'pill-border-width'       => array(
+			'label'       => __( 'Border Width', 'inline-context' ),
+			'default'     => '1.5px',
+			'type'        => 'text',
+			'description' => __( 'Thickness of the border. Use 0 for no border.', 'inline-context' ),
+		),
+		'pill-border-radius'      => array(
+			'label'       => __( 'Border Radius', 'inline-context' ),
+			'default'     => '0.25rem',
+			'type'        => 'text',
+			'description' => __( 'Roundness of corners. Higher values create more rounded pills.', 'inline-context' ),
+		),
+		'pill-padding-y'          => array(
+			'label'       => __( 'Vertical Padding', 'inline-context' ),
+			'default'     => '2px',
+			'type'        => 'text',
+			'description' => __( 'Internal spacing at top and bottom of the link button.', 'inline-context' ),
+		),
+		'pill-padding-x'          => array(
+			'label'       => __( 'Horizontal Padding', 'inline-context' ),
+			'default'     => '8px',
+			'type'        => 'text',
+			'description' => __( 'Internal spacing at left and right of the link button.', 'inline-context' ),
+		),
+		'pill-background'         => array(
+			'label'       => __( 'Background Color', 'inline-context' ),
+			'default'     => '#FFF4E6',
+			'type'        => 'color',
+			'description' => __( 'Background color of the link button.', 'inline-context' ),
+		),
+		'pill-hover-background'   => array(
+			'label'       => __( 'Hover Background Color', 'inline-context' ),
+			'default'     => 'rgba(212, 133, 10, 0.08)',
+			'type'        => 'text',
+			'description' => __( 'Background color when hovering. Supports HEX (#FFF0D6), RGB (rgb(255,240,214)), or RGBA with transparency (rgba(212,133,10,0.08)).', 'inline-context' ),
+		),
+		'pill-hover-border-color' => array(
+			'label'       => __( 'Hover Border Color', 'inline-context' ),
+			'default'     => '#b87409',
+			'type'        => 'color',
+			'description' => __( 'Border color when hovering over the link button.', 'inline-context' ),
+		),
+	);
+
+	foreach ( $pill_fields as $key => $field ) {
+		add_settings_field(
+			'inline_context_' . $key,
+			$field['label'],
+			'inline_context_render_field',
+			'inline-context-settings-styling',
+			'inline_context_pill_section',
 			array(
 				'key'         => $key,
 				'type'        => $field['type'],
@@ -342,6 +461,28 @@ function inline_context_sanitize_display_mode( $input ) {
 }
 
 /**
+ * Sanitize link style setting
+ *
+ * @param string $input The input value to sanitize.
+ * @return string The sanitized link style ('text' or 'pill').
+ */
+function inline_context_sanitize_link_style( $input ) {
+	$valid_styles = array( 'text', 'pill' );
+	return in_array( $input, $valid_styles, true ) ? $input : 'text';
+}
+
+/**
+ * Sanitize icon placement setting
+ *
+ * @param string $input The input value to sanitize.
+ * @return string The sanitized icon placement ('top', 'middle', or 'bottom').
+ */
+function inline_context_sanitize_icon_placement( $input ) {
+	$valid_placements = array( 'top', 'middle', 'bottom' );
+	return in_array( $input, $valid_placements, true ) ? $input : 'middle';
+}
+
+/**
  * Sanitize CSS variables
  *
  * @param array $input The input array of CSS variables to sanitize.
@@ -370,7 +511,14 @@ function inline_context_sanitize_css_variables( $input ) {
  * Link section callback
  */
 function inline_context_link_section_callback() {
-	echo '<p>' . esc_html__( 'Customize how trigger links appear. These settings apply to both inline and tooltip display modes.', 'inline-context' ) . '</p>';
+	echo '<p>' . esc_html__( 'Customize how trigger links appear. These settings apply to both inline and tooltip display modes. Note: Some settings apply only to specific link styles.', 'inline-context' ) . '</p>';
+}
+
+/**
+ * Pill style section callback
+ */
+function inline_context_pill_section_callback() {
+	echo '<p>' . esc_html__( 'These settings only apply when the "Pill" link style is selected in the General tab.', 'inline-context' ) . '</p>';
 }
 
 /**
@@ -442,6 +590,22 @@ function inline_context_render_field( $args ) {
 function inline_context_render_settings_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
+	}
+
+	// Handle reset to defaults action.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified below.
+	if ( isset( $_POST['inline_context_reset_styles'] ) ) {
+		check_admin_referer( 'inline_context_reset_styles' );
+
+		// Reset CSS variables to defaults.
+		update_option( 'inline_context_css_variables', inline_context_get_default_css_variables() );
+
+		add_settings_error(
+			'inline_context_messages',
+			'inline_context_reset_success',
+			__( 'Styling settings have been reset to defaults.', 'inline-context' ),
+			'success'
+		);
 	}
 
 	// Define tabs.
@@ -524,11 +688,82 @@ function inline_context_render_settings_page() {
 									<?php esc_html_e( 'When enabled, tooltips will appear when hovering over the link, in addition to click/keyboard activation.', 'inline-context' ); ?>
 								</p>
 							</div>							</fieldset>
-						</td>
-					</tr>
-				</table>
-
-				<p class="submit">
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<?php esc_html_e( 'Link Style', 'inline-context' ); ?>
+					</th>
+					<td>
+						<fieldset>
+							<legend class="screen-reader-text">
+								<span><?php esc_html_e( 'Link Style', 'inline-context' ); ?></span>
+							</legend>
+							<?php
+							$link_style = get_option( 'inline_context_link_style', 'text' );
+							?>
+							<label>
+								<input type="radio" name="inline_context_link_style" value="text" <?php checked( $link_style, 'text' ); ?>>
+								<?php esc_html_e( 'Text style (default) - Link appears as regular text with a subtle indicator', 'inline-context' ); ?>
+							</label>
+							<br>
+							<label>
+								<input type="radio" name="inline_context_link_style" value="pill" <?php checked( $link_style, 'pill' ); ?>>
+								<?php esc_html_e( 'Pill style - Link appears as a button-like element with border and background', 'inline-context' ); ?>
+							</label>
+							<p class="description">
+								<?php esc_html_e( 'Choose how trigger links appear in your content. The pill style makes links more prominent. You can customize the appearance of each style in the Styling tab.', 'inline-context' ); ?>
+							</p>
+						</fieldset>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<?php esc_html_e( 'Icon Placement', 'inline-context' ); ?>
+					</th>
+					<td>
+						<fieldset>
+							<legend class="screen-reader-text">
+								<span><?php esc_html_e( 'Icon Placement', 'inline-context' ); ?></span>
+							</legend>
+							<?php
+							$icon_placement = get_option( 'inline_context_icon_placement', 'middle' );
+							?>
+							<label>
+								<input type="radio" name="inline_context_icon_placement" value="top" <?php checked( $icon_placement, 'top' ); ?>>
+								<?php esc_html_e( 'Top - Icon appears above the text baseline (superscript)', 'inline-context' ); ?>
+							</label>
+							<br>
+							<label>
+								<input type="radio" name="inline_context_icon_placement" value="middle" <?php checked( $icon_placement, 'middle' ); ?>>
+								<?php esc_html_e( 'Middle - Icon aligns with text center (default)', 'inline-context' ); ?>
+							</label>
+							<br>
+							<label>
+								<input type="radio" name="inline_context_icon_placement" value="bottom" <?php checked( $icon_placement, 'bottom' ); ?>>
+								<?php esc_html_e( 'Bottom - Icon appears below the text baseline (subscript)', 'inline-context' ); ?>
+							</label>
+							<p class="description">
+								<?php esc_html_e( 'Controls the vertical position of both the chevron icon and category icons. This setting applies consistently to all icon types.', 'inline-context' ); ?>
+							</p>
+						</fieldset>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Animations', 'inline-context' ); ?></th>
+					<td>
+						<fieldset>
+							<label>
+								<input type="checkbox" name="inline_context_enable_animations" value="1" <?php checked( get_option( 'inline_context_enable_animations', true ) ); ?>>
+								<?php esc_html_e( 'Enable subtle animations when notes appear', 'inline-context' ); ?>
+							</label>
+							<p class="description">
+								<?php esc_html_e( 'When enabled, notes will smoothly fade and slide in. When disabled, notes appear instantly. Always respects user preference for reduced motion.', 'inline-context' ); ?>
+							</p>
+						</fieldset>
+					</td>
+				</tr>
+			</table>				<p class="submit">
 					<input type="submit" name="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 'inline-context' ); ?>">
 				</p>
 			</form>
@@ -544,6 +779,22 @@ function inline_context_render_settings_page() {
 
 				<p class="submit">
 					<input type="submit" name="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 'inline-context' ); ?>">
+				</p>
+			</form>
+
+			<hr style="margin-top: 40px; margin-bottom: 20px;">
+
+			<h2><?php esc_html_e( 'Reset Styles', 'inline-context' ); ?></h2>
+			<p><?php esc_html_e( 'Reset all styling options above to their default values.', 'inline-context' ); ?></p>
+
+			<form method="post" action="" onsubmit="return confirm('<?php echo esc_js( __( 'Are you sure you want to reset all styling settings to defaults? This cannot be undone.', 'inline-context' ) ); ?>');">
+				<?php wp_nonce_field( 'inline_context_reset_styles' ); ?>
+				<input type="hidden" name="inline_context_reset_styles" value="1">
+				<p class="submit">
+					<input type="submit" name="submit" class="button button-secondary" value="<?php esc_attr_e( 'Reset to Defaults', 'inline-context' ); ?>">
+				</p>
+				<p class="description">
+					<?php esc_html_e( 'This will reset colors, spacing, borders, and all other styling options to the plugin defaults.', 'inline-context' ); ?>
 				</p>
 			</form>
 
