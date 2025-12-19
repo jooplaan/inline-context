@@ -155,20 +155,20 @@ class Inline_Context_Utils {
 
 		// Add icon placement setting as CSS variables.
 		// Map setting values to CSS vertical-align values (for inline) and align-self (for flex).
-		$icon_placement         = get_option( 'inline_context_icon_placement', 'middle' );
-		$css_placement_map      = array(
+		$icon_placement       = get_option( 'inline_context_icon_placement', 'middle' );
+		$css_placement_map    = array(
 			'top'    => 'super',       // Superscript position.
 			'middle' => 'middle',      // Middle alignment.
 			'bottom' => 'text-bottom', // Bottom of text (doesn't expand line height).
 		);
-		$css_flex_align_map     = array(
+		$css_flex_align_map   = array(
 			'top'    => 'flex-start', // Align to top of flex container.
 			'middle' => 'center',     // Align to center of flex container.
 			'bottom' => 'flex-end',   // Align to bottom of flex container.
 		);
-		$css_placement_value    = isset( $css_placement_map[ $icon_placement ] ) ? $css_placement_map[ $icon_placement ] : 'middle';
-		$css_flex_align_value   = isset( $css_flex_align_map[ $icon_placement ] ) ? $css_flex_align_map[ $icon_placement ] : 'center';
-		
+		$css_placement_value  = isset( $css_placement_map[ $icon_placement ] ) ? $css_placement_map[ $icon_placement ] : 'middle';
+		$css_flex_align_value = isset( $css_flex_align_map[ $icon_placement ] ) ? $css_flex_align_map[ $icon_placement ] : 'center';
+
 		$css .= sprintf(
 			'--wp--custom--inline-context--icon-placement: %s;',
 			esc_attr( $css_placement_value )
