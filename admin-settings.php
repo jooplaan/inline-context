@@ -596,10 +596,10 @@ function inline_context_render_settings_page() {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified below.
 	if ( isset( $_POST['inline_context_reset_styles'] ) ) {
 		check_admin_referer( 'inline_context_reset_styles' );
-		
+
 		// Reset CSS variables to defaults.
 		update_option( 'inline_context_css_variables', inline_context_get_default_css_variables() );
-		
+
 		add_settings_error(
 			'inline_context_messages',
 			'inline_context_reset_success',
