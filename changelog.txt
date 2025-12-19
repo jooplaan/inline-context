@@ -3,6 +3,9 @@
 This file contains the complete changelog for all versions of the Inline Context plugin.
 For major version highlights, see README.md and readme.txt.
 
+## Version 2.4.1 - December 19, 2025
+* IMPROVED: documentation
+
 ## Version 2.4.0 - December 19, 2025
 * NEW: Add new pill style
 * NEW: WordPress 6.9+ Abilities API integration for AI assistant discovery
