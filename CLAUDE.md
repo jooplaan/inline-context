@@ -7,6 +7,7 @@ This document provides specific guidance for Claude AI when working on the Inlin
 For comprehensive architecture, development patterns, and technical details, **always refer to [.github/copilot-instructions.md](.github/copilot-instructions.md)** first.
 
 That file contains:
+
 - Complete architecture overview
 - Development patterns and best practices
 - Build & development workflow
@@ -26,18 +27,20 @@ That file contains:
 
 ### Commit Message Format
 
-Write commit messages as if you are the developer:
+Write commit messages as if you are the developer. **NEVER mention Claude, AI, or any AI assistance in the commit message itself.**
 
 ```
-✅ Good:
+✅ Good Commit Messages:
 Add keyboard shortcuts for inline context management
 Fix case-sensitivity issue with shortcut detection
 Update version to 2.5.0
+feat: Implement tooltip hover activation
 
-❌ Bad:
+❌ Bad Commit Messages (Never do this):
 Add keyboard shortcuts (Claude-assisted)
-Fix case-sensitivity issue with help from AI
-Update version to 2.5.0 - implemented by Claude
+Fix issue with help from AI
+Update version - implemented by Claude
+feat: Add feature (AI-generated)
 ```
 
 ### Commit Message Best Practices
@@ -47,10 +50,13 @@ Update version to 2.5.0 - implemented by Claude
 3. **Keep it concise**: First line should be 50 characters or less
 4. **Add details in body**: If needed, add detailed explanation after blank line
 5. **Follow conventional commits**: Use prefixes like `feat:`, `fix:`, `docs:`, `refactor:` when appropriate
+6. **Never mention AI**: The commit message should read as if written by a human developer
 
-### Standard Commit Footer
+### Commit Footer (Metadata Only)
 
-Always include this footer in commit messages:
+**IMPORTANT**: The footer below goes AFTER the commit message body, separated by blank lines. It's commit metadata, NOT part of the commit message description.
+
+**Always include this footer:**
 
 ```
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
@@ -58,7 +64,12 @@ Always include this footer in commit messages:
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
-This acknowledges AI assistance in the commit metadata without mentioning it in the actual commit message.
+This footer:
+
+- Acknowledges AI assistance in the Git metadata
+- Does NOT appear in the commit message description
+- Is separated from the message by blank lines
+- Gives proper attribution without cluttering the commit history
 
 ## Example Commit
 
