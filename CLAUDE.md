@@ -41,6 +41,15 @@ Add keyboard shortcuts (Claude-assisted)
 Fix issue with help from AI
 Update version - implemented by Claude
 feat: Add feature (AI-generated)
+
+```
+
+Never end a commit message with:
+
+```txt
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 ### Commit Message Best Practices
