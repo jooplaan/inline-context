@@ -28,6 +28,7 @@ import {
 	useSyncEditorContent,
 	useCopyLinkStatus,
 } from './hooks/useInlineContext';
+import { useEditorKeyboardShortcuts } from './hooks/useEditorKeyboardShortcuts';
 
 // Components
 import CategorySelector from './components/CategorySelector';
@@ -614,8 +615,16 @@ export default function Edit( { isActive, value, onChange } ) {
 	// Sync editor content when format changes
 	useSyncEditorContent( isOpen, activeFormat, setText, setCategoryId );
 
-	// Keyboard shortcuts
+	// Keyboard shortcuts (popover-specific: Cmd+Enter, Escape)
 	usePopoverKeyboardShortcuts( isOpen, apply, handleClose );
+
+	// Editor-level keyboard shortcuts (only when popover is closed)
+	useEditorKeyboardShortcuts( {
+		value,
+		onChange,
+		onToggle: toggle,
+		isOpen,
+	} );
 
 	// Keyboard navigation
 	const { handleEditorKeyDownCapture, handleActionButtonsKeyDown } =
