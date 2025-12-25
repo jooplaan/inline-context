@@ -176,13 +176,17 @@ Only load note content when clicked:
 - AJAX load on first open
 - Cache in browser storage
 
-### 16. REST API Endpoints
+### 16. REST API Endpoints ✓
+
+**Status**: Completed in v2.4.0 via WordPress Abilities API
 
 Programmatic access to inline contexts:
 
-- `/wp-json/inline-context/v1/notes`
-- CRUD operations via REST
-- Bulk operations support
+- ✅ Five REST API abilities via WordPress 6.9+ Abilities API
+- ✅ `create-note`, `search-notes`, `get-categories`, `get-note`, `create-inline-note`
+- ✅ Full CRUD operations with JSON Schema validation
+- ✅ Browser-based AI integration (Claude, ChatGPT)
+- Future: Bulk operations support
 
 ### 17. Note Versioning
 
@@ -237,6 +241,42 @@ Schema.org markup for special note types:
 ---
 
 ## Completed Features
+
+### v2.4.0-2.4.1 - AI Integration & Visual Enhancements ✓
+
+Released: December 2025
+
+**WordPress Abilities API Integration:**
+
+- ✅ WordPress 6.9+ Abilities API integration for AI assistant discovery
+- ✅ Five REST API abilities for AI-powered content enhancement:
+  - `create-note` - Create new inline context notes via API
+  - `search-notes` - Search existing notes by title/content with filters
+  - `get-categories` - Retrieve all available categories with metadata
+  - `get-note` - Fetch specific note by ID with usage data
+  - `create-inline-note` - Create note and get ready-to-embed HTML markup (AI helper)
+- ✅ Browser-based AI integration (Claude, ChatGPT) with automatic capability discovery
+- ✅ Authentication support via cookie auth (browser) or Application Passwords
+- ✅ JSON Schema validation for all ability inputs with permission callbacks
+- ✅ Comprehensive ABILITIES-API.md documentation with workflows and examples
+- ✅ Complete test coverage (32 tests, 110 assertions) for Abilities API
+- ✅ Backward compatible - works on WordPress 6.0+ (Abilities API optional on 6.9+)
+
+**Visual Enhancements:**
+
+- ✅ Pill-style link display option with button-like appearance
+- ✅ Configurable pill styling: border, padding, background, hover states
+- ✅ Icon placement control system (top, middle, bottom alignment)
+- ✅ Flexible icon alignment for both text and pill display modes
+- ✅ Separate styling controls in admin settings panel
+- ✅ Enhanced CSS variable system for icon positioning
+
+**Developer Experience:**
+
+- ✅ Test infrastructure for Abilities API (test-abilities.sh, tests/test-abilities.php)
+- ✅ AIFeatures component foundation (disabled by default, ready for future UI)
+- ✅ PHP coding standards fixes (whitespace and alignment)
+- ✅ Updated "Tested up to" WordPress 6.9
 
 ### v2.3.0 - Tooltip Hover Activation ✓
 
