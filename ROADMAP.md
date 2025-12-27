@@ -4,25 +4,9 @@ This document outlines future improvements and completed features for the Inline
 
 ## High Priority Features (Next Release)
 
-### 1. Preset Themes
-
-**Impact**: High | **Effort**: Low | **Priority**: #1
-
-Include 3-5 pre-configured color schemes in admin settings:
-
-- Modern Blue (current default)
-- Minimalist Gray
-- High Contrast
-- Warm Earth Tones
-- Dark Mode
-
-**Benefits**: Makes styling accessible to non-technical users without CSS knowledge.
-
-**Technical Notes**: Integrate with existing settings system via `admin-settings.php`.
-
 ## Medium Priority Features
 
-### 2. Export/Import Settings
+### 1. Export/Import Settings
 
 **Impact**: Medium | **Effort**: Low
 
@@ -37,7 +21,7 @@ Allow backing up and sharing configurations:
 
 **Technical Notes**: JSON export/import via `Inline_Context_Utils` class.
 
-### 3. Animation Options
+### 2. Animation Options
 
 **Impact**: Medium | **Effort**: Low
 
@@ -49,7 +33,7 @@ Add animation controls in admin settings:
 
 **Benefits**: Personalization and accessibility (respects `prefers-reduced-motion`).
 
-### 4. Statistics Dashboard
+### 3. Statistics Dashboard
 
 **Impact**: Medium | **Effort**: Medium
 
@@ -62,7 +46,7 @@ Show usage metrics in admin:
 
 **Benefits**: Content strategy insights. Identify popular note types.
 
-### 5. Search Integration
+### 4. Search Integration
 
 **Impact**: Medium | **Effort**: Medium
 
@@ -79,7 +63,7 @@ Make note content searchable and discoverable:
 
 **Benefits**: Improves discoverability of content hidden in notes. Users can find information in notes without manually expanding each one.
 
-### 6. Print Styles Enhancement
+### 5. Print Styles Enhancement
 
 **Impact**: Medium | **Effort**: Low
 
@@ -94,7 +78,7 @@ Improve printing experience:
 
 ## Advanced Features (Future Consideration)
 
-### 7. JavaScript Public API
+### 6. JavaScript Public API
 
 **Impact**: Medium | **Effort**: Medium
 
@@ -111,7 +95,7 @@ window.InlineContext.getAll()
 
 **Technical Notes**: Frontend API via `Inline_Context_Frontend` class.
 
-### 8. Position Control
+### 7. Position Control
 
 Display notes above/below trigger instead of inline:
 
@@ -119,7 +103,7 @@ Display notes above/below trigger instead of inline:
 - Sidebar placement option
 - Sticky positioning for long notes
 
-### 9. Dark Mode Support
+### 8. Dark Mode Support
 
 Auto-detect system preferences:
 
@@ -127,7 +111,7 @@ Auto-detect system preferences:
 - Separate light/dark color schemes in settings
 - CSS `prefers-color-scheme` integration
 
-### 10. Conditional Display
+### 9. Conditional Display
 
 Show/hide notes based on context:
 
@@ -135,7 +119,7 @@ Show/hide notes based on context:
 - Logged in/out status
 - Custom conditions via filters
 
-### 11. Multi-language Support
+### 10. Multi-language Support
 
 Different note content per language:
 
@@ -143,7 +127,7 @@ Different note content per language:
 - Polylang integration
 - Store translations in post meta
 
-### 12. Lazy Loading
+### 11. Lazy Loading
 
 Only load note content when clicked:
 
@@ -151,7 +135,7 @@ Only load note content when clicked:
 - AJAX load on first open
 - Cache in browser storage
 
-### 13. REST API Endpoints ✓
+### 12. REST API Endpoints ✓
 
 **Status**: Completed in v2.4.0 via WordPress Abilities API
 
@@ -163,7 +147,7 @@ Programmatic access to inline contexts:
 - ✅ Browser-based AI integration (Claude, ChatGPT)
 - Future: Bulk operations support
 
-### 14. Note Versioning
+### 13. Note Versioning
 
 Track changes to note content:
 
@@ -171,7 +155,7 @@ Track changes to note content:
 - Restore previous versions
 - See who changed what (multi-author sites)
 
-### 15. Block Pattern Library
+### 14. Block Pattern Library
 
 Pre-built patterns with inline contexts:
 
@@ -180,14 +164,14 @@ Pre-built patterns with inline contexts:
 - Academic paper with citations
 - Product page with spec details
 
-### 16. Accessibility Enhancements
+### 15. Accessibility Enhancements
 
 - Screen reader modes with customizable announcements
 - Enhanced keyboard navigation between notes
 - Built-in contrast checker with WCAG warnings
 - Auto-expand notes for screen readers (optional)
 
-### 17. SEO Optimization
+### 16. SEO Optimization
 
 Schema.org markup for special note types:
 
@@ -216,6 +200,37 @@ Schema.org markup for special note types:
 ---
 
 ## Completed Features
+
+### v2.6.0 - Preset Color Themes ✓
+
+Released: December 2025
+
+**Color Preset System:**
+
+- ✅ Five pre-configured color schemes for one-click styling
+- ✅ Modern Blue (Default) - Clean, professional look with blue accents
+- ✅ Minimalist Gray - Subtle, understated design in grayscale
+- ✅ High Contrast - Bold colors for maximum visibility and accessibility
+- ✅ Warm Earth Tones - Cozy, natural palette with browns and oranges
+- ✅ Dark Mode - Dark theme with light text for reduced eye strain
+- ✅ Each preset includes complete configuration for all 36 CSS variables
+
+**Smart Preset Management:**
+
+- ✅ Automatic preset detection - system recognizes which preset is active
+- ✅ Custom indicator - displays "Custom" when user modifies preset values
+- ✅ Preset selection persistence - remembers which preset was applied
+- ✅ Override warning - confirms before applying preset over custom settings
+- ✅ Seamless integration with existing styling system via WordPress Settings API
+
+**User Experience:**
+
+- ✅ Dropdown selector with dynamic preset descriptions
+- ✅ One-click preset application with instant feedback
+- ✅ Full customization still available after applying preset
+- ✅ Makes advanced styling accessible to non-technical users
+
+**Benefits**: Eliminates the need for CSS knowledge to achieve professional-looking inline contexts. Users can start with a preset and customize individual values as needed, or use presets as-is for instant styling.
 
 ### v2.4.0-2.4.1 - AI Integration & Visual Enhancements ✓
 
