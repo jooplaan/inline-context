@@ -4,7 +4,7 @@
  * Pure utility functions for detecting and navigating inline context formats
  * in WordPress Rich Text values.
  *
- * @package InlineContext
+ * @package
  */
 
 const FORMAT_TYPE = 'jooplaan/inline-context';
@@ -15,9 +15,9 @@ const FORMAT_TYPE = 'jooplaan/inline-context';
  * Scans through the formats array and identifies continuous ranges
  * where the inline-context format is applied.
  *
- * @param {Object} value - Rich text value object from WordPress
+ * @param {Object} value         - Rich text value object from WordPress
  * @param {Array}  value.formats - Array of format arrays
- * @param {string} value.text - The text content
+ * @param {string} value.text    - The text content
  * @return {Array<{start: number, end: number}>} Array of range objects
  */
 export const findAllInlineContextRanges = ( value ) => {
@@ -30,9 +30,7 @@ export const findAllInlineContextRanges = ( value ) => {
 	let currentRange = null;
 
 	formats.forEach( ( formatArray, index ) => {
-		const hasFormat = formatArray?.some(
-			( f ) => f?.type === FORMAT_TYPE
-		);
+		const hasFormat = formatArray?.some( ( f ) => f?.type === FORMAT_TYPE );
 
 		if ( hasFormat ) {
 			if ( ! currentRange ) {
@@ -60,8 +58,8 @@ export const findAllInlineContextRanges = ( value ) => {
 /**
  * Find the next format range after the cursor position
  *
- * @param {Array<{start: number, end: number}>} ranges - Array of format ranges
- * @param {number}                               currentPosition - Current cursor position
+ * @param {Array<{start: number, end: number}>} ranges          - Array of format ranges
+ * @param {number}                              currentPosition - Current cursor position
  * @return {Object|null} Range object or null if no next format found
  */
 export const findNextFormat = ( ranges, currentPosition ) => {
@@ -73,8 +71,8 @@ export const findNextFormat = ( ranges, currentPosition ) => {
  *
  * Searches in reverse to find the format that ends before or at the cursor.
  *
- * @param {Array<{start: number, end: number}>} ranges - Array of format ranges
- * @param {number}                               currentPosition - Current cursor position
+ * @param {Array<{start: number, end: number}>} ranges          - Array of format ranges
+ * @param {number}                              currentPosition - Current cursor position
  * @return {Object|null} Range object or null if no previous format found
  */
 export const findPreviousFormat = ( ranges, currentPosition ) => {
@@ -93,9 +91,9 @@ export const findPreviousFormat = ( ranges, currentPosition ) => {
  * Checks both the left and right positions around the caret to determine
  * if it's within a format. Prefers the left side for boundary cases.
  *
- * @param {Object} value          - Rich text value object
- * @param {Array}  value.formats  - Array of format arrays
- * @param {number} caretPosition  - Current caret position
+ * @param {Object} value         - Rich text value object
+ * @param {Array}  value.formats - Array of format arrays
+ * @param {number} caretPosition - Current caret position
  * @return {boolean} True if caret is inside an inline-context format
  */
 export const isCaretInFormat = ( value, caretPosition ) => {

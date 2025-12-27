@@ -5,7 +5,7 @@
  * - Cmd+Shift+I: Insert new inline context (requires selection)
  * - Cmd+Shift+K: Edit existing context at cursor
  *
- * @package InlineContext
+ * @package
  */
 
 import { useEffect } from '@wordpress/element';
@@ -80,8 +80,6 @@ export const useEditorKeyboardShortcuts = ( {
 					onToggle();
 				}
 				// Cursor not in format - do nothing (silent fail)
-
-				return;
 			}
 		};
 

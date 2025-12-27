@@ -275,7 +275,13 @@ Released: December 2025
 - ✅ Silent fail behavior for invalid contexts (no selection, cursor not in format)
 - ✅ Keyboard accessibility for power users and editors
 
-**Benefits**: Significantly faster workflow for power users writing content-heavy posts. Reduces reliance on mouse for inline context management.
+**Discoverability:**
+
+- ✅ Toolbar button tooltip shows keyboard shortcut (platform-aware: ⇧⌘I on Mac, Ctrl+Shift+I on Windows)
+- ✅ Shortcuts registered with WordPress keyboard shortcuts help panel (Shift+Alt+H)
+- ✅ Integration with WordPress native help system for better user onboarding
+
+**Benefits**: Significantly faster workflow for power users writing content-heavy posts. Reduces reliance on mouse for inline context management. Shortcuts are discoverable through standard WordPress UI patterns.
 
 ### v2.3.0 - Tooltip Hover Activation ✓
 
