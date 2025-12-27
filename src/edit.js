@@ -12,8 +12,9 @@ import {
 import { RichTextToolbarButton } from '@wordpress/block-editor';
 import { Popover, Button } from '@wordpress/components';
 import { applyFormat, removeFormat } from '@wordpress/rich-text';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
+import { displayShortcut } from '@wordpress/keycodes';
 
 // Utils
 import { ensureUniqueAnchorId } from './utils/anchor';
@@ -648,7 +649,11 @@ export default function Edit( { isActive, value, onChange } ) {
 		<span ref={ rootRef }>
 			<RichTextToolbarButton
 				icon="editor-ol"
-				title={ __( 'Inline context', 'inline-context' ) }
+				title={ sprintf(
+					/* translators: %s: keyboard shortcut */
+					__( 'Inline context (%s)', 'inline-context' ),
+					displayShortcut.primaryShift( 'i' )
+				) }
 				onClick={ toggle }
 				isActive={ isActive }
 				aria-expanded={ isOpen }
