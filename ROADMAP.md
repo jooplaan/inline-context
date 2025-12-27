@@ -4,54 +4,9 @@ This document outlines future improvements and completed features for the Inline
 
 ## High Priority Features (Next Release)
 
-### 1. Context Library Panel
-
-**Impact**: High | **Effort**: Medium | **Priority**: #1
-
-Add a sidebar panel in the editor showing all inline contexts in the current post:
-
-- Quick navigation to any note
-- Edit notes directly from panel
-- See which notes are linked/shared
-- Sort by creation date or alphabetically
-- Search/filter functionality
-- Filter by category
-
-**Benefits**: Essential for managing posts with many notes. Improves content workflow significantly.
-
-**Technical Notes**: Can leverage existing CPT infrastructure from v2.0 modular architecture.
-
-### 2. Preset Themes
-
-**Impact**: High | **Effort**: Low | **Priority**: #2
-
-Include 3-5 pre-configured color schemes in admin settings:
-
-- Modern Blue (current default)
-- Minimalist Gray
-- High Contrast
-- Warm Earth Tones
-- Dark Mode
-
-**Benefits**: Makes styling accessible to non-technical users without CSS knowledge.
-
-**Technical Notes**: Integrate with existing settings system via `admin-settings.php`.
-
 ## Medium Priority Features
 
-### 4. Keyboard Shortcuts
-
-**Impact**: Medium | **Effort**: Low
-
-Add editor keyboard shortcuts:
-
-- `Ctrl/Cmd + Shift + I`: Insert inline context
-- `Ctrl/Cmd + K`: Edit existing context under cursor
-- Navigate between notes with arrow keys
-
-**Benefits**: Faster workflow for power users writing content-heavy posts.
-
-### 5. Export/Import Settings
+### 1. Export/Import Settings
 
 **Impact**: Medium | **Effort**: Low
 
@@ -66,7 +21,7 @@ Allow backing up and sharing configurations:
 
 **Technical Notes**: JSON export/import via `Inline_Context_Utils` class.
 
-### 6. Animation Options
+### 2. Animation Options
 
 **Impact**: Medium | **Effort**: Low
 
@@ -78,7 +33,7 @@ Add animation controls in admin settings:
 
 **Benefits**: Personalization and accessibility (respects `prefers-reduced-motion`).
 
-### 7. Statistics Dashboard
+### 3. Statistics Dashboard
 
 **Impact**: Medium | **Effort**: Medium
 
@@ -91,20 +46,24 @@ Show usage metrics in admin:
 
 **Benefits**: Content strategy insights. Identify popular note types.
 
-### 8. Search Integration
+### 4. Search Integration
 
 **Impact**: Medium | **Effort**: Medium
 
-Make note content searchable:
+Make note content searchable and discoverable:
 
 - Include notes in WordPress search results
-- Show which notes contain search terms
-- Highlight matches when expanded
-- Optional: exclude from search
+- Auto-expand notes containing search terms on search results pages
+- Auto-show tooltips (tooltip mode) for notes with matching content
+- Highlight search term matches within note content
+- Show which notes contain search terms in search result excerpts
+- Optional: exclude specific notes/categories from search
 
-**Benefits**: Improves discoverability of content hidden in notes.
+**Use Case Example**: User searches for "Understanding" - a page appears in results because the term exists in a note. When viewing the search results or clicking through to the page, the note containing "Understanding" is automatically expanded (inline mode) or shown as tooltip (tooltip mode), making the relevant content immediately visible.
 
-### 9. Print Styles Enhancement
+**Benefits**: Improves discoverability of content hidden in notes. Users can find information in notes without manually expanding each one.
+
+### 5. Print Styles Enhancement
 
 **Impact**: Medium | **Effort**: Low
 
@@ -119,7 +78,7 @@ Improve printing experience:
 
 ## Advanced Features (Future Consideration)
 
-### 10. JavaScript Public API
+### 6. JavaScript Public API
 
 **Impact**: Medium | **Effort**: Medium
 
@@ -136,7 +95,7 @@ window.InlineContext.getAll()
 
 **Technical Notes**: Frontend API via `Inline_Context_Frontend` class.
 
-### 11. Position Control
+### 7. Position Control
 
 Display notes above/below trigger instead of inline:
 
@@ -144,7 +103,7 @@ Display notes above/below trigger instead of inline:
 - Sidebar placement option
 - Sticky positioning for long notes
 
-### 12. Dark Mode Support
+### 8. Dark Mode Support
 
 Auto-detect system preferences:
 
@@ -152,7 +111,7 @@ Auto-detect system preferences:
 - Separate light/dark color schemes in settings
 - CSS `prefers-color-scheme` integration
 
-### 13. Conditional Display
+### 9. Conditional Display
 
 Show/hide notes based on context:
 
@@ -160,7 +119,7 @@ Show/hide notes based on context:
 - Logged in/out status
 - Custom conditions via filters
 
-### 14. Multi-language Support
+### 10. Multi-language Support
 
 Different note content per language:
 
@@ -168,7 +127,7 @@ Different note content per language:
 - Polylang integration
 - Store translations in post meta
 
-### 15. Lazy Loading
+### 11. Lazy Loading
 
 Only load note content when clicked:
 
@@ -176,15 +135,19 @@ Only load note content when clicked:
 - AJAX load on first open
 - Cache in browser storage
 
-### 16. REST API Endpoints
+### 12. REST API Endpoints ✓
+
+**Status**: Completed in v2.4.0 via WordPress Abilities API
 
 Programmatic access to inline contexts:
 
-- `/wp-json/inline-context/v1/notes`
-- CRUD operations via REST
-- Bulk operations support
+- ✅ Five REST API abilities via WordPress 6.9+ Abilities API
+- ✅ `create-note`, `search-notes`, `get-categories`, `get-note`, `create-inline-note`
+- ✅ Full CRUD operations with JSON Schema validation
+- ✅ Browser-based AI integration (Claude, ChatGPT)
+- Future: Bulk operations support
 
-### 17. Note Versioning
+### 13. Note Versioning
 
 Track changes to note content:
 
@@ -192,7 +155,7 @@ Track changes to note content:
 - Restore previous versions
 - See who changed what (multi-author sites)
 
-### 18. Block Pattern Library
+### 14. Block Pattern Library
 
 Pre-built patterns with inline contexts:
 
@@ -201,14 +164,14 @@ Pre-built patterns with inline contexts:
 - Academic paper with citations
 - Product page with spec details
 
-### 19. Accessibility Enhancements
+### 15. Accessibility Enhancements
 
 - Screen reader modes with customizable announcements
 - Enhanced keyboard navigation between notes
 - Built-in contrast checker with WCAG warnings
 - Auto-expand notes for screen readers (optional)
 
-### 20. SEO Optimization
+### 16. SEO Optimization
 
 Schema.org markup for special note types:
 
@@ -237,6 +200,103 @@ Schema.org markup for special note types:
 ---
 
 ## Completed Features
+
+### v2.6.0 - Preset Color Themes ✓
+
+Released: December 2025
+
+**Color Preset System:**
+
+- ✅ Five pre-configured color schemes for one-click styling
+- ✅ Modern Blue (Default) - Clean, professional look with blue accents
+- ✅ Minimalist Gray - Subtle, understated design in grayscale
+- ✅ High Contrast - Bold colors for maximum visibility and accessibility
+- ✅ Warm Earth Tones - Cozy, natural palette with browns and oranges
+- ✅ Dark Mode - Dark theme with light text for reduced eye strain
+- ✅ Each preset includes complete configuration for all 36 CSS variables
+
+**Smart Preset Management:**
+
+- ✅ Automatic preset detection - system recognizes which preset is active
+- ✅ Custom indicator - displays "Custom" when user modifies preset values
+- ✅ Preset selection persistence - remembers which preset was applied
+- ✅ Override warning - confirms before applying preset over custom settings
+- ✅ Seamless integration with existing styling system via WordPress Settings API
+
+**User Experience:**
+
+- ✅ Dropdown selector with dynamic preset descriptions
+- ✅ One-click preset application with instant feedback
+- ✅ Full customization still available after applying preset
+- ✅ Makes advanced styling accessible to non-technical users
+
+**Benefits**: Eliminates the need for CSS knowledge to achieve professional-looking inline contexts. Users can start with a preset and customize individual values as needed, or use presets as-is for instant styling.
+
+### v2.4.0-2.4.1 - AI Integration & Visual Enhancements ✓
+
+Released: December 2025
+
+**WordPress Abilities API Integration:**
+
+- ✅ WordPress 6.9+ Abilities API integration for AI assistant discovery
+- ✅ Five REST API abilities for AI-powered content enhancement:
+  - `create-note` - Create new inline context notes via API
+  - `search-notes` - Search existing notes by title/content with filters
+  - `get-categories` - Retrieve all available categories with metadata
+  - `get-note` - Fetch specific note by ID with usage data
+  - `create-inline-note` - Create note and get ready-to-embed HTML markup (AI helper)
+- ✅ Browser-based AI integration (Claude, ChatGPT) with automatic capability discovery
+- ✅ Authentication support via cookie auth (browser) or Application Passwords
+- ✅ JSON Schema validation for all ability inputs with permission callbacks
+- ✅ Comprehensive ABILITIES-API.md documentation with workflows and examples
+- ✅ Complete test coverage (32 tests, 110 assertions) for Abilities API
+- ✅ Backward compatible - works on WordPress 6.0+ (Abilities API optional on 6.9+)
+
+**Visual Enhancements:**
+
+- ✅ Pill-style link display option with button-like appearance
+- ✅ Configurable pill styling: border, padding, background, hover states
+- ✅ Icon placement control system (top, middle, bottom alignment)
+- ✅ Flexible icon alignment for both text and pill display modes
+- ✅ Separate styling controls in admin settings panel
+- ✅ Enhanced CSS variable system for icon positioning
+
+**Editor Experience:**
+
+- ✅ Context Library Panel (basic version) - Sidebar showing all inline contexts in current post
+- ✅ Quick navigation to any note with scroll, highlight, and block selection
+- ✅ Note list with category badges and content excerpts
+- ✅ Usage count display for each note
+- Future enhancements (if needed): Direct editing from panel, sorting options, search/filter, reusable note indicators
+
+**Developer Experience:**
+
+- ✅ Test infrastructure for Abilities API (test-abilities.sh, tests/test-abilities.php)
+- ✅ AIFeatures component foundation (disabled by default, ready for future UI)
+- ✅ PHP coding standards fixes (whitespace and alignment)
+- ✅ Updated "Tested up to" WordPress 6.9
+
+### v2.5.0 - Editor Keyboard Shortcuts ✓
+
+Released: December 2025
+
+**Keyboard Shortcuts:**
+
+- ✅ Cmd+Shift+I (Ctrl+Shift+I on Windows) - Insert inline context when text is selected
+- ✅ Cmd+Shift+K (Ctrl+Shift+K on Windows) - Edit existing inline context at cursor position
+- ✅ Custom useEditorKeyboardShortcuts hook for editor-level shortcuts
+- ✅ Format navigation utilities (isCaretInFormat) for detecting cursor position
+- ✅ Shortcuts only active when popover is closed (no conflicts with popover shortcuts)
+- ✅ Silent fail behavior for invalid contexts (no selection, cursor not in format)
+- ✅ Keyboard accessibility for power users and editors
+
+**Discoverability:**
+
+- ✅ Toolbar button tooltip shows keyboard shortcut (platform-aware: ⇧⌘I on Mac, Ctrl+Shift+I on Windows)
+- ✅ Shortcuts registered with WordPress keyboard shortcuts help panel (Shift+Alt+H)
+- ✅ Integration with WordPress native help system for better user onboarding
+
+**Benefits**: Significantly faster workflow for power users writing content-heavy posts. Reduces reliance on mouse for inline context management. Shortcuts are discoverable through standard WordPress UI patterns.
 
 ### v2.3.0 - Tooltip Hover Activation ✓
 

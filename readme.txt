@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, context, annotations
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.4.1
+Stable tag: 2.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -67,6 +67,9 @@ You can also create **reusable** notes from a dedicated Custom Post Type. Updati
 = Styling & customization =
 Full styling control from **Settings → Inline Context**:
 
+* **NEW in v2.6**: Five pre-configured color presets for one-click professional styling
+* Choose from Modern Blue, Minimalist Gray, High Contrast, Warm Earth Tones, or Dark Mode
+* All presets meet WCAG 2.1 AA accessibility standards
 * Link colors, hover, and focus states
 * Note padding, spacing, borders, backgrounds, shadows
 * Tooltip appearance
@@ -125,3 +128,25 @@ Yes. You can type any Dashicon class name to use all 300+ icons.
 7. Inline context note on the frontend (default expanded mode)
 8. Tooltip version of the inline note on the frontend
 9. Notes Library in the admin area showing usage count and linked posts
+
+== Changelog ==
+
+= 2.6.0 - December 27, 2025 =
+* NEW: Color preset system with five pre-configured professional color schemes
+* NEW: Modern Blue (Default), Minimalist Gray, High Contrast, Warm Earth Tones, and Dark Mode presets
+* NEW: Automatic preset detection and "Custom" indicator when values are modified
+* NEW: Warning dialog before applying preset over custom settings
+* IMPROVED: All presets meet WCAG 2.1 AA accessibility standards
+* IMPROVED: One-click preset application with instant visual feedback
+
+= 2.4.1 - December 19, 2025 =
+* IMPROVED: Documentation
+
+= 2.4.0 - December 19, 2025 =
+* NEW: Pill-style link display option with button-like appearance
+* NEW: WordPress 6.9+ Abilities API integration for AI assistant discovery
+* NEW: Five REST API abilities for AI-powered content enhancement
+* NEW: Context Library Panel in editor sidebar
+* IMPROVED: Updated "Tested up to" WordPress 6.9
+
+For complete version history, see [changelog.txt](https://github.com/jooplaan/inline-context/blob/main/changelog.txt)
