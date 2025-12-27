@@ -12,8 +12,9 @@ import {
 import { RichTextToolbarButton } from '@wordpress/block-editor';
 import { Popover, Button } from '@wordpress/components';
 import { applyFormat, removeFormat } from '@wordpress/rich-text';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
+import { displayShortcut } from '@wordpress/keycodes';
 
 // Utils
 import { ensureUniqueAnchorId } from './utils/anchor';
@@ -28,6 +29,7 @@ import {
 	useSyncEditorContent,
 	useCopyLinkStatus,
 } from './hooks/useInlineContext';
+import { useEditorKeyboardShortcuts } from './hooks/useEditorKeyboardShortcuts';
 
 // Components
 import CategorySelector from './components/CategorySelector';
@@ -614,8 +616,16 @@ export default function Edit( { isActive, value, onChange } ) {
 	// Sync editor content when format changes
 	useSyncEditorContent( isOpen, activeFormat, setText, setCategoryId );
 
-	// Keyboard shortcuts
+	// Keyboard shortcuts (popover-specific: Cmd+Enter, Escape)
 	usePopoverKeyboardShortcuts( isOpen, apply, handleClose );
+
+	// Editor-level keyboard shortcuts (only when popover is closed)
+	useEditorKeyboardShortcuts( {
+		value,
+		onChange,
+		onToggle: toggle,
+		isOpen,
+	} );
 
 	// Keyboard navigation
 	const { handleEditorKeyDownCapture, handleActionButtonsKeyDown } =
@@ -639,7 +649,11 @@ export default function Edit( { isActive, value, onChange } ) {
 		<span ref={ rootRef }>
 			<RichTextToolbarButton
 				icon="editor-ol"
-				title={ __( 'Inline context', 'inline-context' ) }
+				title={ sprintf(
+					/* translators: %s: keyboard shortcut */
+					__( 'Inline context (%s)', 'inline-context' ),
+					displayShortcut.primaryShift( 'i' )
+				) }
 				onClick={ toggle }
 				isActive={ isActive }
 				aria-expanded={ isOpen }

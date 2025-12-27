@@ -88,9 +88,11 @@ Renée Kool’s website:
 
 - **Tabbed Interface**: Clean admin settings with General, Categories, Styling, and Uninstall tabs
 - **Display Mode Setting**: Choose between inline or tooltip display on the General tab
+- **Color Presets (v2.6)**: Five pre-configured color schemes for one-click professional styling
 - **Comprehensive Options**: Control colors, spacing, borders, shadows for every element
 - **Organized Sections**: Shared settings grouped first, then mode-specific options
 - **Helpful Descriptions**: Every setting includes clear explanation of its purpose
+- **Smart Preset Detection**: Automatically detects when you customize a preset and shows "Custom" indicator
 
 ### Rich Features
 
@@ -143,6 +145,21 @@ Renée Kool’s website:
 6. Save and view your page
 
 ### Customizing appearance
+
+#### Using color presets (v2.6)
+
+1. Go to Settings > Inline Context > Styling tab
+2. In the "Color Presets" section, choose from five pre-designed schemes:
+   - **Modern Blue (Default)** - Clean, professional look with blue accents
+   - **Minimalist Gray** - Subtle, understated design in grayscale
+   - **High Contrast** - Bold colors for maximum visibility and accessibility
+   - **Warm Earth Tones** - Cozy, natural palette with browns and oranges
+   - **Dark Mode** - Dark theme with light text for reduced eye strain
+3. Click "Apply Preset" to instantly style all 37 CSS variables
+4. Customize any individual value after applying a preset (system automatically shows "Custom" indicator)
+5. All presets meet WCAG 2.1 AA accessibility standards
+
+#### Manual styling
 
 1. Go to Settings > Inline Context > Styling tab
 2. Adjust link colors, note styling, chevron appearance
