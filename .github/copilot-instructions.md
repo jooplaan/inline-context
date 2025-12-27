@@ -10,6 +10,8 @@ This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expan
 
 **Version 2.3** added hover activation option for tooltips with configurable delay and smart mouse interaction handling.
 
+**Version 2.5** added keyboard shortcuts for faster inline context management in the editor (Cmd+Shift+I to insert, Cmd+Shift+K to edit).
+
 ### Key Components
 
 **Frontend Assets:**
@@ -19,6 +21,8 @@ This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expan
 - **Note Search Component** (`src/components/NoteSearch.js`): Live search interface for finding existing CPT notes
 - **QuillEditor Component** (`src/components/QuillEditor.js`): Rich text editor with keyboard navigation
 - **CPT Editor Enhancement** (`src/cpt-editor.js`): QuillEditor integration for inline_context_note CPT edit screen
+- **Keyboard Shortcuts Hook** (`src/hooks/useEditorKeyboardShortcuts.js`): Editor-level keyboard shortcuts (Cmd+Shift+I to insert, Cmd+Shift+K to edit)
+- **Format Navigation Utilities** (`src/utils/format-navigation.js`): Pure utility functions for detecting and navigating inline context formats (isCaretInFormat)
 - **Frontend Interaction** (`src/frontend.js`): Dual-mode display system (inline/tooltip) with DOMPurify for secure HTML rendering, smart positioning, and full keyboard support
 
 **Backend Modular Architecture (v2.0):**
@@ -264,6 +268,29 @@ The plugin supports two display modes for showing notes on the frontend:
 - DOM manipulation using `insertAdjacentElement` for inline insertion
 - Auto-opens notes when page loads with matching hash (#context-note-XXX)
 - Smooth scrolling to auto-opened notes for better UX
+
+### Keyboard Shortcuts (v2.5)
+
+**Editor Shortcuts:**
+
+- **Cmd+Shift+I** (Ctrl+Shift+I on Windows): Insert inline context when text is selected
+- **Cmd+Shift+K** (Ctrl+Shift+K on Windows): Edit existing inline context at cursor position
+
+**Implementation Pattern:**
+
+- Custom hook `useEditorKeyboardShortcuts` attaches document-level keyboard listeners
+- Shortcuts only active when popover is closed (avoids conflicts with popover shortcuts)
+- Uses WordPress Rich Text API (`value.start`, `value.end`, `onChange`)
+- Format detection via `isCaretInFormat()` utility function
+- Case-insensitive key matching using `.toLowerCase()`
+- Silent fail behavior when no selection or cursor not in format
+- Event listeners cleaned up on unmount
+
+**Format Navigation Utilities:**
+
+- `isCaretInFormat(value, position)`: Checks if cursor is inside an inline-context format
+- Checks both left and right positions around caret for boundary detection
+- Returns boolean indicating format presence
 
 ## Build & Development Workflow
 

@@ -148,6 +148,7 @@
 			0 1px 2px rgba(0, 0, 0, 0.05));
 	/* Typography */
 	font-size: var(--wp--custom--inline-context--note--font-size, 0.95em);
+	color: var(--wp--custom--inline-context--note--text-color, inherit);
 	/* Progressive enhancement: smooth reveal animation */
 	animation: wp-inline-context-reveal 0.3s ease-out;
 	transform-origin: top left;
@@ -165,6 +166,15 @@
 
 	@media (prefers-reduced-motion: reduce) {
 		animation: none;
+	}
+
+	/* Ensure all child elements inherit the note text color */
+	/* Override WordPress block default styles */
+	p:not(.has-text-color),
+	li:not(.has-text-color),
+	span:not(.has-text-color),
+	div:not(.has-text-color) {
+		color: inherit !important;
 	}
 }
 
@@ -274,7 +284,7 @@
 	/* Typography */
 	font-size: var(--wp--custom--inline-context--note--font-size, 0.95em);
 	line-height: 1.5;
-	color: #1d2327;
+	color: var(--wp--custom--inline-context--note--text-color, #1d2327);
 	/* Smooth reveal animation */
 	animation: wp-inline-context-tooltip-reveal 0.2s ease-out;
 	transform-origin: top center;
@@ -302,6 +312,15 @@
 	/* Responsive max-width */
 	@media (max-width: 768px) {
 		max-width: calc(100vw - 40px);
+	}
+
+	/* Ensure all child elements inherit the note text color */
+	/* Override WordPress block default styles */
+	p:not(.has-text-color),
+	li:not(.has-text-color),
+	span:not(.has-text-color),
+	div:not(.has-text-color) {
+		color: inherit !important;
 	}
 }
 

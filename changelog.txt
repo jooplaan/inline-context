@@ -3,6 +3,22 @@
 This file contains the complete changelog for all versions of the Inline Context plugin.
 For major version highlights, see README.md and readme.txt.
 
+## Version 2.6.0 - December 27, 2025
+* NEW: Color preset system with five pre-configured professional color schemes
+* NEW: Modern Blue (Default) preset - clean, professional look with blue accents
+* NEW: Minimalist Gray preset - subtle, understated design in grayscale
+* NEW: High Contrast preset - bold colors for maximum visibility and accessibility
+* NEW: Warm Earth Tones preset - cozy, natural palette with browns and oranges
+* NEW: Dark Mode preset - dark theme with light text for reduced eye strain
+* NEW: Automatic preset detection and persistence across page reloads
+* NEW: "Custom" indicator when user modifies preset values
+* NEW: Warning dialog before applying preset over custom settings
+* NEW: note-text-color CSS variable for better typography control (37 total variables)
+* IMPROVED: All presets meet WCAG 2.1 AA accessibility standards (minimum 4.5:1 contrast)
+* IMPROVED: Dark Mode text color with proper inheritance for WordPress block elements
+* IMPROVED: One-click preset application with instant visual feedback
+* IMPROVED: Seamless integration with existing WordPress Settings API
+
 ## Version 2.4.1 - December 19, 2025
 * IMPROVED: documentation
 

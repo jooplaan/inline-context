@@ -318,6 +318,12 @@ function inline_context_register_settings() {
 			'type'        => 'text',
 			'description' => __( 'Text size within the note. Use em or px units.', 'inline-context' ),
 		),
+		'note-text-color'     => array(
+			'label'       => __( 'Text Color', 'inline-context' ),
+			'default'     => 'inherit',
+			'type'        => 'text',
+			'description' => __( 'Color of text within the note. Use color keywords, hex codes, or "inherit" to use the default text color.', 'inline-context' ),
+		),
 		'note-link-color'     => array(
 			'label'       => __( 'Link Color', 'inline-context' ),
 			'default'     => '#2271b1',
@@ -483,6 +489,33 @@ function inline_context_sanitize_icon_placement( $input ) {
 }
 
 /**
+ * Detect which preset (if any) matches the current CSS variables
+ *
+ * @param array $variables CSS variables to check.
+ * @return string|null Preset key if match found, null otherwise.
+ */
+function inline_context_detect_active_preset( $variables ) {
+	$presets = Inline_Context_Utils::get_color_presets();
+
+	foreach ( $presets as $preset_key => $preset_data ) {
+		// Compare all variables with preset.
+		$matches = true;
+		foreach ( $preset_data['variables'] as $key => $value ) {
+			if ( ! isset( $variables[ $key ] ) || $variables[ $key ] !== $value ) {
+				$matches = false;
+				break;
+			}
+		}
+
+		if ( $matches ) {
+			return $preset_key;
+		}
+	}
+
+	return null; // No preset matches - custom values.
+}
+
+/**
  * Sanitize CSS variables
  *
  * @param array $input The input array of CSS variables to sanitize.
@@ -498,6 +531,14 @@ function inline_context_sanitize_css_variables( $input ) {
 		} else {
 			$sanitized[ $key ] = $default;
 		}
+	}
+
+	// Detect which preset (if any) matches the saved values.
+	$detected_preset = inline_context_detect_active_preset( $sanitized );
+	if ( $detected_preset ) {
+		update_option( 'inline_context_active_preset', $detected_preset );
+	} else {
+		update_option( 'inline_context_active_preset', 'custom' );
 	}
 
 	return $sanitized;
@@ -606,6 +647,38 @@ function inline_context_render_settings_page() {
 			__( 'Styling settings have been reset to defaults.', 'inline-context' ),
 			'success'
 		);
+	}
+
+	// Handle apply preset action.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified below.
+	if ( isset( $_POST['inline_context_apply_preset'] ) && isset( $_POST['inline_context_preset_name'] ) ) {
+		check_admin_referer( 'inline_context_apply_preset' );
+
+		$preset_name = sanitize_key( wp_unslash( $_POST['inline_context_preset_name'] ) );
+		$presets     = Inline_Context_Utils::get_color_presets();
+
+		if ( isset( $presets[ $preset_name ] ) ) {
+			update_option( 'inline_context_css_variables', $presets[ $preset_name ]['variables'] );
+			update_option( 'inline_context_active_preset', $preset_name );
+
+			add_settings_error(
+				'inline_context_messages',
+				'inline_context_preset_success',
+				sprintf(
+					/* translators: %s: preset name */
+					__( 'Preset "%s" applied successfully.', 'inline-context' ),
+					$presets[ $preset_name ]['name']
+				),
+				'success'
+			);
+		} else {
+			add_settings_error(
+				'inline_context_messages',
+				'inline_context_preset_error',
+				__( 'Invalid preset selected.', 'inline-context' ),
+				'error'
+			);
+		}
 	}
 
 	// Define tabs.
@@ -770,6 +843,74 @@ function inline_context_render_settings_page() {
 
 		<?php elseif ( 'styling' === $current_tab ) : ?>
 			<p><?php esc_html_e( 'Customize the appearance of inline context notes. Settings are organized by what they apply to: both display modes, or inline mode only.', 'inline-context' ); ?></p>
+
+			<div style="background: #fff; border: 1px solid #ccd0d4; padding: 20px; margin-bottom: 30px; border-radius: 4px;">
+				<h2 style="margin-top: 0;"><?php esc_html_e( 'Color Presets', 'inline-context' ); ?></h2>
+				<p><?php esc_html_e( 'Choose a pre-designed color scheme as a starting point. After applying a preset, you can customize any individual setting below.', 'inline-context' ); ?></p>
+
+				<form method="post" action="">
+					<?php wp_nonce_field( 'inline_context_apply_preset' ); ?>
+
+					<table class="form-table" role="presentation">
+						<tr>
+							<th scope="row">
+								<label for="inline_context_preset_select">
+									<?php esc_html_e( 'Select Preset', 'inline-context' ); ?>
+								</label>
+							</th>
+							<td>
+								<select name="inline_context_preset_name" id="inline_context_preset_select" class="regular-text">
+									<?php
+									$presets        = Inline_Context_Utils::get_color_presets();
+									$active_preset  = get_option( 'inline_context_active_preset', 'modern-blue' );
+									$current_values = get_option( 'inline_context_css_variables', inline_context_get_default_css_variables() );
+
+									// Check if current values actually match the stored preset.
+									$detected_preset = inline_context_detect_active_preset( $current_values );
+									if ( $detected_preset !== $active_preset ) {
+										$active_preset = $detected_preset ? $detected_preset : 'custom';
+									}
+
+									// Add Custom option first if currently active.
+									if ( 'custom' === $active_preset ) {
+										printf(
+											'<option value="custom" selected data-description="%s">%s</option>',
+											esc_attr__( 'You have customized the color settings', 'inline-context' ),
+											esc_html__( 'Custom', 'inline-context' )
+										);
+									}
+
+									// Add all presets.
+									foreach ( $presets as $key => $preset ) {
+										printf(
+											'<option value="%s" data-description="%s"%s>%s</option>',
+											esc_attr( $key ),
+											esc_attr( $preset['description'] ),
+											selected( $active_preset, $key, false ),
+											esc_html( $preset['name'] )
+										);
+									}
+
+									// Add Custom option at the end if not currently active.
+									if ( 'custom' !== $active_preset ) {
+										printf(
+											'<option value="custom" data-description="%s">%s</option>',
+											esc_attr__( 'You have customized the color settings', 'inline-context' ),
+											esc_html__( 'Custom', 'inline-context' )
+										);
+									}
+									?>
+								</select>
+								<p class="description" id="inline_context_preset_description" style="margin-top: 8px;"></p>
+							</td>
+						</tr>
+					</table>
+
+					<p class="submit" style="margin-top: 0; padding-top: 0;">
+						<input type="submit" name="inline_context_apply_preset" class="button button-secondary" value="<?php esc_attr_e( 'Apply Preset', 'inline-context' ); ?>">
+					</p>
+				</form>
+			</div>
 
 			<form action="options.php" method="post">
 				<?php
@@ -1036,6 +1177,49 @@ function inline_context_admin_scripts() {
 
 			// Update visibility immediately on page load
 			updateHoverOptionVisibility();
+
+			// Preset description updater
+			const presetSelect = document.getElementById('inline_context_preset_select');
+			const presetDescription = document.getElementById('inline_context_preset_description');
+
+			if (presetSelect && presetDescription) {
+				// Store the initial preset selection (to detect if custom is active)
+				const initialPreset = presetSelect.value;
+
+				const updatePresetDescription = function() {
+					const selectedOption = presetSelect.options[presetSelect.selectedIndex];
+					if (selectedOption) {
+						presetDescription.textContent = selectedOption.getAttribute('data-description') || '';
+					}
+				};
+
+				presetSelect.addEventListener('change', updatePresetDescription);
+				updatePresetDescription(); // Set initial description
+
+				// Warning when applying preset over custom settings
+				const presetForm = presetSelect.closest('form');
+				if (presetForm) {
+					presetForm.addEventListener('submit', function(e) {
+						const selectedPreset = presetSelect.value;
+
+						// If currently on Custom and user is applying a preset, warn them
+						if (initialPreset === 'custom' && selectedPreset !== 'custom') {
+							const confirmed = confirm(
+								<?php
+								echo wp_json_encode(
+									__( 'Your custom settings will be lost. Are you sure you want to apply this preset?', 'inline-context' )
+								);
+								?>
+							);
+
+							if (!confirmed) {
+								e.preventDefault();
+								return false;
+							}
+						}
+					});
+				}
+			}
 		});
 	";
 
