@@ -951,7 +951,7 @@ class Inline_Context_CPT {
 				'post_type'      => 'inline_context_note',
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
-				'meta_query'     => array(
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required for filtering unused non-reusable notes.
 					'relation' => 'AND',
 					array(
 						'relation' => 'OR',

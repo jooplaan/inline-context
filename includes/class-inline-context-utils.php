@@ -144,12 +144,12 @@ class Inline_Context_Utils {
 	 */
 	public static function get_color_presets() {
 		return array(
-			'modern-blue'      => array(
+			'modern-blue'     => array(
 				'name'        => __( 'Modern Blue (Default)', 'inline-context' ),
 				'description' => __( 'Clean, professional look with blue accents', 'inline-context' ),
 				'variables'   => self::get_default_css_variables(),
 			),
-			'minimalist-gray'  => array(
+			'minimalist-gray' => array(
 				'name'        => __( 'Minimalist Gray', 'inline-context' ),
 				'description' => __( 'Subtle, understated design in grayscale', 'inline-context' ),
 				'variables'   => array(
@@ -187,7 +187,7 @@ class Inline_Context_Utils {
 					'chevron-hover-opacity'   => '1',
 				),
 			),
-			'high-contrast'    => array(
+			'high-contrast'   => array(
 				'name'        => __( 'High Contrast', 'inline-context' ),
 				'description' => __( 'Bold colors for maximum visibility and accessibility', 'inline-context' ),
 				'variables'   => array(
@@ -225,7 +225,7 @@ class Inline_Context_Utils {
 					'chevron-hover-opacity'   => '1',
 				),
 			),
-			'warm-earth'       => array(
+			'warm-earth'      => array(
 				'name'        => __( 'Warm Earth Tones', 'inline-context' ),
 				'description' => __( 'Cozy, natural palette with browns and oranges', 'inline-context' ),
 				'variables'   => array(
@@ -263,7 +263,7 @@ class Inline_Context_Utils {
 					'chevron-hover-opacity'   => '1',
 				),
 			),
-			'dark-mode'        => array(
+			'dark-mode'       => array(
 				'name'        => __( 'Dark Mode', 'inline-context' ),
 				'description' => __( 'Dark theme with light text for reduced eye strain', 'inline-context' ),
 				'variables'   => array(

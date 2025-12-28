@@ -500,7 +500,7 @@ class Inline_Context_Abilities {
 
 		// Filter by reusable only if requested.
 		if ( ! empty( $input['reusable_only'] ) ) {
-			$args['meta_query'] = array(
+			$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required for filtering reusable notes.
 				array(
 					'key'   => 'is_reusable',
 					'value' => true,
@@ -539,7 +539,7 @@ class Inline_Context_Abilities {
 	 * @param mixed $input Input parameters (unused).
 	 * @return array Categories data.
 	 */
-	public function execute_get_categories( $input ) {
+	public function execute_get_categories( $input ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- Required by Abilities API.
 		$categories = inline_context_get_categories();
 		$results    = array();
 

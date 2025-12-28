@@ -52,7 +52,9 @@
 		"test:setup": "bash bin/setup-tests.sh",
 		"test:install": "bash bin/install-wp-tests.sh",
 		"test:unit": "vendor/bin/phpunit",
-		"test": "composer run lint && composer run test:unit"
+		"test:ajax": "vendor/bin/phpunit --group ajax",
+		"test:multisite": "WP_MULTISITE=1 vendor/bin/phpunit",
+		"test": "composer run lint && composer run test:unit && composer run test:ajax && composer run test:multisite"
 	},
 	"config": {
 		"allow-plugins": {

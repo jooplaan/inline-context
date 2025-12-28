@@ -108,7 +108,7 @@ class Inline_Context_Sync {
 				'post_type'      => 'inline_context_note',
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
-				'meta_query'     => array(
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required for finding notes used in specific post.
 					array(
 						'key'     => 'used_in_posts',
 						'value'   => sprintf( '"post_id";i:%d', $post_id ),
@@ -477,7 +477,7 @@ class Inline_Context_Sync {
 	 * @param bool   $append     Whether to append terms.
 	 * @param array  $old_tt_ids Old term taxonomy IDs.
 	 */
-	public function handle_category_change( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
+	public function handle_category_change( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Required by WordPress hook.
 		// Only process our custom taxonomy on our CPT.
 		if ( 'inline_context_category' !== $taxonomy ) {
 			return;

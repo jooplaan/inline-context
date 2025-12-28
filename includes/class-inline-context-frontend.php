@@ -48,8 +48,10 @@ class Inline_Context_Frontend {
 
 		// Use DOMDocument to safely manipulate HTML.
 		$doc = new DOMDocument();
-		// Suppress warnings from invalid HTML.
-		@$doc->loadHTML( '<?xml encoding="utf-8" ?>' . $content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+		// Suppress warnings from invalid HTML using libxml error handling.
+		libxml_use_internal_errors( true );
+		$doc->loadHTML( '<?xml encoding="utf-8" ?>' . $content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+		libxml_clear_errors();
 
 		$links            = $doc->getElementsByTagName( 'a' );
 		$notes_to_append  = array();
@@ -108,7 +110,9 @@ class Inline_Context_Frontend {
 
 				// Append the note content.
 				$fragment = $notes_doc->createDocumentFragment();
-				@$fragment->appendXML( $note_data['note_content_html'] );
+				libxml_use_internal_errors( true );
+				$fragment->appendXML( $note_data['note_content_html'] );
+				libxml_clear_errors();
 
 				// Only append fragment if it has content.
 				if ( $fragment->hasChildNodes() ) {
