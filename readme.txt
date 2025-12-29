@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, context, annotations
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.6.0
+Stable tag: 2.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -130,6 +130,15 @@ Yes. You can type any Dashicon class name to use all 300+ icons.
 9. Notes Library in the admin area showing usage count and linked posts
 
 == Changelog ==
+
+= 2.7.0 - December 29, 2025 =
+* NEW: Export/Import Settings - Backup and restore all plugin configurations as JSON
+* NEW: Print Styles - Professional print formatting with automatic note expansion
+* NEW: Footnote-style numbering for printed documents using CSS counters
+* NEW: Import/Export tab in admin settings with validation and error handling
+* IMPROVED: Smart link URL display in print (shows URLs except for anchor links)
+* IMPROVED: Print-optimized typography and colors for professional documents
+* FIX: Export/Import now properly handles headers to prevent HTML output issues
 
 = 2.6.0 - December 27, 2025 =
 * NEW: Color preset system with five pre-configured professional color schemes
