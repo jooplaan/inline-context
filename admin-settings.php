@@ -896,94 +896,96 @@ function inline_context_render_settings_page() {
 									<input type="radio" name="inline_context_display_mode" value="tooltip" <?php checked( $display_mode, 'tooltip' ); ?>>
 									<?php esc_html_e( 'Show notes as tooltips', 'inline-context' ); ?>
 								</label>
-							<p class="description">
-								<?php esc_html_e( 'Inline notes expand below the trigger link when clicked. Tooltips appear as a popup near the trigger link when clicked or activated with keyboard.', 'inline-context' ); ?>
-							</p>
-							<div id="tooltip-hover-option" style="margin-left: 25px; margin-top: 10px; <?php echo ( 'tooltip' !== $display_mode ? 'display: none;' : '' ); ?>">
-								<label>
-									<input type="checkbox" name="inline_context_tooltip_hover" value="1" <?php checked( get_option( 'inline_context_tooltip_hover', false ) ); ?>>
-									<?php esc_html_e( 'Also display the tooltip on mouse hover', 'inline-context' ); ?>
-								</label>
-								<p class="description" style="margin-left: 25px;">
-									<?php esc_html_e( 'When enabled, tooltips will appear when hovering over the link, in addition to click/keyboard activation.', 'inline-context' ); ?>
+								<p class="description">
+									<?php esc_html_e( 'Inline notes expand below the trigger link when clicked. Tooltips appear as a popup near the trigger link when clicked or activated with keyboard.', 'inline-context' ); ?>
 								</p>
-							</div>							</fieldset>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row">
-						<?php esc_html_e( 'Link Style', 'inline-context' ); ?>
-					</th>
-					<td>
-						<fieldset>
-							<legend class="screen-reader-text">
-								<span><?php esc_html_e( 'Link Style', 'inline-context' ); ?></span>
-							</legend>
-							<?php
-							$link_style = get_option( 'inline_context_link_style', 'text' );
-							?>
-							<label>
-								<input type="radio" name="inline_context_link_style" value="text" <?php checked( $link_style, 'text' ); ?>>
-								<?php esc_html_e( 'Text style (default) - Link appears as regular text with a subtle indicator', 'inline-context' ); ?>
-							</label>
-							<br>
-							<label>
-								<input type="radio" name="inline_context_link_style" value="pill" <?php checked( $link_style, 'pill' ); ?>>
-								<?php esc_html_e( 'Pill style - Link appears as a button-like element with border and background', 'inline-context' ); ?>
-							</label>
-							<p class="description">
-								<?php esc_html_e( 'Choose how trigger links appear in your content. The pill style makes links more prominent. You can customize the appearance of each style in the Styling tab.', 'inline-context' ); ?>
-							</p>
-						</fieldset>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row">
-						<?php esc_html_e( 'Icon Placement', 'inline-context' ); ?>
-					</th>
-					<td>
-						<fieldset>
-							<legend class="screen-reader-text">
-								<span><?php esc_html_e( 'Icon Placement', 'inline-context' ); ?></span>
-							</legend>
-							<?php
-							$icon_placement = get_option( 'inline_context_icon_placement', 'middle' );
-							?>
-							<label>
-								<input type="radio" name="inline_context_icon_placement" value="top" <?php checked( $icon_placement, 'top' ); ?>>
-								<?php esc_html_e( 'Top - Icon appears above the text baseline (superscript)', 'inline-context' ); ?>
-							</label>
-							<br>
-							<label>
-								<input type="radio" name="inline_context_icon_placement" value="middle" <?php checked( $icon_placement, 'middle' ); ?>>
-								<?php esc_html_e( 'Middle - Icon aligns with text center (default)', 'inline-context' ); ?>
-							</label>
-							<br>
-							<label>
-								<input type="radio" name="inline_context_icon_placement" value="bottom" <?php checked( $icon_placement, 'bottom' ); ?>>
-								<?php esc_html_e( 'Bottom - Icon appears below the text baseline (subscript)', 'inline-context' ); ?>
-							</label>
-							<p class="description">
-								<?php esc_html_e( 'Controls the vertical position of both the chevron icon and category icons. This setting applies consistently to all icon types.', 'inline-context' ); ?>
-							</p>
-						</fieldset>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><?php esc_html_e( 'Animations', 'inline-context' ); ?></th>
-					<td>
-						<fieldset>
-							<label>
-								<input type="checkbox" name="inline_context_enable_animations" value="1" <?php checked( get_option( 'inline_context_enable_animations', true ) ); ?>>
-								<?php esc_html_e( 'Enable subtle animations when notes appear', 'inline-context' ); ?>
-							</label>
-							<p class="description">
-								<?php esc_html_e( 'When enabled, notes will smoothly fade and slide in. When disabled, notes appear instantly. Always respects user preference for reduced motion.', 'inline-context' ); ?>
-							</p>
-						</fieldset>
-					</td>
-				</tr>
-			</table>				<p class="submit">
+								<div id="tooltip-hover-option" style="margin-left: 25px; margin-top: 10px; <?php echo ( 'tooltip' !== $display_mode ? 'display: none;' : '' ); ?>">
+									<label>
+										<input type="checkbox" name="inline_context_tooltip_hover" value="1" <?php checked( get_option( 'inline_context_tooltip_hover', false ) ); ?>>
+										<?php esc_html_e( 'Also display the tooltip on mouse hover', 'inline-context' ); ?>
+									</label>
+									<p class="description" style="margin-left: 25px;">
+										<?php esc_html_e( 'When enabled, tooltips will appear when hovering over the link, in addition to click/keyboard activation.', 'inline-context' ); ?>
+									</p>
+								</div>
+							</fieldset>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<?php esc_html_e( 'Link Style', 'inline-context' ); ?>
+						</th>
+						<td>
+							<fieldset>
+								<legend class="screen-reader-text">
+									<span><?php esc_html_e( 'Link Style', 'inline-context' ); ?></span>
+								</legend>
+								<?php
+								$link_style = get_option( 'inline_context_link_style', 'text' );
+								?>
+								<label>
+									<input type="radio" name="inline_context_link_style" value="text" <?php checked( $link_style, 'text' ); ?>>
+									<?php esc_html_e( 'Text style (default) - Link appears as regular text with a subtle indicator', 'inline-context' ); ?>
+								</label>
+								<br>
+								<label>
+									<input type="radio" name="inline_context_link_style" value="pill" <?php checked( $link_style, 'pill' ); ?>>
+									<?php esc_html_e( 'Pill style - Link appears as a button-like element with border and background', 'inline-context' ); ?>
+								</label>
+								<p class="description">
+									<?php esc_html_e( 'Choose how trigger links appear in your content. The pill style makes links more prominent. You can customize the appearance of each style in the Styling tab.', 'inline-context' ); ?>
+								</p>
+							</fieldset>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<?php esc_html_e( 'Icon Placement', 'inline-context' ); ?>
+						</th>
+						<td>
+							<fieldset>
+								<legend class="screen-reader-text">
+									<span><?php esc_html_e( 'Icon Placement', 'inline-context' ); ?></span>
+								</legend>
+								<?php
+								$icon_placement = get_option( 'inline_context_icon_placement', 'middle' );
+								?>
+								<label>
+									<input type="radio" name="inline_context_icon_placement" value="top" <?php checked( $icon_placement, 'top' ); ?>>
+									<?php esc_html_e( 'Top - Icon appears above the text baseline (superscript)', 'inline-context' ); ?>
+								</label>
+								<br>
+								<label>
+									<input type="radio" name="inline_context_icon_placement" value="middle" <?php checked( $icon_placement, 'middle' ); ?>>
+									<?php esc_html_e( 'Middle - Icon aligns with text center (default)', 'inline-context' ); ?>
+								</label>
+								<br>
+								<label>
+									<input type="radio" name="inline_context_icon_placement" value="bottom" <?php checked( $icon_placement, 'bottom' ); ?>>
+									<?php esc_html_e( 'Bottom - Icon appears below the text baseline (subscript)', 'inline-context' ); ?>
+								</label>
+								<p class="description">
+									<?php esc_html_e( 'Controls the vertical position of both the chevron icon and category icons. This setting applies consistently to all icon types.', 'inline-context' ); ?>
+								</p>
+							</fieldset>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Animations', 'inline-context' ); ?></th>
+						<td>
+							<fieldset>
+								<label>
+									<input type="checkbox" name="inline_context_enable_animations" value="1" <?php checked( get_option( 'inline_context_enable_animations', true ) ); ?>>
+									<?php esc_html_e( 'Enable subtle animations when notes appear', 'inline-context' ); ?>
+								</label>
+								<p class="description">
+									<?php esc_html_e( 'When enabled, notes will smoothly fade and slide in. When disabled, notes appear instantly. Always respects user preference for reduced motion.', 'inline-context' ); ?>
+								</p>
+							</fieldset>
+						</td>
+					</tr>
+				</table>
+				<p class="submit">
 					<input type="submit" name="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 'inline-context' ); ?>">
 				</p>
 			</form>
@@ -1101,7 +1103,7 @@ function inline_context_render_settings_page() {
  */
 function inline_context_render_import_export_tab() {
 	?>
-	
+
 	<?php settings_errors( 'inline_context_messages' ); ?>
 
 	<h2><?php esc_html_e( 'Export Settings', 'inline-context' ); ?></h2>

@@ -5,6 +5,9 @@
  * @package InlineContext
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 /**
  * Class Inline_Context_Frontend
  *
@@ -12,6 +15,7 @@
  * and asset enqueuing for both editor and public-facing views.
  */
 class Inline_Context_Frontend {
+
 
 	/**
 	 * Initialize frontend functionality by registering hooks.

@@ -5,6 +5,9 @@
  * @package InlineContext
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 /**
  * Class Inline_Context_Utils
  *
