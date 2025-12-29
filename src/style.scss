@@ -484,6 +484,95 @@
 	.wp-inline-context-tooltip {
 		display: none !important;
 	}
+
+	/* Print styles: Auto-expand all inline context notes */
+	.wp-inline-context {
+		/* Remove interactive styling */
+		cursor: default;
+		text-decoration: none;
+
+		/* Hide chevron icon in print */
+		&::after {
+			display: none;
+		}
+
+		/* Add footnote-style marker */
+		&::before {
+			content: '[' counter(inline-context-counter) ']';
+			counter-increment: inline-context-counter;
+			font-size: 0.8em;
+			vertical-align: super;
+			margin-right: 2px;
+			color: #666;
+		}
+	}
+
+	/* Initialize counter */
+	body {
+		counter-reset: inline-context-counter;
+	}
+
+	/* Auto-expand all inline notes for print */
+	.wp-inline-context-inline {
+		display: block !important;
+		opacity: 1 !important;
+		page-break-inside: avoid;
+		margin: 0.5em 0 1em 2em !important;
+		padding: 0.75em 1em !important;
+		border-left: 3px solid #333 !important;
+		background: #f5f5f5 !important;
+		color: #000 !important;
+
+		/* Remove animations for print */
+		animation: none !important;
+
+		/* Print-friendly typography */
+		font-size: 0.9em !important;
+		line-height: 1.5 !important;
+
+		/* Add note label */
+		&::before {
+			content: 'Note: ';
+			font-weight: bold;
+			margin-right: 0.25em;
+		}
+	}
+
+	/* Ensure note content is visible and readable */
+	.wp-inline-context-inline * {
+		color: #000 !important;
+		background: transparent !important;
+	}
+
+	/* Handle links in printed notes */
+	.wp-inline-context-inline a {
+		color: #000 !important;
+		text-decoration: underline !important;
+
+		/* Show URL after link text */
+		&::after {
+			content: ' (' attr(href) ')';
+			font-size: 0.85em;
+			color: #666 !important;
+			word-break: break-all;
+		}
+
+		/* Don't show URLs for anchor links */
+		&[href^='#']::after {
+			content: '';
+		}
+	}
+
+	/* Category icons: Show in print but simplified */
+	.inline-context-category-icon {
+		color: #666 !important;
+	}
+
+	/* Hide interactive elements */
+	.wp-inline-context-tooltip-close,
+	.wp-inline-context-inline-close {
+		display: none !important;
+	}
 }
 
 /* Accessibility: Focus states for triggers in tooltip mode */

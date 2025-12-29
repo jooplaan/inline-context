@@ -13,6 +13,99 @@ if ( ! is_admin() ) {
 }
 
 /**
+ * Export plugin settings as JSON file
+ */
+function inline_context_export_settings() {
+	// Get all plugin options.
+	$settings = array(
+		'version'                          => '1.0',
+		'inline_context_display_mode'      => get_option( 'inline_context_display_mode', 'inline' ),
+		'inline_context_tooltip_hover'     => get_option( 'inline_context_tooltip_hover', false ),
+		'inline_context_enable_animations' => get_option( 'inline_context_enable_animations', true ),
+		'inline_context_link_style'        => get_option( 'inline_context_link_style', 'text' ),
+		'inline_context_icon_placement'    => get_option( 'inline_context_icon_placement', 'middle' ),
+		'inline_context_css_variables'     => get_option( 'inline_context_css_variables', inline_context_get_default_css_variables() ),
+		'inline_context_active_preset'     => get_option( 'inline_context_active_preset', 'modern-blue' ),
+		'export_date'                      => gmdate( 'Y-m-d H:i:s' ),
+		'export_site'                      => get_bloginfo( 'name' ),
+	);
+
+	// Create filename.
+	$filename = 'inline-context-settings-' . gmdate( 'Y-m-d-His' ) . '.json';
+
+	// Send headers for download.
+	header( 'Content-Type: application/json' );
+	header( 'Content-Disposition: attachment; filename=' . $filename );
+	header( 'Cache-Control: no-cache, must-revalidate' );
+	header( 'Expires: 0' );
+
+	// Output JSON.
+	echo wp_json_encode( $settings, JSON_PRETTY_PRINT );
+	exit;
+}
+
+/**
+ * Import plugin settings from JSON file
+ *
+ * @param string $file_path Path to the uploaded file.
+ * @return true|WP_Error True on success, WP_Error on failure.
+ */
+function inline_context_import_settings( $file_path ) {
+	// Check if file exists.
+	if ( ! file_exists( $file_path ) ) {
+		return new WP_Error( 'file_not_found', __( 'Import file not found.', 'inline-context' ) );
+	}
+
+	// Read file contents.
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading uploaded file.
+	$json_content = file_get_contents( $file_path );
+
+	if ( false === $json_content ) {
+		return new WP_Error( 'read_error', __( 'Could not read import file.', 'inline-context' ) );
+	}
+
+	// Decode JSON.
+	$settings = json_decode( $json_content, true );
+
+	if ( null === $settings || ! is_array( $settings ) ) {
+		return new WP_Error( 'invalid_json', __( 'Invalid JSON format in import file.', 'inline-context' ) );
+	}
+
+	// Verify it's an Inline Context settings file.
+	if ( ! isset( $settings['version'] ) ) {
+		return new WP_Error( 'invalid_format', __( 'This does not appear to be a valid Inline Context settings file.', 'inline-context' ) );
+	}
+
+	// Import settings.
+	$imported_count = 0;
+
+	// Map of option names to sanitize callbacks.
+	$options_map = array(
+		'inline_context_display_mode'      => 'inline_context_sanitize_display_mode',
+		'inline_context_tooltip_hover'     => 'rest_sanitize_boolean',
+		'inline_context_enable_animations' => 'rest_sanitize_boolean',
+		'inline_context_link_style'        => 'inline_context_sanitize_link_style',
+		'inline_context_icon_placement'    => 'inline_context_sanitize_icon_placement',
+		'inline_context_css_variables'     => 'inline_context_sanitize_css_variables',
+		'inline_context_active_preset'     => 'sanitize_key',
+	);
+
+	foreach ( $options_map as $option_name => $sanitize_callback ) {
+		if ( isset( $settings[ $option_name ] ) ) {
+			$sanitized_value = call_user_func( $sanitize_callback, $settings[ $option_name ] );
+			update_option( $option_name, $sanitized_value );
+			++$imported_count;
+		}
+	}
+
+	if ( 0 === $imported_count ) {
+		return new WP_Error( 'no_settings', __( 'No valid settings found in import file.', 'inline-context' ) );
+	}
+
+	return true;
+}
+
+/**
  * Register settings page
  */
 function inline_context_add_settings_page() {
@@ -683,9 +776,10 @@ function inline_context_render_settings_page() {
 
 	// Define tabs.
 	$tabs = array(
-		'general'   => __( 'General', 'inline-context' ),
-		'styling'   => __( 'Styling', 'inline-context' ),
-		'uninstall' => __( 'Uninstall', 'inline-context' ),
+		'general'       => __( 'General', 'inline-context' ),
+		'import_export' => __( 'Import/Export', 'inline-context' ),
+		'styling'       => __( 'Styling', 'inline-context' ),
+		'uninstall'     => __( 'Uninstall', 'inline-context' ),
 	);
 
 	// Get current tab.
@@ -841,6 +935,9 @@ function inline_context_render_settings_page() {
 				</p>
 			</form>
 
+		<?php elseif ( 'import_export' === $current_tab ) : ?>
+			<?php inline_context_render_import_export_tab(); ?>
+
 		<?php elseif ( 'styling' === $current_tab ) : ?>
 			<p><?php esc_html_e( 'Customize the appearance of inline context notes. Settings are organized by what they apply to: both display modes, or inline mode only.', 'inline-context' ); ?></p>
 
@@ -943,6 +1040,103 @@ function inline_context_render_settings_page() {
 			<?php inline_context_render_uninstall_tab(); ?>
 		<?php endif; ?>
 	</div>
+	<?php
+}
+
+/**
+ * Render the Import/Export tab content
+ */
+function inline_context_render_import_export_tab() {
+	// Handle export action.
+	if ( isset( $_POST['inline_context_export_settings'] ) ) {
+		check_admin_referer( 'inline_context_export_settings' );
+		inline_context_export_settings();
+		return;
+	}
+
+	// Handle import action.
+	if ( isset( $_POST['inline_context_import_settings'] ) && isset( $_FILES['inline_context_import_file'] ) ) {
+		check_admin_referer( 'inline_context_import_settings' );
+
+		if ( empty( $_FILES['inline_context_import_file']['tmp_name'] ) ) {
+			add_settings_error(
+				'inline_context_messages',
+				'inline_context_import_error',
+				__( 'Please select a file to import.', 'inline-context' ),
+				'error'
+			);
+		} else {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File path sanitized by WordPress core.
+			$tmp_file = wp_unslash( $_FILES['inline_context_import_file']['tmp_name'] );
+			$result   = inline_context_import_settings( $tmp_file );
+
+			if ( is_wp_error( $result ) ) {
+				add_settings_error(
+					'inline_context_messages',
+					'inline_context_import_error',
+					$result->get_error_message(),
+					'error'
+				);
+			} else {
+				add_settings_error(
+					'inline_context_messages',
+					'inline_context_import_success',
+					__( 'Settings imported successfully!', 'inline-context' ),
+					'success'
+				);
+			}
+		}
+
+		settings_errors( 'inline_context_messages' );
+	}
+	?>
+
+	<h2><?php esc_html_e( 'Export Settings', 'inline-context' ); ?></h2>
+	<p><?php esc_html_e( 'Export your plugin settings as a JSON file. This includes all display, styling, and general settings, but does not include your notes or categories.', 'inline-context' ); ?></p>
+
+	<form method="post" action="">
+		<?php wp_nonce_field( 'inline_context_export_settings' ); ?>
+		<p class="submit">
+			<input type="submit" name="inline_context_export_settings" class="button button-primary" value="<?php esc_attr_e( 'Export Settings', 'inline-context' ); ?>">
+		</p>
+	</form>
+
+	<hr style="margin: 30px 0;">
+
+	<h2><?php esc_html_e( 'Import Settings', 'inline-context' ); ?></h2>
+	<p><?php esc_html_e( 'Import plugin settings from a previously exported JSON file. This will overwrite your current settings.', 'inline-context' ); ?></p>
+
+	<div class="notice notice-warning inline" style="margin: 20px 0;">
+		<p>
+			<strong><?php esc_html_e( 'Warning:', 'inline-context' ); ?></strong>
+			<?php esc_html_e( 'Importing will replace all current settings. Consider exporting your current settings first as a backup.', 'inline-context' ); ?>
+		</p>
+	</div>
+
+	<form method="post" action="" enctype="multipart/form-data">
+		<?php wp_nonce_field( 'inline_context_import_settings' ); ?>
+		<table class="form-table" role="presentation">
+			<tbody>
+				<tr>
+					<th scope="row">
+						<label for="inline_context_import_file">
+							<?php esc_html_e( 'Select File', 'inline-context' ); ?>
+						</label>
+					</th>
+					<td>
+						<input type="file" name="inline_context_import_file" id="inline_context_import_file" accept=".json" required>
+						<p class="description">
+							<?php esc_html_e( 'Choose a JSON file exported from Inline Context plugin.', 'inline-context' ); ?>
+						</p>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<p class="submit">
+			<input type="submit" name="inline_context_import_settings" class="button button-primary" value="<?php esc_attr_e( 'Import Settings', 'inline-context' ); ?>">
+		</p>
+	</form>
+
 	<?php
 }
 

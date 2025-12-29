@@ -6,22 +6,7 @@ This document outlines future improvements and completed features for the Inline
 
 ## Medium Priority Features
 
-### 1. Export/Import Settings
-
-**Impact**: Medium | **Effort**: Low
-
-Allow backing up and sharing configurations:
-
-- Export all settings as JSON
-- Import from file
-- Reset to defaults option
-- Share configurations across sites
-
-**Benefits**: Easy setup for multi-site networks. Share custom themes with community.
-
-**Technical Notes**: JSON export/import via `Inline_Context_Utils` class.
-
-### 2. Animation Options
+### 1. Animation Options
 
 **Impact**: Medium | **Effort**: Low
 
@@ -33,7 +18,7 @@ Add animation controls in admin settings:
 
 **Benefits**: Personalization and accessibility (respects `prefers-reduced-motion`).
 
-### 3. Statistics Dashboard
+### 2. Statistics Dashboard
 
 **Impact**: Medium | **Effort**: Medium
 
@@ -46,7 +31,7 @@ Show usage metrics in admin:
 
 **Benefits**: Content strategy insights. Identify popular note types.
 
-### 4. Search Integration
+### 3. Search Integration
 
 **Impact**: Medium | **Effort**: Medium
 
@@ -63,22 +48,9 @@ Make note content searchable and discoverable:
 
 **Benefits**: Improves discoverability of content hidden in notes. Users can find information in notes without manually expanding each one.
 
-### 5. Print Styles Enhancement
-
-**Impact**: Medium | **Effort**: Low
-
-Improve printing experience:
-
-- Auto-expand all notes when printing (already works)
-- Remove interactive elements
-- Adjust colors for print
-- Option to hide notes entirely in print
-
-**Benefits**: Better user experience for readers who print content.
-
 ## Advanced Features (Future Consideration)
 
-### 6. JavaScript Public API
+### 4. JavaScript Public API
 
 **Impact**: Medium | **Effort**: Medium
 
@@ -95,7 +67,7 @@ window.InlineContext.getAll()
 
 **Technical Notes**: Frontend API via `Inline_Context_Frontend` class.
 
-### 7. Position Control
+### 5. Position Control
 
 Display notes above/below trigger instead of inline:
 
@@ -200,6 +172,37 @@ Schema.org markup for special note types:
 ---
 
 ## Completed Features
+
+### v2.7.0 - Export/Import Settings & Print Styles ✓
+
+Released: December 2025
+
+**Export/Import Settings:**
+
+- ✅ JSON-based export/import system for all plugin settings
+- ✅ New Import/Export tab in admin settings with dedicated interface
+- ✅ Export includes display mode, styling, CSS variables, and active preset
+- ✅ Import validation with error handling (invalid JSON, malformed files)
+- ✅ Sanitization of imported values using existing callbacks
+- ✅ Timestamped export filenames (inline-context-settings-YYYY-MM-DD-HHMMSS.json)
+- ✅ Includes metadata (export date, site name) in export file
+- ✅ Warning dialog before overwriting current settings with import
+- ✅ Success/error messages with WordPress Settings API integration
+
+**Print Styles:**
+
+- ✅ Comprehensive print stylesheet with auto-expansion of all notes
+- ✅ Footnote-style numbering system using CSS counters
+- ✅ Print-optimized typography (readable font sizes, line heights)
+- ✅ Smart link handling - shows URLs after link text (except anchor links)
+- ✅ Removes interactive elements (chevron icons, close buttons, tooltips)
+- ✅ Print-friendly color scheme (black text on light gray backgrounds)
+- ✅ Page break avoidance inside notes for better print layout
+- ✅ "Note:" label prefix for clarity in printed documents
+- ✅ Left accent border maintained in grayscale for print
+- ✅ Category icons rendered in grayscale for print compatibility
+
+**Benefits**: Export/Import enables easy migration between sites and backup of custom configurations. Print styles ensure professional-looking printed documents with all notes visible and properly formatted, ideal for documentation and educational content.
 
 ### v2.6.0 - Preset Color Themes ✓
 

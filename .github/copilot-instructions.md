@@ -12,6 +12,8 @@ This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expan
 
 **Version 2.5** added keyboard shortcuts for faster inline context management in the editor (Cmd+Shift+I to insert, Cmd+Shift+K to edit).
 
+**Version 2.7** added Export/Import Settings functionality for backing up and sharing configurations, plus comprehensive print styles with auto-expansion and footnote-style numbering.
+
 ### Key Components
 
 **Frontend Assets:**
@@ -38,7 +40,7 @@ This is a WordPress Gutenberg **Rich Text Format** plugin that adds inline expan
 **Bootstrap & Settings:**
 
 - **Asset Management** (`inline-context.php`, 395 lines) - WordPress coding standards compliant PHP with CPT registration, REST API, and asset enqueuing
-- **Admin Settings** (`admin-settings.php`, 720 lines) - Tabbed admin interface (General, Categories, Styling, Uninstall) with display mode selection and organized styling sections
+- **Admin Settings** (`admin-settings.php`, ~1,430 lines) - Tabbed admin interface (General, Import/Export, Styling, Uninstall) with display mode selection, settings backup/restore, and organized styling sections
 - **Uninstall System** (`uninstall.php`) - Comprehensive cleanup with content removal options
 
 ### Version 2.0 Modular Architecture Benefits
@@ -333,7 +335,7 @@ Uses `@wordpress/scripts` which provides:
 - `src/style.scss` - Frontend styles including tooltip positioning and animations
 - `src/editor.scss` - Editor-only styles
 - `inline-context.php` - WordPress plugin bootstrap (395 lines)
-- `admin-settings.php` - Admin settings UI with General, Categories, Styling, Uninstall tabs (720 lines)
+- `admin-settings.php` - Admin settings UI with General, Import/Export, Styling, Uninstall tabs (~1,430 lines)
 - `includes/class-cpt.php` - Custom Post Type class (855 lines)
 - `includes/class-taxonomy-meta.php` - Taxonomy meta fields class (372 lines)
 - `includes/class-sync.php` - Synchronization class (496 lines)
@@ -379,6 +381,57 @@ add_action('wp_enqueue_scripts', function() {
 - Accessibility: `role="note"` on revealed content, proper ARIA attributes
 - Animation: Smooth reveal/hide transitions with CSS animations
 - Theme compatibility: CSS variables for easy customization
+
+## Export/Import Settings (v2.7)
+
+**Functionality:**
+
+- JSON-based export/import system for all plugin settings
+- Accessible via Import/Export tab in admin settings
+- Export includes: display mode, tooltip hover, animations, link style, icon placement, CSS variables, active preset
+- Import validates JSON format and sanitizes all values
+- Timestamped filenames: `inline-context-settings-YYYY-MM-DD-HHMMSS.json`
+
+**Implementation:**
+
+- `inline_context_export_settings()` - Generates JSON file with all options
+- `inline_context_import_settings($file_path)` - Validates and imports settings
+- `inline_context_render_import_export_tab()` - Admin UI with export button and file upload
+- Settings mapped to sanitization callbacks for security
+- WordPress Settings API integration for error/success messages
+
+**Use Cases:**
+
+- Backup configurations before making changes
+- Share custom styling setups across multiple sites
+- Quick setup for multisite networks
+- Migrate settings between staging and production
+
+## Print Styles (v2.7)
+
+**Auto-Expansion:**
+
+- All inline context notes automatically expand when printing
+- Footnote-style numbering using CSS counters (e.g., [1], [2], [3])
+- Counter initialized on body, incremented per note
+- Notes display with "Note: " prefix and left border accent
+
+**Print Optimization:**
+
+- Removes interactive elements (chevron icons, close buttons, tooltips)
+- Print-friendly color scheme (black text, light gray backgrounds)
+- Smart link handling - shows URLs after link text (except anchor links)
+- Page break avoidance inside notes
+- Category icons rendered in grayscale
+- Optimized typography (0.9em font size, 1.5 line height)
+
+**Implementation:**
+
+- `@media print` block in `src/style.scss`
+- Uses CSS counters: `counter-reset`, `counter-increment`, `content: '[' counter(inline-context-counter) ']'`
+- Link URL display via `::after` pseudo-element with `attr(href)`
+- Tooltips hidden completely in print mode
+- Notes indented (2em left margin) for clear visual hierarchy
 
 ## Debugging Tips
 
