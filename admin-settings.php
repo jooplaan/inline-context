@@ -120,6 +120,59 @@ function inline_context_add_settings_page() {
 add_action( 'admin_menu', 'inline_context_add_settings_page' );
 
 /**
+ * Handle export/import actions early, before any HTML output
+ */
+function inline_context_handle_export_import() {
+	// Only run on our settings page.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified below for each action.
+	if ( ! isset( $_GET['page'] ) || 'inline-context-settings' !== $_GET['page'] ) {
+		return;
+	}
+
+	// Handle export action.
+	if ( isset( $_POST['inline_context_export_settings'] ) ) {
+		check_admin_referer( 'inline_context_export_settings' );
+		inline_context_export_settings();
+		exit; // This is in inline_context_export_settings() but be explicit.
+	}
+
+	// Handle import action.
+	if ( isset( $_POST['inline_context_import_settings'] ) && isset( $_FILES['inline_context_import_file'] ) ) {
+		check_admin_referer( 'inline_context_import_settings' );
+
+		if ( empty( $_FILES['inline_context_import_file']['tmp_name'] ) ) {
+			add_settings_error(
+				'inline_context_messages',
+				'inline_context_import_error',
+				__( 'Please select a file to import.', 'inline-context' ),
+				'error'
+			);
+		} else {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File path sanitized by WordPress core.
+			$tmp_file = wp_unslash( $_FILES['inline_context_import_file']['tmp_name'] );
+			$result   = inline_context_import_settings( $tmp_file );
+
+			if ( is_wp_error( $result ) ) {
+				add_settings_error(
+					'inline_context_messages',
+					'inline_context_import_error',
+					$result->get_error_message(),
+					'error'
+				);
+			} else {
+				add_settings_error(
+					'inline_context_messages',
+					'inline_context_import_success',
+					__( 'Settings imported successfully!', 'inline-context' ),
+					'success'
+				);
+			}
+		}
+	}
+}
+add_action( 'admin_init', 'inline_context_handle_export_import', 5 );
+
+/**
  * Register settings
  */
 function inline_context_register_settings() {
@@ -1047,49 +1100,9 @@ function inline_context_render_settings_page() {
  * Render the Import/Export tab content
  */
 function inline_context_render_import_export_tab() {
-	// Handle export action.
-	if ( isset( $_POST['inline_context_export_settings'] ) ) {
-		check_admin_referer( 'inline_context_export_settings' );
-		inline_context_export_settings();
-		return;
-	}
-
-	// Handle import action.
-	if ( isset( $_POST['inline_context_import_settings'] ) && isset( $_FILES['inline_context_import_file'] ) ) {
-		check_admin_referer( 'inline_context_import_settings' );
-
-		if ( empty( $_FILES['inline_context_import_file']['tmp_name'] ) ) {
-			add_settings_error(
-				'inline_context_messages',
-				'inline_context_import_error',
-				__( 'Please select a file to import.', 'inline-context' ),
-				'error'
-			);
-		} else {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File path sanitized by WordPress core.
-			$tmp_file = wp_unslash( $_FILES['inline_context_import_file']['tmp_name'] );
-			$result   = inline_context_import_settings( $tmp_file );
-
-			if ( is_wp_error( $result ) ) {
-				add_settings_error(
-					'inline_context_messages',
-					'inline_context_import_error',
-					$result->get_error_message(),
-					'error'
-				);
-			} else {
-				add_settings_error(
-					'inline_context_messages',
-					'inline_context_import_success',
-					__( 'Settings imported successfully!', 'inline-context' ),
-					'success'
-				);
-			}
-		}
-
-		settings_errors( 'inline_context_messages' );
-	}
 	?>
+	
+	<?php settings_errors( 'inline_context_messages' ); ?>
 
 	<h2><?php esc_html_e( 'Export Settings', 'inline-context' ); ?></h2>
 	<p><?php esc_html_e( 'Export your plugin settings as a JSON file. This includes all display, styling, and general settings, but does not include your notes or categories.', 'inline-context' ); ?></p>
