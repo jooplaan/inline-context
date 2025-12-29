@@ -10,7 +10,11 @@ import {
 
 describe( 'anchor.js utilities', () => {
 	describe( 'generateAnchorId', () => {
+		let originalWindow;
+
 		beforeEach( () => {
+			// Save original window
+			originalWindow = global.window;
 			// Set up global window object
 			global.window = {};
 			// Mock Date.now() for predictable testing
@@ -21,7 +25,7 @@ describe( 'anchor.js utilities', () => {
 
 		afterEach( () => {
 			jest.restoreAllMocks();
-			delete global.window;
+			global.window = originalWindow;
 		} );
 
 		it( 'generates anchor ID with correct format', () => {
