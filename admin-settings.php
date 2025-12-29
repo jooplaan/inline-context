@@ -830,8 +830,8 @@ function inline_context_render_settings_page() {
 	// Define tabs.
 	$tabs = array(
 		'general'       => __( 'General', 'inline-context' ),
-		'import_export' => __( 'Import/Export', 'inline-context' ),
 		'styling'       => __( 'Styling', 'inline-context' ),
+		'import_export' => __( 'Import/Export', 'inline-context' ),
 		'uninstall'     => __( 'Uninstall', 'inline-context' ),
 	);
 
