@@ -9,12 +9,17 @@
  * @since 2.4.0
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 /**
  * Class Inline_Context_Abilities
  *
  * Handles registration of plugin capabilities with the WordPress Abilities API.
  */
 class Inline_Context_Abilities {
+
+
 
 	/**
 	 * Initialize the abilities integration.
@@ -539,7 +544,8 @@ class Inline_Context_Abilities {
 	 * @param mixed $input Input parameters (unused).
 	 * @return array Categories data.
 	 */
-	public function execute_get_categories( $input ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- Required by Abilities API.
+	public function execute_get_categories( $input ) {
+	 // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- Required by Abilities API.
 		$categories = inline_context_get_categories();
 		$results    = array();
 

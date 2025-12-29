@@ -43,7 +43,10 @@ zip -rq "$ZIP_PATH" . \
   -x ".nvmrc" \
   -x "__MACOSX/*" \
   -x ".env*" \
-  -x ".DS_Store" \
+  -x "*.DS_Store" \
+  -x "*/.DS_Store" \
+  -x "*/*/.DS_Store" \
+  -x "*/*/*/.DS_Store" \
   -x "demo.html" \
   -x "composer.json" \
   -x "languages/.gitkeep" \
@@ -79,8 +82,8 @@ zip -rq "$ZIP_PATH" . \
   -x "blueprint.json" \
   -x "ABILITIES-API-TESTS.md" \
   -x "test-abilities.sh" \
-  -x ".DS_Store" \
-  -x ".php-cs-fixer.php"
+  -x ".php-cs-fixer.php" \
+  -x "CLAUDE.md" \
 
 # Validate main plugin file exists in the archive context
 if [[ ! -f "inline-context.php" ]]; then

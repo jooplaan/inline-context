@@ -39,11 +39,23 @@ npm run lint:md:fix
 # Run JavaScript unit tests
 npm run test:unit
 
+# Run composer lint WordPress code standards
+composer run lint
+
+# Fix WordPress code errors automatic where possible
+composer run lint:fix
+
+# Fix rest of errors manually
+
 # Run PHP unit tests
 composer test:unit
 
+# Update the POT file
+wp i18n make-pot . languages/inline-context.pot --domain=inline-context
+
 # Build production assets
 npm run build
+
 ```
 
 Manual testing:

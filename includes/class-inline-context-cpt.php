@@ -20,6 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Inline_Context_CPT {
 
+
 	/**
 	 * Initialize CPT functionality.
 	 */
@@ -585,9 +586,11 @@ class Inline_Context_CPT {
 		$is_saving = true;
 
 		// Save the content (only if nonce is present and valid).
-		if ( isset( $_POST['inline_context_note_nonce'] ) &&
+		if (
+			isset( $_POST['inline_context_note_nonce'] ) &&
 			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['inline_context_note_nonce'] ) ), 'inline_context_save_note' ) &&
-			isset( $_POST['inline_context_note_content'] ) ) {
+			isset( $_POST['inline_context_note_content'] )
+		) {
 
 			// Update content directly in database to avoid triggering save_post again.
 			wp_update_post(
@@ -601,9 +604,11 @@ class Inline_Context_CPT {
 		}
 
 		// Save the category (verify separate nonce).
-		if ( isset( $_POST['inline_context_category_nonce_field'] ) &&
+		if (
+			isset( $_POST['inline_context_category_nonce_field'] ) &&
 			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['inline_context_category_nonce_field'] ) ), 'inline_context_category_nonce' ) &&
-			isset( $_POST['inline_context_category_id'] ) ) {
+			isset( $_POST['inline_context_category_id'] )
+		) {
 
 			$submitted_category_id = intval( $_POST['inline_context_category_id'] );
 
@@ -617,8 +622,10 @@ class Inline_Context_CPT {
 		}
 
 		// Save the "is_reusable" flag (verify nonce).
-		if ( isset( $_POST['inline_context_usage_meta_nonce_field'] ) &&
-			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['inline_context_usage_meta_nonce_field'] ) ), 'inline_context_usage_meta_nonce' ) ) {
+		if (
+			isset( $_POST['inline_context_usage_meta_nonce_field'] ) &&
+			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['inline_context_usage_meta_nonce_field'] ) ), 'inline_context_usage_meta_nonce' )
+		) {
 
 			$new_is_reusable = isset( $_POST['inline_context_is_reusable'] ) ? true : false;
 			$old_is_reusable = get_post_meta( $post_id, 'is_reusable', true );
