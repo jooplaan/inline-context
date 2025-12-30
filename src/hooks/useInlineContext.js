@@ -192,12 +192,24 @@ export const useSyncEditorContent = (
 	isOpen,
 	activeFormat,
 	setText,
-	setCategoryId
+	setCategoryId,
+	contentManuallySetRef
 ) => {
 	useEffect( () => {
 		if ( ! isOpen ) {
+			// Reset the ref when popover closes so next open works correctly
+			if ( contentManuallySetRef?.current ) {
+				contentManuallySetRef.current = false;
+			}
 			return;
 		}
+
+		// Skip syncing if content was manually set by toggle() function
+		// This stays true for the entire popover session
+		if ( contentManuallySetRef?.current ) {
+			return;
+		}
+
 		const content =
 			activeFormat?.attributes?.[ 'data-inline-context' ] || '';
 		const categoryIdFromHtml =
@@ -220,7 +232,7 @@ export const useSyncEditorContent = (
 		} else {
 			setCategoryId( '' );
 		}
-	}, [ isOpen, activeFormat, setText, setCategoryId ] );
+	}, [ isOpen, activeFormat, setText, setCategoryId, contentManuallySetRef ] );
 };
 
 /**

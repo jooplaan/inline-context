@@ -9,6 +9,7 @@ import {
 	useRef,
 	useState,
 } from '@wordpress/element';
+import { flushSync } from 'react-dom';
 import { RichTextToolbarButton } from '@wordpress/block-editor';
 import { Popover, Button } from '@wordpress/components';
 import { applyFormat, removeFormat } from '@wordpress/rich-text';
@@ -78,6 +79,13 @@ export default function Edit( { isActive, value, onChange } ) {
 	const copyLinkButtonRef = useRef( null );
 	const sourceTextareaRef = useRef( null );
 	const isSettingReusableNoteRef = useRef( false );
+	const valueRef = useRef( value );
+	const contentManuallySetRef = useRef( false );
+
+	// Keep value ref up to date
+	useEffect( () => {
+		valueRef.current = value;
+	}, [ value ] );
 
 	// Derived state
 	const activeFormat = value.activeFormats?.find(
@@ -367,13 +375,40 @@ export default function Edit( { isActive, value, onChange } ) {
 		if ( ! isOpen ) {
 			const doc = rootRef.current?.ownerDocument || document;
 			prevFocusRef.current = doc.activeElement;
-		}
-		setIsOpen( ( prev ) => {
-			const next = ! prev;
-			if ( next ) {
-				const fmt = value.activeFormats?.find(
-					( f ) => f.type === FORMAT_TYPE
-				);
+
+			// When OPENING the popover, extract format data FIRST
+			// Use the ref to get the absolute latest value
+			const currentValue = valueRef.current;
+
+			// Try to get format from activeFormats first
+			let fmt = currentValue.activeFormats?.find(
+				( f ) => f.type === FORMAT_TYPE
+			);
+
+			// If not in activeFormats, manually find it at cursor position
+			if ( ! fmt && currentValue.formats && currentValue.start !== undefined ) {
+				// Check both sides of the cursor like isCaretInFormat does
+				const leftIdx = Math.max( 0, currentValue.start - 1 );
+				const rightIdx = currentValue.start;
+
+				// Try left side first
+				const leftFormats = currentValue.formats[ leftIdx ];
+				if ( leftFormats ) {
+					fmt = leftFormats.find( ( f ) => f.type === FORMAT_TYPE );
+				}
+
+				// If not found on left, try right side
+				if ( ! fmt && currentValue.formats[ rightIdx ] ) {
+					const rightFormats = currentValue.formats[ rightIdx ];
+					fmt = rightFormats.find( ( f ) => f.type === FORMAT_TYPE );
+				}
+			}
+
+			// Update all state BEFORE opening popover
+			// Use flushSync to force React to apply these updates synchronously
+			// Mark that we're manually setting content to skip useSyncEditorContent
+			contentManuallySetRef.current = true;
+			flushSync( () => {
 				setText( fmt?.attributes?.[ 'data-inline-context' ] || '' );
 
 				// Convert category ID from HTML to slug for CategorySelector
@@ -404,12 +439,12 @@ export default function Edit( { isActive, value, onChange } ) {
 
 				// Always start in create mode (search is secondary workflow)
 				setShowNoteSearch( false );
-			}
-			return next;
-		} );
-	}, [ isOpen, value ] );
+			} );
+		}
 
-	// Fetch note details when popover opens with an existing note ID
+		// Now toggle the popover - state is already set and flushed
+		setIsOpen( ( prev ) => ! prev );
+	}, [ isOpen ] );
 	useEffect( () => {
 		if ( ! isOpen || ! noteId ) {
 			return;
@@ -614,7 +649,8 @@ export default function Edit( { isActive, value, onChange } ) {
 		useCopyLinkStatus( copyLinkFunction );
 
 	// Sync editor content when format changes
-	useSyncEditorContent( isOpen, activeFormat, setText, setCategoryId );
+	// Sync editor content when popover opens via menu (not keyboard shortcut)
+	useSyncEditorContent( isOpen, activeFormat, setText, setCategoryId, contentManuallySetRef );
 
 	// Keyboard shortcuts (popover-specific: Cmd+Enter, Escape)
 	usePopoverKeyboardShortcuts( isOpen, apply, handleClose );
