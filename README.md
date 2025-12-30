@@ -62,7 +62,7 @@ Renée Kool’s website:
 - **Bulk Delete**: Delete reusable notes with automatic cleanup from all posts
 - **Smart Deletion**: Confirmation dialogs show exactly how many uses will be removed from how many posts
 - **Cached Performance**: Notes cached in content for optimal frontend speed
-- **Automatic Cleanup (v2.2)**: Daily background job removes non-reusable notes that are no longer in use (usage count = 0)
+- **Automatic Cleanup (v2.2)**: Daily background job removes non-reusable notes that are no longer in use (usage count = 0). Reusable notes are always preserved, but can be manually deleted via the [Notes admin page](wp-admin/edit.php?post_type=inline_context_note). To manually trigger the cleanup: `wp cron event run inline_context_cleanup_unused_notes`
 
 ### Category Management
 
