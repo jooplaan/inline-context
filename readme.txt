@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, context, annotations
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.7.0
+Stable tag: 2.7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -130,6 +130,10 @@ Yes. You can type any Dashicon class name to use all 300+ icons.
 9. Notes Library in the admin area showing usage count and linked posts
 
 == Changelog ==
+
+= 2.7.1 - December 30, 2025 =
+* FIX: Keyboard shortcut Cmd+Shift+K now works correctly on first try for reusable notes
+* IMPROVED: Documentation for automatic cleanup feature with WP-CLI command
 
 = 2.7.0 - December 29, 2025 =
 * NEW: Export/Import Settings - Backup and restore all plugin configurations as JSON

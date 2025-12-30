@@ -21,6 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Inline_Context_CPT {
 
 
+
 	/**
 	 * Initialize CPT functionality.
 	 */
