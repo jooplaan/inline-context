@@ -58,6 +58,8 @@ npm run build
 
 ```
 
+After all the tests are succesfull and the build is done, let the human do the manual testing. 
+
 Manual testing:
 
 - [ ] Test in actual WordPress environment (not just demo.html)
