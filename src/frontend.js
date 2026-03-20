@@ -95,6 +95,15 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return applyFilters( 'inline_context_post_sanitize_html', sanitized );
 	};
 
+	// Add default chevron icon for triggers without a category icon
+	const addDefaultIcon = ( trigger ) => {
+		if ( trigger.querySelector( '.wp-inline-context-icon' ) ) return;
+		const icon = document.createElement( 'span' );
+		icon.className = 'wp-inline-context-icon';
+		icon.setAttribute( 'aria-hidden', 'true' );
+		trigger.appendChild( icon );
+	};
+
 	// Add or update category icon for a trigger
 	const addCategoryIcon = ( trigger, categoryId, isOpen ) => {
 		// Find category by ID (categoryId is stored as term_id)
@@ -140,7 +149,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			trigger.classList.add( 'wp-inline-context--pill' );
 		}
 
-		// Add category icon if category is set
+		// Add category icon or default chevron icon
 		const categoryId = trigger.dataset.categoryId;
 		if ( categoryId ) {
 			const category = Object.values( categories ).find(
@@ -148,7 +157,11 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			);
 			if ( category ) {
 				addCategoryIcon( trigger, categoryId, false );
+			} else {
+				addDefaultIcon( trigger );
 			}
+		} else {
+			addDefaultIcon( trigger );
 		}
 	}
 
@@ -558,120 +571,77 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	} );
 
 	// Handle hover events for tooltips (if enabled)
+	// Uses direct mouseenter/mouseleave on each trigger (not delegated) so that
+	// moving between child elements within a trigger doesn't fire spurious events.
 	if (
 		window.inlineContextData?.hoverEnabled &&
 		getDisplayMode() === 'tooltip'
 	) {
-		let showTimeout = null;
-		let hideTimeout = null;
-		let currentTooltipId = null;
-		let currentTrigger = null;
+		for ( const trigger of document.querySelectorAll(
+			'.wp-inline-context'
+		) ) {
+			let hoverShowTimeout = null;
+			let hoverHideTimeout = null;
 
-		const showTooltip = ( trigger ) => {
-			const tooltipId = `tooltip-${ trigger.dataset.anchorId }`;
+			const clearHoverTimers = () => {
+				if ( hoverShowTimeout ) {
+					clearTimeout( hoverShowTimeout );
+					hoverShowTimeout = null;
+				}
+				if ( hoverHideTimeout ) {
+					clearTimeout( hoverHideTimeout );
+					hoverHideTimeout = null;
+				}
+			};
 
-			// Clear any pending hide timeout
-			if ( hideTimeout ) {
-				clearTimeout( hideTimeout );
-				hideTimeout = null;
-			}
-
-			// Clear any pending show timeout
-			if ( showTimeout ) {
-				clearTimeout( showTimeout );
-				showTimeout = null;
-			}
-
-			// Only show tooltip if it's not already open
-			if ( ! document.getElementById( tooltipId ) ) {
-				showTimeout = setTimeout( () => {
-					toggleTooltip( trigger );
-					currentTooltipId = tooltipId;
-					currentTrigger = trigger;
-					showTimeout = null;
-				}, 300 ); // 0.3 second delay
-			} else {
-				// Tooltip already open, just update tracking
-				currentTooltipId = tooltipId;
-				currentTrigger = trigger;
-			}
-		};
-
-		const hideTooltip = () => {
-			// Clear any pending show timeout
-			if ( showTimeout ) {
-				clearTimeout( showTimeout );
-				showTimeout = null;
-			}
-
-			// Clear any pending hide timeout
-			if ( hideTimeout ) {
-				clearTimeout( hideTimeout );
-			}
-
-			// Add a small delay before hiding to allow moving mouse to tooltip
-			hideTimeout = setTimeout( () => {
-				if ( currentTrigger && currentTooltipId ) {
-					const tooltip = document.getElementById( currentTooltipId );
+			const scheduleHide = () => {
+				if ( hoverShowTimeout ) {
+					clearTimeout( hoverShowTimeout );
+					hoverShowTimeout = null;
+				}
+				if ( hoverHideTimeout ) {
+					clearTimeout( hoverHideTimeout );
+				}
+				hoverHideTimeout = setTimeout( () => {
+					const tooltipId = `tooltip-${ trigger.dataset.anchorId }`;
+					const tooltip = document.getElementById( tooltipId );
 					if ( tooltip ) {
-						toggleTooltip( currentTrigger );
+						toggleTooltip( trigger );
 					}
-					currentTooltipId = null;
-					currentTrigger = null;
+					hoverHideTimeout = null;
+				}, 300 );
+			};
+
+			const cancelHide = () => {
+				if ( hoverHideTimeout ) {
+					clearTimeout( hoverHideTimeout );
+					hoverHideTimeout = null;
 				}
-				hideTimeout = null;
-			}, 100 ); // Small delay to allow mouse movement to tooltip
-		};
+			};
 
-		const cancelHide = () => {
-			if ( hideTimeout ) {
-				clearTimeout( hideTimeout );
-				hideTimeout = null;
-			}
-		};
-
-		document.body.addEventListener(
-			'mouseenter',
-			( e ) => {
-				const trigger = e.target.closest( '.wp-inline-context' );
-				if ( trigger ) {
-					showTooltip( trigger );
-					return;
-				}
-
-				// Check if we entered a tooltip
-				const tooltip = e.target.closest(
-					'.wp-inline-context-tooltip'
-				);
+			const attachTooltipHover = () => {
+				const tooltipId = `tooltip-${ trigger.dataset.anchorId }`;
+				const tooltip = document.getElementById( tooltipId );
 				if ( tooltip ) {
-					// Cancel any pending hide when entering tooltip
-					cancelHide();
+					tooltip.addEventListener( 'mouseenter', cancelHide );
+					tooltip.addEventListener( 'mouseleave', scheduleHide );
 				}
-			},
-			true
-		);
+			};
 
-		document.body.addEventListener(
-			'mouseleave',
-			( e ) => {
-				const trigger = e.target.closest( '.wp-inline-context' );
-				if ( trigger ) {
-					// Start the hide process when leaving trigger
-					hideTooltip();
-					return;
+			trigger.addEventListener( 'mouseenter', () => {
+				clearHoverTimers();
+				const tooltipId = `tooltip-${ trigger.dataset.anchorId }`;
+				if ( ! document.getElementById( tooltipId ) ) {
+					hoverShowTimeout = setTimeout( () => {
+						toggleTooltip( trigger );
+						attachTooltipHover();
+						hoverShowTimeout = null;
+					}, 300 );
 				}
+			} );
 
-				// Check if we left a tooltip
-				const tooltip = e.target.closest(
-					'.wp-inline-context-tooltip'
-				);
-				if ( tooltip ) {
-					// Start the hide process when leaving tooltip
-					hideTooltip();
-				}
-			},
-			true
-		);
+			trigger.addEventListener( 'mouseleave', scheduleHide );
+		}
 	}
 
 	// Auto-open note if URL has a matching anchor hash

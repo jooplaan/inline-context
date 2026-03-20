@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, context, annotations
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.7.1
+Stable tag: 2.7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -130,6 +130,13 @@ Yes. You can type any Dashicon class name to use all 300+ icons.
 9. Notes Library in the admin area showing usage count and linked posts
 
 == Changelog ==
+
+= 2.7.2 - March 20, 2026 =
+* FIX: Custom category icons now respond to size and placement settings
+* FIX: Default chevron icon now responds to color and placement settings
+* FIX: Tooltip hover mode no longer shows erratic show/hide behavior
+* IMPROVED: Refactored icon rendering to use consistent HTML elements for both default and category icons
+* IMPROVED: Icon placement "bottom" setting uses baseline alignment for better visual spacing
 
 = 2.7.1 - December 30, 2025 =
 * FIX: Keyboard shortcut Cmd+Shift+K now works correctly on first try for reusable notes
