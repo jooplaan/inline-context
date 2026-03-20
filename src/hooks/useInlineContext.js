@@ -183,10 +183,11 @@ export const usePopoverKeyboardShortcuts = ( isOpen, onSave, onClose ) => {
 /**
  * Hook to sync editor content when popover opens or format changes
  *
- * @param {boolean}  isOpen        - Whether the popover is open
- * @param {Object}   activeFormat  - The active format object
- * @param {Function} setText       - Text setter
- * @param {Function} setCategoryId - Category ID setter
+ * @param {boolean}  isOpen                - Whether the popover is open
+ * @param {Object}   activeFormat          - The active format object
+ * @param {Function} setText               - Text setter
+ * @param {Function} setCategoryId         - Category ID setter
+ * @param            contentManuallySetRef
  */
 export const useSyncEditorContent = (
 	isOpen,
@@ -232,7 +233,13 @@ export const useSyncEditorContent = (
 		} else {
 			setCategoryId( '' );
 		}
-	}, [ isOpen, activeFormat, setText, setCategoryId, contentManuallySetRef ] );
+	}, [
+		isOpen,
+		activeFormat,
+		setText,
+		setCategoryId,
+		contentManuallySetRef,
+	] );
 };
 
 /**

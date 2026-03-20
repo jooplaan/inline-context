@@ -3,6 +3,16 @@
 This file contains the complete changelog for all versions of the Inline Context plugin.
 For major version highlights, see README.md and readme.txt.
 
+## Version 2.7.2 - March 20, 2026
+* FIX: Custom category icons now respond to size and placement settings
+* FIX: Default chevron icon now responds to color and placement settings
+* FIX: Tooltip hover mode no longer shows erratic show/hide behavior
+* IMPROVED: Refactored icon rendering from CSS ::after pseudo-element to real <span> elements
+* IMPROVED: Shared base styles between default chevron and category icons for consistent positioning
+* IMPROVED: Override Dashicons ::before sizing so category icon glyphs respect the Size setting
+* IMPROVED: Icon placement "bottom" setting uses baseline alignment for better visual spacing
+* IMPROVED: Tooltip hover uses direct per-trigger event listeners instead of delegated capture events
+
 ## Version 2.6.0 - December 27, 2025
 * NEW: Color preset system with five pre-configured professional color schemes
 * NEW: Modern Blue (Default) preset - clean, professional look with blue accents
