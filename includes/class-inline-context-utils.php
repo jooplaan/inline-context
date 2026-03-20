@@ -135,6 +135,7 @@ class Inline_Context_Utils {
 			'chevron-hover-color'     => '#2271b1',
 			'chevron-size'            => '0.7em',
 			'chevron-margin-left'     => '0.25em',
+			'chevron-margin-right'    => '0.25em',
 			'chevron-opacity'         => '0.7',
 			'chevron-hover-opacity'   => '1',
 		);
@@ -186,6 +187,7 @@ class Inline_Context_Utils {
 					'chevron-hover-color'     => '#555555',
 					'chevron-size'            => '0.7em',
 					'chevron-margin-left'     => '0.25em',
+					'chevron-margin-right'    => '0.25em',
 					'chevron-opacity'         => '0.6',
 					'chevron-hover-opacity'   => '1',
 				),
@@ -224,6 +226,7 @@ class Inline_Context_Utils {
 					'chevron-hover-color'     => '#0000ff',
 					'chevron-size'            => '0.8em',
 					'chevron-margin-left'     => '0.3em',
+					'chevron-margin-right'    => '0.25em',
 					'chevron-opacity'         => '1',
 					'chevron-hover-opacity'   => '1',
 				),
@@ -262,6 +265,7 @@ class Inline_Context_Utils {
 					'chevron-hover-color'     => '#7A3D0F',
 					'chevron-size'            => '0.7em',
 					'chevron-margin-left'     => '0.25em',
+					'chevron-margin-right'    => '0.25em',
 					'chevron-opacity'         => '0.75',
 					'chevron-hover-opacity'   => '1',
 				),
@@ -300,6 +304,7 @@ class Inline_Context_Utils {
 					'chevron-hover-color'     => '#4A9EFF',
 					'chevron-size'            => '0.7em',
 					'chevron-margin-left'     => '0.25em',
+					'chevron-margin-right'    => '0.25em',
 					'chevron-opacity'         => '0.7',
 					'chevron-hover-opacity'   => '1',
 				),
@@ -329,8 +334,8 @@ class Inline_Context_Utils {
 		$icon_placement       = get_option( 'inline_context_icon_placement', 'middle' );
 		$css_placement_map    = array(
 			'top'    => 'text-top',    // Align with top of parent's font.
-			'middle' => 'middle',      // Middle alignment.
-			'bottom' => 'baseline',    // Align with text baseline.
+			'middle' => '0.05em',      // Visually centered with text.
+			'bottom' => '-0.15em',     // Slightly below middle, above baseline.
 		);
 		$css_flex_align_map   = array(
 			'top'    => 'flex-start', // Align to top of flex container.
