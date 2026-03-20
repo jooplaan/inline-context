@@ -33,7 +33,7 @@
 .wp-inline-context-category-icon {
 	display: inline-block !important;
 	margin-left: var(--wp--custom--inline-context--chevron--margin-left, 0.25em);
-	margin-right: 0;
+	margin-right: var(--wp--custom--inline-context--chevron--margin-right, 0.25em);
 	font-size: var(--wp--custom--inline-context--chevron--size, 0.7em) !important;
 	width: var(--wp--custom--inline-context--chevron--size, 0.7em) !important;
 	height: var(--wp--custom--inline-context--chevron--size, 0.7em) !important;
@@ -125,10 +125,13 @@
 	/* Prevent awkward text wrapping */
 	white-space: nowrap;
 
-	/* Override icon spacing in pill style */
+	/* Override icon spacing and alignment in pill style */
 	.wp-inline-context-icon,
 	.wp-inline-context-category-icon {
 		margin-left: 0;
+		/* Pill layout is too compact for vertical placement variation */
+		align-self: center !important;
+		vertical-align: middle !important;
 	}
 
 	/* Hover and focus states for pill */

@@ -7,10 +7,14 @@ For major version highlights, see README.md and readme.txt.
 * FIX: Custom category icons now respond to size and placement settings
 * FIX: Default chevron icon now responds to color and placement settings
 * FIX: Tooltip hover mode no longer shows erratic show/hide behavior
+* FIX: Admin settings JS toggles now work (screen ID mismatch prevented all JS from running)
+* NEW: Icon right margin CSS variable (chevron-margin-right) for theme.json and admin settings
 * IMPROVED: Refactored icon rendering from CSS ::after pseudo-element to real <span> elements
 * IMPROVED: Shared base styles between default chevron and category icons for consistent positioning
 * IMPROVED: Override Dashicons ::before sizing so category icon glyphs respect the Size setting
-* IMPROVED: Icon placement "bottom" setting uses baseline alignment for better visual spacing
+* IMPROVED: Fine-tuned icon placement: top (text-top), middle (0.05em), bottom (-0.15em)
+* IMPROVED: Pill style always centers icons regardless of icon placement setting
+* IMPROVED: Icon Placement option hidden in admin when Pill style is selected
 * IMPROVED: Tooltip hover uses direct per-trigger event listeners instead of delegated capture events
 
 ## Version 2.6.0 - December 27, 2025

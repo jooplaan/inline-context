@@ -135,8 +135,11 @@ Yes. You can type any Dashicon class name to use all 300+ icons.
 * FIX: Custom category icons now respond to size and placement settings
 * FIX: Default chevron icon now responds to color and placement settings
 * FIX: Tooltip hover mode no longer shows erratic show/hide behavior
+* FIX: Admin settings JS toggles now work (display mode, link style, preset warnings)
+* NEW: Icon right margin CSS variable for theme.json and admin settings
 * IMPROVED: Refactored icon rendering to use consistent HTML elements for both default and category icons
-* IMPROVED: Icon placement "bottom" setting uses baseline alignment for better visual spacing
+* IMPROVED: Fine-tuned icon placement values for top, middle, and bottom positions
+* IMPROVED: Pill style always centers icons regardless of placement setting
 
 = 2.7.1 - December 30, 2025 =
 * FIX: Keyboard shortcut Cmd+Shift+K now works correctly on first try for reusable notes

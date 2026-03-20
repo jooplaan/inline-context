@@ -31,6 +31,7 @@
 					"hoverColor": "%230073aa",
 					"size": "0.75em",
 					"marginLeft": "0.25em",
+				"marginRight": "0.25em",
 					"opacity": "0.7",
 					"hoverOpacity": "1"
 				}

@@ -529,7 +529,13 @@ function inline_context_register_settings() {
 			'label'       => __( 'Left Margin', 'inline-context' ),
 			'default'     => '0.25em',
 			'type'        => 'text',
-			'description' => __( 'Space between the link text and the chevron.', 'inline-context' ),
+			'description' => __( 'Space between the link text and the icon.', 'inline-context' ),
+		),
+		'chevron-margin-right'  => array(
+			'label'       => __( 'Right Margin', 'inline-context' ),
+			'default'     => '0.25em',
+			'type'        => 'text',
+			'description' => __( 'Space after the icon.', 'inline-context' ),
 		),
 		'chevron-opacity'       => array(
 			'label'       => __( 'Opacity', 'inline-context' ),
@@ -938,7 +944,7 @@ function inline_context_render_settings_page() {
 							</fieldset>
 						</td>
 					</tr>
-					<tr>
+					<tr id="icon-placement-option" <?php echo ( 'pill' === $link_style ? 'style="display: none;"' : '' ); ?>>
 						<th scope="row">
 							<?php esc_html_e( 'Icon Placement', 'inline-context' ); ?>
 						</th>
@@ -965,7 +971,7 @@ function inline_context_render_settings_page() {
 									<?php esc_html_e( 'Bottom - Icon appears below the text baseline (subscript)', 'inline-context' ); ?>
 								</label>
 								<p class="description">
-									<?php esc_html_e( 'Controls the vertical position of both the chevron icon and category icons. This setting applies consistently to all icon types.', 'inline-context' ); ?>
+									<?php esc_html_e( 'Controls the vertical position of both the chevron icon and category icons. Only applies to the Text link style.', 'inline-context' ); ?>
 								</p>
 							</fieldset>
 						</td>
@@ -1341,97 +1347,89 @@ function inline_context_render_uninstall_tab() {
 }
 
 /**
- * Enqueue admin scripts for settings page.
+ * Output admin scripts for settings page.
  */
 function inline_context_admin_scripts() {
 	$screen = get_current_screen();
-	if ( ! $screen || 'settings_page_inline-context' !== $screen->id ) {
+	if ( ! $screen || 'settings_page_inline-context-settings' !== $screen->id ) {
 		return;
 	}
+	?>
+	<script>
+	(function() {
+		// Toggle tooltip hover option visibility based on display mode.
+		var radios = document.querySelectorAll('input[name="inline_context_display_mode"]');
+		var hoverOption = document.getElementById('tooltip-hover-option');
 
-	// Register and enqueue a plugin-specific script handle.
-	wp_register_script(
-		'inline-context-admin-settings',
-		false,
-		array( 'jquery' ),
-		INLINE_CONTEXT_VERSION,
-		true
-	);
-	wp_enqueue_script( 'inline-context-admin-settings' );
-
-	// Add inline script for display mode toggling.
-	$inline_script = "
-		document.addEventListener('DOMContentLoaded', function() {
-			const radios = document.querySelectorAll('input[name=\"inline_context_display_mode\"]');
-			const hoverOption = document.getElementById('tooltip-hover-option');
-
-			if (!hoverOption || !radios.length) {
-				return;
-			}
-
-			// Function to update hover option visibility
-			const updateHoverOptionVisibility = function() {
-				const selectedRadio = document.querySelector('input[name=\"inline_context_display_mode\"]:checked');
+		if (hoverOption && radios.length) {
+			var updateHoverOptionVisibility = function() {
+				var selectedRadio = document.querySelector('input[name="inline_context_display_mode"]:checked');
 				if (selectedRadio) {
 					hoverOption.style.display = selectedRadio.value === 'tooltip' ? 'block' : 'none';
 				}
 			};
 
-			// Update visibility on radio button change
 			radios.forEach(function(radio) {
-				radio.addEventListener('change', function() {
-					updateHoverOptionVisibility();
-				});
+				radio.addEventListener('change', updateHoverOptionVisibility);
 			});
 
-			// Update visibility immediately on page load
 			updateHoverOptionVisibility();
+		}
 
-			// Preset description updater
-			const presetSelect = document.getElementById('inline_context_preset_select');
-			const presetDescription = document.getElementById('inline_context_preset_description');
+		// Toggle Icon Placement visibility based on Link Style.
+		var linkStyleRadios = document.querySelectorAll('input[name="inline_context_link_style"]');
+		var iconPlacementRow = document.getElementById('icon-placement-option');
 
-			if (presetSelect && presetDescription) {
-				// Store the initial preset selection (to detect if custom is active)
-				const initialPreset = presetSelect.value;
-
-				const updatePresetDescription = function() {
-					const selectedOption = presetSelect.options[presetSelect.selectedIndex];
-					if (selectedOption) {
-						presetDescription.textContent = selectedOption.getAttribute('data-description') || '';
-					}
-				};
-
-				presetSelect.addEventListener('change', updatePresetDescription);
-				updatePresetDescription(); // Set initial description
-
-				// Warning when applying preset over custom settings
-				const presetForm = presetSelect.closest('form');
-				if (presetForm) {
-					presetForm.addEventListener('submit', function(e) {
-						const selectedPreset = presetSelect.value;
-
-						// If currently on Custom and user is applying a preset, warn them
-						if (initialPreset === 'custom' && selectedPreset !== 'custom') {
-							const confirmed = confirm(
-								<?php
-								echo wp_json_encode(
-									__( 'Your custom settings will be lost. Are you sure you want to apply this preset?', 'inline-context' )
-								);
-								?>
-							);
-
-							if (!confirmed) {
-								e.preventDefault();
-								return false;
-							}
-						}
-					});
+		if (iconPlacementRow && linkStyleRadios.length) {
+			var updateIconPlacementVisibility = function() {
+				var selectedRadio = document.querySelector('input[name="inline_context_link_style"]:checked');
+				if (selectedRadio) {
+					iconPlacementRow.style.display = selectedRadio.value === 'pill' ? 'none' : '';
 				}
-			}
-		});
-	";
+			};
 
-	wp_add_inline_script( 'inline-context-admin-settings', $inline_script );
+			linkStyleRadios.forEach(function(radio) {
+				radio.addEventListener('change', updateIconPlacementVisibility);
+			});
+
+			updateIconPlacementVisibility();
+		}
+
+		// Preset description updater.
+		var presetSelect = document.getElementById('inline_context_preset_select');
+		var presetDescription = document.getElementById('inline_context_preset_description');
+
+		if (presetSelect && presetDescription) {
+			var initialPreset = presetSelect.value;
+
+			var updatePresetDescription = function() {
+				var selectedOption = presetSelect.options[presetSelect.selectedIndex];
+				if (selectedOption) {
+					presetDescription.textContent = selectedOption.getAttribute('data-description') || '';
+				}
+			};
+
+			presetSelect.addEventListener('change', updatePresetDescription);
+			updatePresetDescription();
+
+			var presetForm = presetSelect.closest('form');
+			if (presetForm) {
+				presetForm.addEventListener('submit', function(e) {
+					var selectedPreset = presetSelect.value;
+					if (initialPreset === 'custom' && selectedPreset !== 'custom') {
+						var confirmed = confirm(
+							<?php echo wp_json_encode( __( 'Your custom settings will be lost. Are you sure you want to apply this preset?', 'inline-context' ) ); ?>
+						);
+						if (!confirmed) {
+							e.preventDefault();
+							return false;
+						}
+					}
+				});
+			}
+		}
+	})();
+	</script>
+	<?php
 }
 add_action( 'admin_footer', 'inline_context_admin_scripts' );
