@@ -26,63 +26,77 @@
 	scroll-margin-top: var(--wp--custom--inline-context--link--scroll-margin,
 			2rem);
 
-	/* SVG chevron icon indicator - inline-block keeps it with last word */
-	&::after {
-		content: '';
-		display: inline-block;
-		width: var(--wp--custom--inline-context--chevron--size, 0.7em);
-		height: var(--wp--custom--inline-context--chevron--size, 0.7em);
-		margin-left: var(--wp--custom--inline-context--chevron--margin-left,
-				0.25em);
-		vertical-align: var(--wp--custom--inline-context--icon-placement, middle);
-		text-decoration: none;
-		background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23666"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
-		background-repeat: no-repeat;
-		background-size: contain;
-		background-position: center;
-		transition: transform 0.4s ease, background-image 0.2s ease;
-		opacity: var(--wp--custom--inline-context--chevron--opacity, 0.7);
-	}
-
-	&:hover::after,
-	&:focus::after {
-		background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%232271b1"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
-		opacity: var(--wp--custom--inline-context--chevron--hover-opacity, 1);
-	}
 }
 
-/* Category icon styling */
-/* Category icon styling */
+/* Icon base styling - shared between default chevron and category icons */
+.wp-inline-context-icon,
 .wp-inline-context-category-icon {
 	display: inline-block !important;
-	margin-left: 0.15em;
+	margin-left: var(--wp--custom--inline-context--chevron--margin-left, 0.25em);
 	margin-right: 0;
-	font-size: 0.6em;
+	font-size: var(--wp--custom--inline-context--chevron--size, 0.7em) !important;
+	width: var(--wp--custom--inline-context--chevron--size, 0.7em) !important;
+	height: var(--wp--custom--inline-context--chevron--size, 0.7em) !important;
 	line-height: 1 !important;
-	/* Works for inline/text style */
 	vertical-align: var(--wp--custom--inline-context--icon-placement, middle) !important;
-	/* Works for flex/pill style */
 	align-self: var(--wp--custom--inline-context--icon-flex-align, center) !important;
-	/* Reset any positioning that might interfere */
 	position: static !important;
 	top: auto !important;
 	float: none !important;
-	transition: color 0.2s ease, transform 0.2s ease;
 	text-decoration: none;
 }
 
-/* Hide default chevron when category icon is present */
-.wp-inline-context:has(.wp-inline-context-category-icon)::after {
-	display: none;
+/* Default chevron icon - uses SVG mask so color responds to CSS variables */
+.wp-inline-context-icon {
+	/* Override font-size from base: mask-image icons don't use font glyphs,
+	   so font-size would only shrink the element unnecessarily */
+	font-size: unset !important;
+	/* Use em-based sizing relative to parent text - slightly larger than category icons */
+	width: var(--wp--custom--inline-context--chevron--size, 1em) !important;
+	height: var(--wp--custom--inline-context--chevron--size, 1em) !important;
+	background-color: var(--wp--custom--inline-context--chevron--default-color, #666) !important;
+	-webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-size: contain;
+	-webkit-mask-position: center;
+	mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
+	mask-repeat: no-repeat;
+	mask-size: contain;
+	mask-position: center;
+	transition: transform 0.4s ease, background-color 0.2s ease;
+	opacity: var(--wp--custom--inline-context--chevron--opacity, 0.7);
 }
 
-/* Subtle scale effect on hover */
+/* Category icon - override Dashicons ::before sizing so the glyph respects our size variable */
+.wp-inline-context-category-icon {
+	transition: color 0.2s ease, transform 0.2s ease;
+
+	&::before {
+		font-size: inherit !important;
+		width: inherit !important;
+		height: inherit !important;
+		line-height: inherit !important;
+	}
+}
+
+/* Hover effects for icons */
+.wp-inline-context:hover .wp-inline-context-icon,
+.wp-inline-context:focus .wp-inline-context-icon {
+	background-color: var(--wp--custom--inline-context--chevron--hover-color, #2271b1) !important;
+	opacity: var(--wp--custom--inline-context--chevron--hover-opacity, 1);
+	transform: scale(1.15);
+}
+
 .wp-inline-context:hover .wp-inline-context-category-icon,
 .wp-inline-context:focus-visible .wp-inline-context-category-icon {
 	transform: scale(1.15);
 }
 
-/* Rotate effect for categories with different open/closed icons */
+/* Icon open state - reset scale */
+.wp-inline-context.wp-inline-context--open .wp-inline-context-icon {
+	transform: rotate(180deg);
+}
+
 .wp-inline-context.wp-inline-context--open .wp-inline-context-category-icon {
 	transform: scale(1);
 }
@@ -111,8 +125,9 @@
 	/* Prevent awkward text wrapping */
 	white-space: nowrap;
 
-	/* Override chevron spacing in pill style */
-	&::after {
+	/* Override icon spacing in pill style */
+	.wp-inline-context-icon,
+	.wp-inline-context-category-icon {
 		margin-left: 0;
 	}
 
@@ -221,7 +236,7 @@
 		border: 1px solid #ccc;
 	}
 
-	.wp-inline-context::after {
+	.wp-inline-context-icon {
 		display: none;
 		/* Hide interactive chevron */
 	}
@@ -256,8 +271,8 @@
 }
 
 /* Rotate chevron up when expanded */
-.wp-inline-context[aria-expanded='true']::after,
-.wp-inline-context.wp-inline-context--open::after {
+.wp-inline-context[aria-expanded='true'] .wp-inline-context-icon,
+.wp-inline-context.wp-inline-context--open .wp-inline-context-icon {
 	transform: rotate(180deg);
 }
 
@@ -492,7 +507,7 @@
 		text-decoration: none;
 
 		/* Hide chevron icon in print */
-		&::after {
+		.wp-inline-context-icon {
 			display: none;
 		}
 

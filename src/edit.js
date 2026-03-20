@@ -386,7 +386,11 @@ export default function Edit( { isActive, value, onChange } ) {
 			);
 
 			// If not in activeFormats, manually find it at cursor position
-			if ( ! fmt && currentValue.formats && currentValue.start !== undefined ) {
+			if (
+				! fmt &&
+				currentValue.formats &&
+				currentValue.start !== undefined
+			) {
 				// Check both sides of the cursor like isCaretInFormat does
 				const leftIdx = Math.max( 0, currentValue.start - 1 );
 				const rightIdx = currentValue.start;
@@ -650,7 +654,13 @@ export default function Edit( { isActive, value, onChange } ) {
 
 	// Sync editor content when format changes
 	// Sync editor content when popover opens via menu (not keyboard shortcut)
-	useSyncEditorContent( isOpen, activeFormat, setText, setCategoryId, contentManuallySetRef );
+	useSyncEditorContent(
+		isOpen,
+		activeFormat,
+		setText,
+		setCategoryId,
+		contentManuallySetRef
+	);
 
 	// Keyboard shortcuts (popover-specific: Cmd+Enter, Escape)
 	usePopoverKeyboardShortcuts( isOpen, apply, handleClose );

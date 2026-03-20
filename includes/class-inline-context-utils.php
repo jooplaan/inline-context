@@ -328,9 +328,9 @@ class Inline_Context_Utils {
 		// Map setting values to CSS vertical-align values (for inline) and align-self (for flex).
 		$icon_placement       = get_option( 'inline_context_icon_placement', 'middle' );
 		$css_placement_map    = array(
-			'top'    => 'super',       // Superscript position.
+			'top'    => 'text-top',    // Align with top of parent's font.
 			'middle' => 'middle',      // Middle alignment.
-			'bottom' => 'text-bottom', // Bottom of text (doesn't expand line height).
+			'bottom' => 'baseline',    // Align with text baseline.
 		);
 		$css_flex_align_map   = array(
 			'top'    => 'flex-start', // Align to top of flex container.
