@@ -34,26 +34,18 @@
 	display: inline-block !important;
 	margin-left: var(--wp--custom--inline-context--chevron--margin-left, 0.25em);
 	margin-right: var(--wp--custom--inline-context--chevron--margin-right, 0.25em);
-	font-size: var(--wp--custom--inline-context--chevron--size, 0.7em) !important;
-	width: var(--wp--custom--inline-context--chevron--size, 0.7em) !important;
-	height: var(--wp--custom--inline-context--chevron--size, 0.7em) !important;
 	line-height: 1 !important;
 	vertical-align: var(--wp--custom--inline-context--icon-placement, middle) !important;
 	align-self: var(--wp--custom--inline-context--icon-flex-align, center) !important;
-	position: static !important;
-	top: auto !important;
 	float: none !important;
 	text-decoration: none;
 }
 
 /* Default chevron icon - uses SVG mask so color responds to CSS variables */
 .wp-inline-context-icon {
-	/* Override font-size from base: mask-image icons don't use font glyphs,
-	   so font-size would only shrink the element unnecessarily */
-	font-size: unset !important;
-	/* Use em-based sizing relative to parent text - slightly larger than category icons */
-	width: var(--wp--custom--inline-context--chevron--size, 1em) !important;
-	height: var(--wp--custom--inline-context--chevron--size, 1em) !important;
+	/* No font-size needed: mask-image icons don't use font glyphs */
+	width: var(--wp--custom--inline-context--chevron--size, 0.7em) !important;
+	height: var(--wp--custom--inline-context--chevron--size, 0.7em) !important;
 	background-color: var(--wp--custom--inline-context--chevron--default-color, #666) !important;
 	-webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z"/></svg>');
 	-webkit-mask-repeat: no-repeat;
@@ -67,15 +59,23 @@
 	opacity: var(--wp--custom--inline-context--chevron--opacity, 0.7);
 }
 
-/* Category icon - override Dashicons ::before sizing so the glyph respects our size variable */
+/* Category icon - Dashicons glyph sized via font-size, box sized via 1em to avoid double-scaling */
 .wp-inline-context-category-icon {
+	/* font-size sets the Dashicons glyph size */
+	font-size: var(--wp--custom--inline-context--chevron--size, 0.7em) !important;
+	/* 1em = font-size = chevron size, so both icons end up the same physical size */
+	width: 1em !important;
+	height: 1em !important;
 	transition: color 0.2s ease, transform 0.2s ease;
+	/* Forces baseline to bottom margin edge, matching the default chevron.
+	   Without this, Dashicons font metrics push the icon below vertical-align: middle */
+	overflow: hidden !important;
 
 	&::before {
 		font-size: inherit !important;
-		width: inherit !important;
-		height: inherit !important;
-		line-height: inherit !important;
+		width: 1em !important;
+		height: 1em !important;
+		line-height: 1 !important;
 	}
 }
 
