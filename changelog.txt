@@ -3,6 +3,14 @@
 This file contains the complete changelog for all versions of the Inline Context plugin.
 For major version highlights, see README.md and readme.txt.
 
+## Version 2.7.3 - March 21, 2026
+* FIX: Category icons now align correctly with text at all icon placement settings
+* FIX: Category icon double-scaling issue where font-size and width/height both used em values,
+  causing icons to render at 0.49em instead of the intended 0.7em
+* IMPROVED: Separated icon sizing between default chevron (width/height only) and category icons
+  (font-size for glyph + 1em width/height to match), ensuring both render at the same physical size
+* IMPROVED: Reverted middle placement to CSS keyword "middle" for cross-theme compatibility
+
 ## Version 2.7.2 - March 20, 2026
 * FIX: Custom category icons now respond to size and placement settings
 * FIX: Default chevron icon now responds to color and placement settings

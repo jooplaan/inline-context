@@ -334,7 +334,7 @@ class Inline_Context_Utils {
 		$icon_placement       = get_option( 'inline_context_icon_placement', 'middle' );
 		$css_placement_map    = array(
 			'top'    => 'text-top',    // Align with top of parent's font.
-			'middle' => '0.05em',      // Visually centered with text.
+			'middle' => 'middle',      // Middle alignment (CSS keyword).
 			'bottom' => '-0.15em',     // Slightly below middle, above baseline.
 		);
 		$css_flex_align_map   = array(

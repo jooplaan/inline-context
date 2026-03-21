@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, context, annotations
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.7.2
+Stable tag: 2.7.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -130,6 +130,10 @@ Yes. You can type any Dashicon class name to use all 300+ icons.
 9. Notes Library in the admin area showing usage count and linked posts
 
 == Changelog ==
+
+= 2.7.3 - March 21, 2026 =
+* FIX: Category icons now align correctly with text at all icon placement settings
+* FIX: Category icon double-scaling issue causing icons to render at half the intended size
 
 = 2.7.2 - March 20, 2026 =
 * FIX: Custom category icons now respond to size and placement settings
