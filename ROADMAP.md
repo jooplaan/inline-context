@@ -4,17 +4,6 @@ This document outlines future improvements and completed features for the Inline
 
 ## High Priority — WordPress 7.0 Compatibility & Opportunities
 
-### WP 7.0: Compatibility Testing
-
-**Impact**: Critical | **Effort**: Low
-
-Ensure the plugin works correctly with WordPress 7.0 (scheduled April 9, 2026):
-
-- Test with new admin color scheme and view transitions
-- Verify settings page renders correctly with dashboard visual refresh
-- Confirm editor integration works with new collaboration features
-- Check for CSS conflicts with updated admin styles
-
 ### WP 7.1: Migrate Category Icons to Native SVG Icon System
 
 **Impact**: High | **Effort**: Medium | **Depends on**: WordPress 7.1 plugin icon APIs
@@ -89,72 +78,6 @@ WordPress 7.0 introduces a standardized **AI API** integrated with the Abilities
 - Provide JSON Schema descriptions so AI models understand each ability's purpose and parameters
 - Add an optional "AI Suggest" button in the inline context popover
 - Graceful degradation: feature only appears when an AI provider is configured
-
-### Image Support in Notes
-
-**Impact**: High | **Effort**: Medium | **Requested by**: User feedback (clients want images alongside text in context, e.g. a hover-over for "bear canister" with a photo)
-
-Allow editors to embed images inside inline context notes — for both inline and tooltip display modes. Currently, pasting `<img>` HTML into a note is silently stripped at three layers (Quill formats, DOMPurify, KSES on the noscript path).
-
-**Editor (QuillEditor):**
-
-- Add an image button to the QuillEditor toolbar (alongside bold/italic/link/list)
-- Open the WordPress Media Library (`wp.media`) on click so authors pick or upload via familiar UI — do **not** support arbitrary URL paste in v1 (avoids hotlinking, mixed content, and broken images later)
-- Add `'image'` to `QUILL_FORMATS` so Quill stops stripping `<img>` on render
-- In source-mode (HTML), permit `<img>` tags with `src`, `alt`, `width`, `height`, `class` attributes
-- Insert with `loading="lazy"` and a default `class="wp-inline-context-image"` for styling hooks
-- Require alt text in the picker UI (warn on empty, do not block — matches WP core image block behavior)
-
-**Storage:**
-
-- Continue caching the rendered HTML in `data-inline-context` (current dual-storage pattern). Since images go in via Media Library, the attribute holds a short URL like `/wp-content/uploads/...`, not a data URI — keeps attribute size reasonable
-- For reusable notes (CPT-backed), `wp_kses_post()` already permits `<img>` on save — no change needed
-- For inline-only notes, the Rich Text Format save path round-trips the attribute via KSES; verify `<img>` survives encoding (it should — KSES does not parse attribute *contents* as HTML)
-- Optional follow-up: track attachment IDs in a new post meta on the CPT for media-library cleanup awareness ("this image is used in note X")
-
-**Frontend rendering ([src/frontend.js](src/frontend.js)):**
-
-- Add `'img'` to `ALLOWED_TAGS` and `'src'`, `'alt'`, `'width'`, `'height'`, `'loading'`, `'class'` to `ALLOWED_ATTR` in DOMPurify config
-- Add a DOMPurify hook to enforce `loading="lazy"` and strip `src` values that are not `http(s):` or relative paths (block `javascript:`, `data:`, etc. — DOMPurify handles most but be explicit)
-- Expose a new filter `inline_context_allowed_image_protocols` for sites that need data URIs or other schemes
-
-**Display mode handling:**
-
-- **Inline mode**: image renders at natural width up to `max-width: 100%` (CSS rule `.wp-inline-context-image { max-width: 100%; height: auto; }`)
-- **Tooltip mode**: cap image to a configurable max-width (default ~280px) and max-height (~200px) so tooltips stay compact and don't overflow viewport — the existing `positionTooltip()` viewport logic should already handle the resulting size
-- Add CSS variables: `--wp-inline-context-image-max-width-tooltip`, `--wp-inline-context-image-max-height-tooltip`
-
-**Accessibility:**
-
-- Alt text passed through from picker → `alt` attribute (required field in picker UI, soft-warn if blank)
-- `loading="lazy"` on every image
-- For tooltip mode, ensure focus management still works when image is the only content (current logic focuses the note container, which remains correct)
-
-**Progressive enhancement:**
-
-- **Noscript endnotes** ([class-inline-context-frontend.php](includes/class-inline-context-frontend.php) `render_noscript_content` path): the current code uses DOMDocument to extract `data-inline-context`; verify `<img>` tags pass through to the endnote markup. Update the KSES allowlist used for endnote output if needed
-- **Print stylesheet** ([src/style.scss](src/style.scss) `@media print`): images print at reasonable size (`max-width: 100%`, page-break avoidance), alt text not duplicated since the image is visible
-
-**Settings:**
-
-- New checkbox in General tab: "Allow images in notes" (default: **on** for new installs, **on** for upgrades — non-breaking since old notes have no images)
-- When disabled, the image toolbar button is hidden and DOMPurify falls back to current allowlist (lets sites lock down content if needed)
-
-**Out of scope for v1:**
-
-- Image captions (revisit if requested — adds `<figure>`/`<figcaption>` to allowlist and a caption field in picker)
-- Image alignment (left/right/center) — keep v1 simple, images are block-level centered
-- External-URL images via paste — security/hotlinking concerns, defer
-- Image galleries or multiple images — single image per note is the primary use case
-
-**Implementation order:**
-
-1. DOMPurify allowlist + CSS sizing rules (frontend works for hand-coded HTML)
-2. QuillEditor toolbar button + Media Library integration
-3. Source-mode HTML support + KSES verification
-4. Tooltip-mode sizing constraints
-5. Noscript and print-stylesheet verification
-6. Admin setting toggle
 
 ### Responsive Display Mode
 
@@ -351,6 +274,42 @@ Schema.org markup for special note types:
 ---
 
 ## Completed Features
+
+### v2.8.0 - Images in Notes & WordPress 7.0 Compatibility ✓
+
+Released: May 2026
+
+**Image Support in Notes:**
+
+- ✅ New image button in the QuillEditor toolbar that opens the WordPress Media Library
+- ✅ Custom Quill image blot preserves alt, loading, decoding, and class attributes through serialization
+- ✅ Always sets alt (empty when the attachment has none) so screen readers don't fall back to filenames
+- ✅ Frontend DOMPurify allowlist permits img/figure/figcaption with src/alt/width/height/loading/class
+- ✅ Image src restricted to http(s) and relative paths by default
+- ✅ New `inline_context_allowed_image_protocols` filter for sites that need data URIs or other schemes
+- ✅ Tooltip mode caps images at ~280×200 to keep tooltips compact
+- ✅ Inline mode caps height at 400px while allowing full content width
+- ✅ Three new CSS variables for theme-level image sizing customization
+- ✅ Print styles handle images at sensible size with page-break avoidance
+- ✅ Admin toggle ("Allow images in notes") in General settings, default on
+- ✅ Setting round-trips through Export/Import
+- ✅ Wired into both the block editor popover and the CPT edit screen
+
+**WordPress 7.0 Compatibility:**
+
+- ✅ Verified compatibility with WordPress 7.0 (released April 9, 2026)
+- ✅ Settings page renders correctly with the dashboard visual refresh
+- ✅ Editor integration works with new collaboration features
+- ✅ No CSS conflicts with the updated admin styles
+- ✅ "Tested up to" header bumped to 7.0
+
+**Developer Experience:**
+
+- ✅ Project-wide babel.config.json silences ESLint parser warnings on every lint run
+- ✅ Cleaned up pre-existing JS lint errors (react-dom dependency, JSDoc alignment)
+- ✅ Fixed misplaced PHPCS unused-parameter suppressions on three pre-existing hook callbacks
+
+**Benefits**: Editors can now provide rich visual context (e.g. a hover-over for "bear canister" with a photo) directly inside notes, addressing one of the most-requested user features. Confirmed compatible with WordPress 7.0 so the plugin keeps pace with the core release cycle.
 
 ### v2.7.0 - Export/Import Settings & Print Styles ✓
 
