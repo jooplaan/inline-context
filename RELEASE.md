@@ -58,7 +58,7 @@ npm run build
 
 ```
 
-After all the tests are succesfull and the build is done, let the human do the manual testing. 
+After all the tests are succesfull and the build is done, let the human do the manual testing.
 
 Manual testing:
 
@@ -179,7 +179,7 @@ After completing the Git release process, deploy to WordPress.org SVN repository
 
 ### SVN Repository Location
 
-```
+```text
 Local: ~/Developer/wp/svn/inline-context
 Remote: https://plugins.svn.wordpress.org/inline-context
 ```
@@ -262,7 +262,7 @@ svn ci -m "Release X.X.X"
 
 After committing, verify the release:
 
-- [ ] Check https://wordpress.org/plugins/inline-context/ shows new version
+- [ ] Check <https://wordpress.org/plugins/inline-context/> shows new version
 - [ ] Verify "Stable tag" matches in readme.txt
 - [ ] Test update notification in WordPress admin (may take 5-15 minutes to propagate)
 
