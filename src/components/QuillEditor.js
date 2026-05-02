@@ -5,9 +5,74 @@
 import { useEffect, useMemo } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import ReactQuill from 'react-quill';
+import ReactQuill, { Quill } from 'react-quill';
 
 const imagesEnabled = () => window.inlineContextData?.imagesEnabled !== false;
+
+// Quill's stock image blot only tracks `src`, dropping any other attribute
+// (alt, loading, decoding, class) on serialize. Register a richer blot so
+// alt text from the Media Library survives round-trips through the editor.
+let imageBlotRegistered = false;
+function registerImageBlot() {
+	if ( imageBlotRegistered || ! Quill ) return;
+	const ImageBlot = Quill.import( 'formats/image' );
+	const PRESERVED_ATTRS = [ 'alt', 'loading', 'decoding', 'class' ];
+
+	class InlineContextImage extends ImageBlot {
+		static create( value ) {
+			const src = typeof value === 'string' ? value : value?.src || '';
+			const node = super.create( src );
+			if ( value && typeof value === 'object' ) {
+				PRESERVED_ATTRS.forEach( ( attr ) => {
+					if ( typeof value[ attr ] === 'string' ) {
+						node.setAttribute( attr, value[ attr ] );
+					}
+				} );
+			}
+			// Always ensure alt is present (empty if unspecified) — screen
+			// readers otherwise announce the filename.
+			if ( ! node.hasAttribute( 'alt' ) ) {
+				node.setAttribute( 'alt', '' );
+			}
+			return node;
+		}
+
+		static formats( domNode ) {
+			const formats = {};
+			PRESERVED_ATTRS.forEach( ( attr ) => {
+				if ( domNode.hasAttribute( attr ) ) {
+					formats[ attr ] = domNode.getAttribute( attr );
+				}
+			} );
+			return formats;
+		}
+
+		static value( domNode ) {
+			const value = { src: domNode.getAttribute( 'src' ) || '' };
+			PRESERVED_ATTRS.forEach( ( attr ) => {
+				if ( domNode.hasAttribute( attr ) ) {
+					value[ attr ] = domNode.getAttribute( attr );
+				}
+			} );
+			return value;
+		}
+
+		format( name, value ) {
+			if ( PRESERVED_ATTRS.includes( name ) ) {
+				if ( value ) {
+					this.domNode.setAttribute( name, value );
+				} else {
+					this.domNode.removeAttribute( name );
+				}
+			} else {
+				super.format( name, value );
+			}
+		}
+	}
+
+	Quill.register( 'formats/image', InlineContextImage, true );
+	imageBlotRegistered = true;
+}
 
 /**
  * Open the WordPress Media Library and insert the chosen image into Quill.
@@ -48,25 +113,22 @@ function openMediaLibrary( editor ) {
 				? range.index
 				: editor.getLength();
 
-		editor.insertEmbed( insertIndex, 'image', src, 'user' );
+		// Pass attributes as an object — our custom Image blot picks them up
+		// and persists them through serialization. Always include alt
+		// (possibly empty) so screen readers don't fall back to the filename.
+		editor.insertEmbed(
+			insertIndex,
+			'image',
+			{
+				src,
+				alt,
+				loading: 'lazy',
+				decoding: 'async',
+				class: 'wp-inline-context-image',
+			},
+			'user'
+		);
 		editor.setSelection( insertIndex + 1 );
-
-		// Quill's default image embed doesn't set alt — set it on the
-		// just-inserted <img> directly. Always set alt (empty if the
-		// attachment has none) so screen readers don't fall back to
-		// announcing the filename.
-		setTimeout( () => {
-			const root = editor.root;
-			if ( ! root ) return;
-			const imgs = root.querySelectorAll( 'img' );
-			const img = imgs[ imgs.length - 1 ];
-			if ( img ) {
-				img.setAttribute( 'alt', alt );
-				img.setAttribute( 'loading', 'lazy' );
-				img.setAttribute( 'decoding', 'async' );
-				img.classList.add( 'wp-inline-context-image' );
-			}
-		}, 0 );
 	} );
 
 	frame.open();
@@ -87,6 +149,9 @@ export default function QuillEditor( {
 	// only when image support is enabled site-wide.
 	const { quillModules, quillFormats } = useMemo( () => {
 		const allowImages = imagesEnabled();
+		if ( allowImages ) {
+			registerImageBlot();
+		}
 		const toolbarRow1 = [ 'bold', 'italic' ];
 		const toolbarRow2 = [ 'link' ];
 		if ( allowImages ) {
