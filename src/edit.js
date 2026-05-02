@@ -81,6 +81,11 @@ export default function Edit( { isActive, value, onChange } ) {
 	const isSettingReusableNoteRef = useRef( false );
 	const valueRef = useRef( value );
 	const contentManuallySetRef = useRef( false );
+	// Set true while the WordPress Media Library frame is open. The frame
+	// renders as a body-level modal, so clicks inside it look like
+	// "outside the popover" to the click-outside handler. Guard handleClose
+	// against that until the frame is fully gone.
+	const isMediaFrameOpenRef = useRef( false );
 
 	// Keep value ref up to date
 	useEffect( () => {
@@ -582,6 +587,11 @@ export default function Edit( { isActive, value, onChange } ) {
 		if ( isSettingReusableNoteRef.current ) {
 			return;
 		}
+		// Don't close while the WP Media Library frame is open — the modal's
+		// own clicks are seen as "outside the popover" and would close us
+		if ( isMediaFrameOpenRef.current ) {
+			return;
+		}
 		setIsOpen( false );
 		setTimeout( () => prevFocusRef.current?.focus?.(), 0 );
 	}, [] );
@@ -909,6 +919,7 @@ export default function Edit( { isActive, value, onChange } ) {
 										isReusedNote &&
 										selectedNote?.is_reusable
 									}
+									popoverGuardRef={ isMediaFrameOpenRef }
 								/>
 
 								<LinkControl

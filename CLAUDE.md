@@ -29,7 +29,7 @@ That file contains:
 
 Write commit messages as if you are the developer. **NEVER mention Claude, AI, or any AI assistance in the commit message itself.**
 
-```
+```text
 ✅ Good Commit Messages:
 Add keyboard shortcuts for inline context management
 Fix case-sensitivity issue with shortcut detection
@@ -67,7 +67,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
 **Always include this footer:**
 
-```
+```text
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
@@ -82,7 +82,7 @@ This footer:
 
 ## Example Commit
 
-```
+```text
 feat: Add keyboard shortcuts for inline context editor
 
 Implement Cmd+Shift+I and Cmd+Shift+K shortcuts to improve
@@ -116,6 +116,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ### Version Management
 
 When bumping versions, update all three files consistently:
+
 1. `package.json` - version field
 2. `composer.json` - version field
 3. `inline-context.php` - Version header and INLINE_CONTEXT_VERSION constant
