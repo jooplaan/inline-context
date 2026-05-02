@@ -3,6 +3,13 @@
 This file contains the complete changelog for all versions of the Inline Context plugin.
 For major version highlights, see README.md and readme.txt.
 
+## Version 2.8.1 - May 2, 2026
+* FIX: Inline context popover no longer closes when inserting an image from the WordPress
+  Media Library. Root cause: the Media Library frame is a body-level modal, so its clicks
+  registered as "outside the popover" and triggered the close handler. The fix flips a guard
+  ref while the frame is open and releases it 200ms after close, which also covers the focus-
+  restore click that happens immediately after the modal tears down.
+
 ## Version 2.8.0 - May 2, 2026
 * NEW: Embed images inside inline context notes via the WordPress Media Library
 * NEW: Image button in the note editor toolbar (shown when image support is enabled)

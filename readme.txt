@@ -4,7 +4,7 @@ Tags: inline, footnote, tooltip, context, annotations
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.8.0
+Stable tag: 2.8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -130,6 +130,9 @@ Yes. You can type any Dashicon class name to use all 300+ icons.
 9. Notes Library in the admin area showing usage count and linked posts
 
 == Changelog ==
+
+= 2.8.1 - May 2, 2026 =
+* FIX: Inline context popover no longer closes when inserting an image from the WordPress Media Library
 
 = 2.8.0 - May 2, 2026 =
 * NEW: Embed images inside inline context notes via the WordPress Media Library

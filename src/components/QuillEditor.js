@@ -77,9 +77,13 @@ function registerImageBlot() {
 /**
  * Open the WordPress Media Library and insert the chosen image into Quill.
  *
- * @param {Object} editor Quill editor instance.
+ * @param {Object}                  editor          Quill editor instance.
+ * @param {{current: boolean}|null} popoverGuardRef Optional ref the parent popover checks in its
+ *                                                  onClose handler. We flip it on while the media
+ *                                                  frame is open so clicks inside the modal don't
+ *                                                  close the host popover.
  */
-function openMediaLibrary( editor ) {
+function openMediaLibrary( editor, popoverGuardRef ) {
 	if ( ! window.wp?.media ) {
 		// eslint-disable-next-line no-console
 		console.warn(
@@ -88,11 +92,26 @@ function openMediaLibrary( editor ) {
 		return;
 	}
 
+	if ( popoverGuardRef ) {
+		popoverGuardRef.current = true;
+	}
+
 	const frame = window.wp.media( {
 		title: __( 'Select or upload image', 'inline-context' ),
 		button: { text: __( 'Use this image', 'inline-context' ) },
 		library: { type: 'image' },
 		multiple: false,
+	} );
+
+	// Release the guard *after* the frame is fully torn down. A short delay
+	// covers any focus-restore click events the popover might otherwise see
+	// as "outside" right after the modal closes.
+	frame.on( 'close', () => {
+		setTimeout( () => {
+			if ( popoverGuardRef ) {
+				popoverGuardRef.current = false;
+			}
+		}, 200 );
 	} );
 
 	frame.on( 'select', () => {
@@ -144,6 +163,7 @@ export default function QuillEditor( {
 	onKeyDownCapture,
 	isOpen,
 	readOnly = false,
+	popoverGuardRef = null,
 } ) {
 	// Build modules/formats lists once per mount — including the image button
 	// only when image support is enabled site-wide.
@@ -197,7 +217,7 @@ export default function QuillEditor( {
 					// Library instead of Quill's URL-prompt dialog.
 					if ( imagesEnabled() ) {
 						toolbar.addHandler( 'image', () => {
-							openMediaLibrary( editor );
+							openMediaLibrary( editor, popoverGuardRef );
 						} );
 					}
 
@@ -225,7 +245,13 @@ export default function QuillEditor( {
 		}, 0 );
 
 		return () => clearTimeout( t );
-	}, [ isOpen, isSourceMode, onSourceModeToggle, quillRef ] );
+	}, [
+		isOpen,
+		isSourceMode,
+		onSourceModeToggle,
+		quillRef,
+		popoverGuardRef,
+	] );
 
 	return (
 		<div onKeyDownCapture={ onKeyDownCapture }>
