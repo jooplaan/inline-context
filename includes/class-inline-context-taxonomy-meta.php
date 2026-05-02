@@ -177,8 +177,7 @@ class Inline_Context_Taxonomy_Meta {
 	 * @param WP_Term $term Current taxonomy term object.
 	 * @param string  $taxonomy Current taxonomy slug.
 	 */
-	public function edit_category_fields( $term, $taxonomy ) {
-	 // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Required by WordPress hook signature.
+	public function edit_category_fields( $term, $taxonomy ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- $taxonomy is required by the WordPress hook signature.
 		$icon_closed = get_term_meta( $term->term_id, 'icon_closed', true );
 		$icon_open   = get_term_meta( $term->term_id, 'icon_open', true );
 		$color       = get_term_meta( $term->term_id, 'color', true );
@@ -258,8 +257,7 @@ class Inline_Context_Taxonomy_Meta {
 	 * @param int $term_id  Term ID.
 	 * @param int $tt_id    Term taxonomy ID.
 	 */
-	public function save_category_meta( $term_id, $tt_id ) {
-	 // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Required by WordPress hook.
+	public function save_category_meta( $term_id, $tt_id ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- $tt_id is required by the WordPress hook signature.
 		// Verify nonce.
 		if (
 			! isset( $_POST['inline_context_category_meta_nonce'] ) ||
