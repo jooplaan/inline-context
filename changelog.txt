@@ -3,6 +3,33 @@
 This file contains the complete changelog for all versions of the Inline Context plugin.
 For major version highlights, see README.md and readme.txt.
 
+## Version 2.8.0 - May 2, 2026
+* NEW: Embed images inside inline context notes via the WordPress Media Library
+* NEW: Image button in the note editor toolbar (shown when image support is enabled)
+* NEW: "Allow images in notes" admin setting in the General tab (default: enabled)
+* NEW: Custom Quill image blot preserves alt, loading, decoding, and class attributes
+  through Quill's serialization, so attributes survive editor round-trips
+* NEW: `inline_context_allowed_image_protocols` filter for sites that need data URIs or
+  other schemes
+* NEW: Three CSS variables for theme-level image sizing customization:
+  --wp--custom--inline-context--image--tooltip-max-width (default 280px)
+  --wp--custom--inline-context--image--tooltip-max-height (default 200px)
+  --wp--custom--inline-context--image--inline-max-height (default 400px)
+* IMPROVED: Tooltip mode caps images at ~280×200 to keep tooltips compact
+* IMPROVED: Inline mode caps image height at 400px while allowing full content width
+* IMPROVED: Print styles handle images with page-break avoidance and sensible sizing
+* IMPROVED: Confirmed WordPress 7.0 compatibility — "Tested up to" header bumped to 7.0
+* IMPROVED: Always sets alt="" on images missing alt text so screen readers don't fall
+  back to announcing filenames
+* IMPROVED: Image src restricted to http(s) and relative paths by default; data URIs and
+  other protocols can be opted into via the new filter
+* IMPROVED: Settings export/import now includes the image-support toggle
+* DEV: Added project-wide babel.config.json so ESLint's parser stops warning when
+  walking @wordpress/* dependencies
+* DEV: Declared react-dom as an explicit dependency (was pulled in transitively, used
+  via WordPress's wp-element global)
+* DEV: Cleaned up pre-existing JSDoc and PHPCS suppression-comment placement issues
+
 ## Version 2.7.3 - March 21, 2026
 * FIX: Category icons now align correctly with text at all icon placement settings
 * FIX: Category icon double-scaling issue where font-size and width/height both used em values,

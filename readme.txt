@@ -2,9 +2,9 @@
 Contributors: joop
 Tags: inline, footnote, tooltip, context, annotations
 Requires at least: 6.0
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.7.3
+Stable tag: 2.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -130,6 +130,21 @@ Yes. You can type any Dashicon class name to use all 300+ icons.
 9. Notes Library in the admin area showing usage count and linked posts
 
 == Changelog ==
+
+= 2.8.0 - May 2, 2026 =
+* NEW: Embed images inside inline context notes via the WordPress Media Library
+* NEW: Image button in the note editor toolbar (shown when image support is enabled)
+* NEW: "Allow images in notes" admin setting in the General tab (default: enabled)
+* NEW: Custom Quill image blot preserves alt, loading, decoding, and class attributes
+* NEW: `inline_context_allowed_image_protocols` filter for sites that need data URIs or other schemes
+* NEW: Three CSS variables for image sizing customization (tooltip max width/height, inline max height)
+* IMPROVED: Tooltip mode caps images at ~280×200 to keep tooltips compact
+* IMPROVED: Inline mode caps image height at 400px while allowing full content width
+* IMPROVED: Print styles handle images with page-break avoidance and sensible sizing
+* IMPROVED: Confirmed WordPress 7.0 compatibility — "Tested up to" bumped to 7.0
+* IMPROVED: Always sets alt="" on images missing alt text so screen readers don't announce filenames
+* IMPROVED: Image src restricted to http(s) and relative paths by default for security
+* IMPROVED: Settings export/import now includes the image-support toggle
 
 = 2.7.3 - March 21, 2026 =
 * FIX: Category icons now align correctly with text at all icon placement settings

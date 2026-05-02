@@ -544,8 +544,7 @@ class Inline_Context_Abilities {
 	 * @param mixed $input Input parameters (unused).
 	 * @return array Categories data.
 	 */
-	public function execute_get_categories( $input ) {
-	 // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- Required by Abilities API.
+	public function execute_get_categories( $input ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- $input is required by the Abilities API callback signature.
 		$categories = inline_context_get_categories();
 		$results    = array();
 

@@ -33,27 +33,54 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return txt.value;
 	};
 
-	// Configure DOMPurify - allow developers to extend allowed tags/attributes
-	const ALLOWED_TAGS = applyFilters( 'inline_context_allowed_tags', [
-		'p',
-		'strong',
-		'em',
-		'a',
-		'ol',
-		'ul',
-		'li',
-		'br',
-	] );
-	const ALLOWED_ATTR = applyFilters( 'inline_context_allowed_attributes', [
-		'href',
-		'rel',
-		'target',
-	] );
+	const imagesEnabled = window.inlineContextData?.imagesEnabled !== false;
 
-	// Add a hook to harden links (no javascript:, add rel)
+	// Configure DOMPurify - allow developers to extend allowed tags/attributes
+	const baseTags = [ 'p', 'strong', 'em', 'a', 'ol', 'ul', 'li', 'br' ];
+	if ( imagesEnabled ) {
+		baseTags.push( 'img', 'figure', 'figcaption' );
+	}
+	const ALLOWED_TAGS = applyFilters(
+		'inline_context_allowed_tags',
+		baseTags
+	);
+
+	const baseAttrs = [ 'href', 'rel', 'target' ];
+	if ( imagesEnabled ) {
+		baseAttrs.push( 'src', 'alt', 'width', 'height', 'loading', 'class' );
+	}
+	const ALLOWED_ATTR = applyFilters(
+		'inline_context_allowed_attributes',
+		baseAttrs
+	);
+
+	// Allowed image src protocols. `data:` is NOT permitted by default — sites
+	// that need it can opt in via the filter.
+	const allowedImageProtocols = applyFilters(
+		'inline_context_allowed_image_protocols',
+		[ 'http:', 'https:' ]
+	);
+
+	const isAllowedImageSrc = ( src ) => {
+		if ( ! src ) return false;
+		// Relative paths (no protocol) are always allowed
+		if ( /^\/[^/]/.test( src ) || /^\.\.?\//.test( src ) ) {
+			return true;
+		}
+		const match = src.match( /^([a-z][a-z0-9+\-.]*:)/i );
+		if ( ! match ) {
+			// No protocol prefix — treat as relative
+			return true;
+		}
+		return allowedImageProtocols.includes( match[ 1 ].toLowerCase() );
+	};
+
+	// Add hooks to harden links (no javascript:, add rel) and images
 	if ( typeof DOMPurify.addHook === 'function' ) {
 		DOMPurify.addHook( 'afterSanitizeAttributes', ( node ) => {
-			if ( node.nodeName && node.nodeName.toLowerCase() === 'a' ) {
+			const tag = node.nodeName ? node.nodeName.toLowerCase() : '';
+
+			if ( 'a' === tag ) {
 				const href = node.getAttribute( 'href' ) || '';
 				// Strip dangerous protocols
 				if ( /^\s*javascript:/i.test( href ) ) {
@@ -72,6 +99,33 @@ document.addEventListener( 'DOMContentLoaded', () => {
 					node.setAttribute(
 						'rel',
 						Array.from( tokens ).join( ' ' )
+					);
+				}
+			}
+
+			if ( 'img' === tag ) {
+				const src = node.getAttribute( 'src' ) || '';
+				if ( ! isAllowedImageSrc( src ) ) {
+					// Drop disallowed images by removing src — DOMPurify keeps
+					// the element but it won't render anything
+					node.removeAttribute( 'src' );
+					node.setAttribute( 'data-inline-context-blocked', '1' );
+				}
+				// Always lazy-load to avoid blocking initial paint
+				node.setAttribute( 'loading', 'lazy' );
+				// Always set decoding async for off-main-thread decode
+				node.setAttribute( 'decoding', 'async' );
+				// Always set alt (empty if missing) so screen readers don't
+				// announce the filename for decorative images
+				if ( ! node.hasAttribute( 'alt' ) ) {
+					node.setAttribute( 'alt', '' );
+				}
+				// Ensure the styling hook class is present
+				const cls = node.getAttribute( 'class' ) || '';
+				if ( ! /\bwp-inline-context-image\b/.test( cls ) ) {
+					node.setAttribute(
+						'class',
+						( cls + ' wp-inline-context-image' ).trim()
 					);
 				}
 			}
