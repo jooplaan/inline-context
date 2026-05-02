@@ -24,6 +24,7 @@ function inline_context_export_settings() {
 		'inline_context_enable_animations' => get_option( 'inline_context_enable_animations', true ),
 		'inline_context_link_style'        => get_option( 'inline_context_link_style', 'text' ),
 		'inline_context_icon_placement'    => get_option( 'inline_context_icon_placement', 'middle' ),
+		'inline_context_allow_images'      => get_option( 'inline_context_allow_images', true ),
 		'inline_context_css_variables'     => get_option( 'inline_context_css_variables', inline_context_get_default_css_variables() ),
 		'inline_context_active_preset'     => get_option( 'inline_context_active_preset', 'modern-blue' ),
 		'export_date'                      => gmdate( 'Y-m-d H:i:s' ),
@@ -86,6 +87,7 @@ function inline_context_import_settings( $file_path ) {
 		'inline_context_enable_animations' => 'rest_sanitize_boolean',
 		'inline_context_link_style'        => 'inline_context_sanitize_link_style',
 		'inline_context_icon_placement'    => 'inline_context_sanitize_icon_placement',
+		'inline_context_allow_images'      => 'rest_sanitize_boolean',
 		'inline_context_css_variables'     => 'inline_context_sanitize_css_variables',
 		'inline_context_active_preset'     => 'sanitize_key',
 	);
@@ -228,6 +230,17 @@ function inline_context_register_settings() {
 			'type'              => 'string',
 			'sanitize_callback' => 'inline_context_sanitize_icon_placement',
 			'default'           => 'middle',
+		)
+	);
+
+	// Register allow-images setting.
+	register_setting(
+		'inline_context_general_settings',
+		'inline_context_allow_images',
+		array(
+			'type'              => 'boolean',
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'default'           => true,
 		)
 	);
 
@@ -986,6 +999,20 @@ function inline_context_render_settings_page() {
 								</label>
 								<p class="description">
 									<?php esc_html_e( 'When enabled, notes will smoothly fade and slide in. When disabled, notes appear instantly. Always respects user preference for reduced motion.', 'inline-context' ); ?>
+								</p>
+							</fieldset>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Images in notes', 'inline-context' ); ?></th>
+						<td>
+							<fieldset>
+								<label>
+									<input type="checkbox" name="inline_context_allow_images" value="1" <?php checked( get_option( 'inline_context_allow_images', true ) ); ?>>
+									<?php esc_html_e( 'Allow editors to embed images inside inline context notes', 'inline-context' ); ?>
+								</label>
+								<p class="description">
+									<?php esc_html_e( 'When enabled, the note editor shows an image button that opens the WordPress Media Library. Images are sized to fit the note (smaller in tooltip mode). Disable to lock notes down to text-only formatting.', 'inline-context' ); ?>
 								</p>
 							</fieldset>
 						</td>

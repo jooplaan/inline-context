@@ -183,11 +183,11 @@ export const usePopoverKeyboardShortcuts = ( isOpen, onSave, onClose ) => {
 /**
  * Hook to sync editor content when popover opens or format changes
  *
- * @param {boolean}  isOpen                - Whether the popover is open
- * @param {Object}   activeFormat          - The active format object
- * @param {Function} setText               - Text setter
- * @param {Function} setCategoryId         - Category ID setter
- * @param            contentManuallySetRef
+ * @param {boolean}                 isOpen                - Whether the popover is open
+ * @param {Object}                  activeFormat          - The active format object
+ * @param {Function}                setText               - Text setter
+ * @param {Function}                setCategoryId         - Category ID setter
+ * @param {{current: boolean}|null} contentManuallySetRef - Ref flag set when the parent has already populated the editor content
  */
 export const useSyncEditorContent = (
 	isOpen,

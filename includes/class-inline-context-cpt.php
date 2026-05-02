@@ -716,6 +716,23 @@ class Inline_Context_CPT {
 			)
 		);
 
+		// QuillEditor reads `window.inlineContextData.imagesEnabled` to decide
+		// whether to render the image toolbar button. Mirror it here so the
+		// CPT edit screen behaves the same as the block-editor popover.
+		wp_add_inline_script(
+			'inline-context-cpt-editor',
+			sprintf(
+				'window.inlineContextData = window.inlineContextData || {}; window.inlineContextData.imagesEnabled = %s;',
+				get_option( 'inline_context_allow_images', true ) ? 'true' : 'false'
+			),
+			'before'
+		);
+
+		// Make the WordPress media library available so the image button works.
+		if ( function_exists( 'wp_enqueue_media' ) ) {
+			wp_enqueue_media();
+		}
+
 		// Add delete confirmation for notes with usage.
 		$usage_count   = $post_id ? (int) get_post_meta( $post_id, 'usage_count', true ) : 0;
 		$is_reusable   = $post_id ? get_post_meta( $post_id, 'is_reusable', true ) : false;
