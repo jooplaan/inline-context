@@ -497,6 +497,47 @@
 	animation: none !important;
 }
 
+/* ============================================
+   Images inside notes
+   ============================================ */
+
+.wp-inline-context-image {
+	max-width: 100%;
+	height: auto;
+	display: block;
+	margin: 0.5em 0;
+	border-radius: var(--wp--custom--inline-context--image--border-radius, 4px);
+}
+
+/* Tooltip mode caps image dimensions so the tooltip stays compact */
+.wp-inline-context-tooltip .wp-inline-context-image {
+	max-width: var(--wp--custom--inline-context--image--tooltip-max-width, 280px);
+	max-height: var(--wp--custom--inline-context--image--tooltip-max-height, 200px);
+	object-fit: contain;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* Inline mode allows the image to flow with content; cap height for sanity */
+.wp-inline-context-inline .wp-inline-context-image {
+	max-height: var(--wp--custom--inline-context--image--inline-max-height, 400px);
+	object-fit: contain;
+}
+
+/* figure/figcaption support for captioned images */
+.wp-inline-context-inline figure,
+.wp-inline-context-tooltip figure {
+	margin: 0.5em 0;
+}
+
+.wp-inline-context-inline figcaption,
+.wp-inline-context-tooltip figcaption {
+	font-size: 0.85em;
+	color: var(--wp--custom--inline-context--note--caption-color, #666);
+	text-align: center;
+	margin-top: 0.25em;
+}
+
 /* Hide tooltips in print */
 @media print {
 	.wp-inline-context-tooltip {
@@ -590,6 +631,14 @@
 	.wp-inline-context-tooltip-close,
 	.wp-inline-context-inline-close {
 		display: none !important;
+	}
+
+	/* Print-friendly images: cap size, avoid breaking, drop background */
+	.wp-inline-context-image {
+		max-width: 100% !important;
+		max-height: 4in !important;
+		page-break-inside: avoid;
+		background: transparent !important;
 	}
 }
 

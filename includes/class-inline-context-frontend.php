@@ -207,12 +207,19 @@ class Inline_Context_Frontend {
 			true
 		);
 
-		// Pass categories to the editor.
+		// Make the WordPress media library available so the QuillEditor's
+		// image button can open the picker.
+		if ( function_exists( 'wp_enqueue_media' ) ) {
+			wp_enqueue_media();
+		}
+
+		// Pass categories and feature flags to the editor.
 		wp_localize_script(
 			'inline-context-editor',
 			'inlineContextData',
 			array(
-				'categories' => inline_context_get_categories(),
+				'categories'    => inline_context_get_categories(),
+				'imagesEnabled' => (bool) get_option( 'inline_context_allow_images', true ),
 			)
 		);
 
@@ -270,6 +277,7 @@ class Inline_Context_Frontend {
 				'iconPlacement'     => get_option( 'inline_context_icon_placement', 'middle' ),
 				'hoverEnabled'      => (bool) get_option( 'inline_context_tooltip_hover', false ),
 				'animationsEnabled' => (bool) get_option( 'inline_context_enable_animations', true ),
+				'imagesEnabled'     => (bool) get_option( 'inline_context_allow_images', true ),
 			)
 		);
 
