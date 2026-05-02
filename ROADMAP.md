@@ -2,7 +2,186 @@
 
 This document outlines future improvements and completed features for the Inline Context plugin.
 
-## High Priority Features (Next Release)
+## High Priority — WordPress 7.0 Compatibility & Opportunities
+
+### WP 7.0: Compatibility Testing
+
+**Impact**: Critical | **Effort**: Low
+
+Ensure the plugin works correctly with WordPress 7.0 (scheduled April 9, 2026):
+
+- Test with new admin color scheme and view transitions
+- Verify settings page renders correctly with dashboard visual refresh
+- Confirm editor integration works with new collaboration features
+- Check for CSS conflicts with updated admin styles
+
+### WP 7.1: Migrate Category Icons to Native SVG Icon System
+
+**Impact**: High | **Effort**: Medium | **Depends on**: WordPress 7.1 plugin icon APIs
+
+WordPress 7.0 introduces a native SVG icon system (`WP_Icons_Registry`, `wp/v2/icons` REST endpoint, `core/icon` block). However, the plugin-facing APIs (`register_icon()`, `register_icon_collection()`, reusable icon picker component) are **planned for WordPress 7.1**, not yet available in 7.0.
+
+**Why migrate**: Dashicons are font-based, causing persistent font-metric baseline alignment issues across themes. The new system uses inline SVGs — regular graphics without font-baseline dependencies.
+
+**What's needed from WP 7.1:**
+
+- `register_icon()` PHP API for plugins to register custom icons
+- `register_icon_collection()` for organizing icon sets
+- Reusable icon picker component (currently embedded in `core/icon` block, not standalone)
+- SVG sanitization function in core
+
+**Migration plan (when 7.1 APIs are stable):**
+
+1. Replace Dashicons icon picker with a picker querying `wp/v2/icons` REST endpoint
+2. Change frontend rendering from `<span class="dashicons dashicons-info">` (font glyph) to inline `<svg>` elements via `WP_Icons_Registry`
+3. Eliminate all font-metric workarounds (`overflow: hidden`, `::before` overrides, `font-size` hacks)
+4. Map existing Dashicons category selections to new icon names for migration
+5. Maintain Dashicons fallback for WordPress < 7.0 compatibility
+6. Remove `dashicons` CSS/font dependency from frontend enqueue
+
+### WP 7.0: Client-Side Abilities API
+
+**Impact**: High | **Effort**: Medium
+
+WordPress 7.0 adds a **client-side Abilities API** registry with command palette integration, filter/search UI, and hybrid abilities support. The plugin already has 5 server-side abilities — these should be exposed client-side for richer integration.
+
+**Registration:**
+
+- Register all 5 existing abilities in the browser-side registry using the client-side API
+- Support hybrid abilities: client-side UI triggers with server-side REST execution
+- Ensure abilities are discoverable via WordPress command palette (Cmd+K)
+
+**Command palette integration:**
+
+- "Insert inline context note" — search and insert an existing reusable note from the palette
+- "Search notes" — find notes by content/title without leaving the editor
+- "Create note" — quick-create a new note from the palette with minimal UI
+
+**Technical approach:**
+
+- Use `wp.abilities.register()` (or equivalent client-side API) in the editor script
+- Map each server-side ability to a client-side handler that calls the existing REST endpoints
+- Add UI callbacks for abilities that need user input (e.g., note content, category selection)
+- Conditional registration: only register when Abilities API is available (WP 7.0+)
+
+### WP 7.0: Web Client AI API Integration
+
+**Impact**: High | **Effort**: Medium
+
+WordPress 7.0 introduces a standardized **AI API** integrated with the Abilities API. Since the plugin already exposes AI-ready abilities, this is a natural extension. The AI API provides a model-agnostic interface — external providers (OpenAI, Anthropic, etc.) connect via plugins, while core provides the routing and registry.
+
+**Expose existing abilities to AI:**
+
+- Register `create-note`, `search-notes`, `get-categories`, `get-note`, and `create-inline-note` with the AI API
+- AI assistants can discover and invoke these abilities automatically
+- No changes to existing REST endpoints needed — the AI API wraps them
+
+**AI-assisted content creation:**
+
+- Generate note content: select text → AI suggests a definition, explanation, or context note
+- Auto-suggest related notes: when creating a new note, AI finds similar existing notes to avoid duplicates
+- Smart categorization: AI recommends a category based on note content
+- Bulk note generation: AI scans a post and suggests inline contexts for technical terms or concepts
+
+**Technical approach:**
+
+- Register abilities with `wp.ai.registerAbility()` (or equivalent API)
+- Provide JSON Schema descriptions so AI models understand each ability's purpose and parameters
+- Add an optional "AI Suggest" button in the inline context popover
+- Graceful degradation: feature only appears when an AI provider is configured
+
+### Image Support in Notes
+
+**Impact**: High | **Effort**: Medium | **Requested by**: User feedback (clients want images alongside text in context, e.g. a hover-over for "bear canister" with a photo)
+
+Allow editors to embed images inside inline context notes — for both inline and tooltip display modes. Currently, pasting `<img>` HTML into a note is silently stripped at three layers (Quill formats, DOMPurify, KSES on the noscript path).
+
+**Editor (QuillEditor):**
+
+- Add an image button to the QuillEditor toolbar (alongside bold/italic/link/list)
+- Open the WordPress Media Library (`wp.media`) on click so authors pick or upload via familiar UI — do **not** support arbitrary URL paste in v1 (avoids hotlinking, mixed content, and broken images later)
+- Add `'image'` to `QUILL_FORMATS` so Quill stops stripping `<img>` on render
+- In source-mode (HTML), permit `<img>` tags with `src`, `alt`, `width`, `height`, `class` attributes
+- Insert with `loading="lazy"` and a default `class="wp-inline-context-image"` for styling hooks
+- Require alt text in the picker UI (warn on empty, do not block — matches WP core image block behavior)
+
+**Storage:**
+
+- Continue caching the rendered HTML in `data-inline-context` (current dual-storage pattern). Since images go in via Media Library, the attribute holds a short URL like `/wp-content/uploads/...`, not a data URI — keeps attribute size reasonable
+- For reusable notes (CPT-backed), `wp_kses_post()` already permits `<img>` on save — no change needed
+- For inline-only notes, the Rich Text Format save path round-trips the attribute via KSES; verify `<img>` survives encoding (it should — KSES does not parse attribute *contents* as HTML)
+- Optional follow-up: track attachment IDs in a new post meta on the CPT for media-library cleanup awareness ("this image is used in note X")
+
+**Frontend rendering ([src/frontend.js](src/frontend.js)):**
+
+- Add `'img'` to `ALLOWED_TAGS` and `'src'`, `'alt'`, `'width'`, `'height'`, `'loading'`, `'class'` to `ALLOWED_ATTR` in DOMPurify config
+- Add a DOMPurify hook to enforce `loading="lazy"` and strip `src` values that are not `http(s):` or relative paths (block `javascript:`, `data:`, etc. — DOMPurify handles most but be explicit)
+- Expose a new filter `inline_context_allowed_image_protocols` for sites that need data URIs or other schemes
+
+**Display mode handling:**
+
+- **Inline mode**: image renders at natural width up to `max-width: 100%` (CSS rule `.wp-inline-context-image { max-width: 100%; height: auto; }`)
+- **Tooltip mode**: cap image to a configurable max-width (default ~280px) and max-height (~200px) so tooltips stay compact and don't overflow viewport — the existing `positionTooltip()` viewport logic should already handle the resulting size
+- Add CSS variables: `--wp-inline-context-image-max-width-tooltip`, `--wp-inline-context-image-max-height-tooltip`
+
+**Accessibility:**
+
+- Alt text passed through from picker → `alt` attribute (required field in picker UI, soft-warn if blank)
+- `loading="lazy"` on every image
+- For tooltip mode, ensure focus management still works when image is the only content (current logic focuses the note container, which remains correct)
+
+**Progressive enhancement:**
+
+- **Noscript endnotes** ([class-inline-context-frontend.php](includes/class-inline-context-frontend.php) `render_noscript_content` path): the current code uses DOMDocument to extract `data-inline-context`; verify `<img>` tags pass through to the endnote markup. Update the KSES allowlist used for endnote output if needed
+- **Print stylesheet** ([src/style.scss](src/style.scss) `@media print`): images print at reasonable size (`max-width: 100%`, page-break avoidance), alt text not duplicated since the image is visible
+
+**Settings:**
+
+- New checkbox in General tab: "Allow images in notes" (default: **on** for new installs, **on** for upgrades — non-breaking since old notes have no images)
+- When disabled, the image toolbar button is hidden and DOMPurify falls back to current allowlist (lets sites lock down content if needed)
+
+**Out of scope for v1:**
+
+- Image captions (revisit if requested — adds `<figure>`/`<figcaption>` to allowlist and a caption field in picker)
+- Image alignment (left/right/center) — keep v1 simple, images are block-level centered
+- External-URL images via paste — security/hotlinking concerns, defer
+- Image galleries or multiple images — single image per note is the primary use case
+
+**Implementation order:**
+
+1. DOMPurify allowlist + CSS sizing rules (frontend works for hand-coded HTML)
+2. QuillEditor toolbar button + Media Library integration
+3. Source-mode HTML support + KSES verification
+4. Tooltip-mode sizing constraints
+5. Noscript and print-stylesheet verification
+6. Admin setting toggle
+
+### Responsive Display Mode
+
+**Impact**: High | **Effort**: Medium
+
+Add a new display mode option: **tooltips on desktop, inline on mobile**. This addresses the common UX pattern where tooltips work well with mouse hover/click on desktop but are awkward on touch devices where inline expansion is more natural.
+
+**General setting:**
+
+- New display mode option: "Adaptive (tooltip on desktop, inline on mobile)"
+- Sits alongside existing "Inline" and "Tooltip" options in admin settings
+- Configurable breakpoint (default: 782px, matching WordPress admin breakpoint)
+- JavaScript-based detection using `window.matchMedia` for responsive switching
+- Optionally integrate with WP 7.0's new responsive breakpoint system
+
+**Per-note override:**
+
+- Add a "Display mode" dropdown in the inline context popover (editor UI)
+- Options: "Use default" (inherits global setting), "Always inline", "Always tooltip"
+- Store override as a data attribute: `data-display-mode="inline|tooltip"`
+- Frontend JS checks per-note override before falling back to the global/adaptive setting
+
+**Use cases:**
+
+- Long definition notes → force inline (better readability on all devices)
+- Short glossary terms → force tooltip (quick reference without disrupting flow)
+- Default adaptive → best of both worlds without per-note configuration
 
 ## Medium Priority Features
 
