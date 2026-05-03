@@ -30,28 +30,18 @@ WordPress 7.0 introduces a native SVG icon system (`WP_Icons_Registry`, `wp/v2/i
 
 ### WP 7.0: Client-Side Abilities API
 
-**Impact**: High | **Effort**: Medium
+**Status**: No plugin work required for v1 | **Verified against**: WP 7.0-RC2
 
-WordPress 7.0 adds a **client-side Abilities API** registry with command palette integration, filter/search UI, and hybrid abilities support. The plugin already has 5 server-side abilities — these should be exposed client-side for richer integration.
+WordPress 7.0 ships a client-side Abilities registry as the script module `@wordpress/abilities` (a `@wordpress/data` store at `core/abilities`). Core's bundled `core-abilities` script module already auto-fetches every server-side ability and registers it client-side, wiring its `callback` to `/wp-abilities/v1/abilities/{name}/run`. **The plugin's 5 abilities are therefore already callable in the browser on WP 7.0+ without any plugin-side change** — they show up in `dispatch( 'core/abilities' ).executeAbility( name, input )` automatically, with input/output JSON Schema validation handled by core.
 
-**Registration:**
+**Command palette (Cmd+K) integration — investigated and deferred:**
 
-- Register all 5 existing abilities in the browser-side registry using the client-side API
-- Support hybrid abilities: client-side UI triggers with server-side REST execution
-- Ensure abilities are discoverable via WordPress command palette (Cmd+K)
+Core's command palette already covers note browsing and reusable-note creation through its built-in post-type navigation. Insert-at-cursor was the one unique affordance the plugin could add, but it is a poor fit for the palette UX model: the palette is invoked precisely when no text is selected (Cmd+K with a selection inserts a link), so the rich-text "anchor a phrase with a note" flow has no anchor text to apply the format to. Synthesizing one (e.g. inserting a reusable note's title at the cursor) is a narrow, glossary-style workflow that duplicates much of `src/edit.js`'s rich-text format synthesis from outside the rich-text component. Revisit if a clearer use case emerges.
 
-**Command palette integration:**
+**Out of scope:**
 
-- "Insert inline context note" — search and insert an existing reusable note from the palette
-- "Search notes" — find notes by content/title without leaving the editor
-- "Create note" — quick-create a new note from the palette with minimal UI
-
-**Technical approach:**
-
-- Use `wp.abilities.register()` (or equivalent client-side API) in the editor script
-- Map each server-side ability to a client-side handler that calls the existing REST endpoints
-- Add UI callbacks for abilities that need user input (e.g., note content, category selection)
-- Conditional registration: only register when Abilities API is available (WP 7.0+)
+- AI API integration — handled in the next roadmap item.
+- New server-side abilities — the existing 5 are sufficient.
 
 ### WP 7.0: Web Client AI API Integration
 

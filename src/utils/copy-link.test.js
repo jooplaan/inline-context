@@ -12,14 +12,8 @@
 describe( 'copy-link.js utilities', () => {
 	let mockClipboard;
 	let copyAnchorLinkToClipboard;
-	let originalWindow;
-	let originalDocument;
 
 	beforeEach( () => {
-		// Save originals
-		originalWindow = global.window;
-		originalDocument = global.document;
-
 		// Clear module cache to get fresh copy
 		jest.resetModules();
 
@@ -58,8 +52,8 @@ describe( 'copy-link.js utilities', () => {
 	} );
 
 	afterEach( () => {
-		global.window = originalWindow;
-		global.document = originalDocument;
+		delete global.window;
+		delete global.document;
 		jest.clearAllMocks();
 	} );
 
