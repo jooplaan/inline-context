@@ -441,7 +441,7 @@ Released: November 16, 2025
 - ✅ Separate show/hide timeout management for robust interaction
 - ✅ Enhanced user experience for interacting with tooltip content and links
 - ✅ Settings persistence in demo.html using localStorage
-- ✅ Updated documentation (README.md, ROADMAP.md, copilot-instructions.md)
+- ✅ Updated documentation (README.md, ROADMAP.md, AGENTS.md)
 
 ### v2.2.0 - Reusable Note Management & Testing Infrastructure ✓
 
