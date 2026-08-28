@@ -166,6 +166,14 @@ function inline_context_uninstall_cleanup() {
 	delete_option( 'inline_context_categories' );
 	delete_option( 'inline_context_css_variables' );
 	delete_option( 'inline_context_cleanup_on_uninstall' );
+	delete_option( 'inline_context_active_preset' );
+	delete_option( 'inline_context_display_mode' );
+	delete_option( 'inline_context_tooltip_hover' );
+	delete_option( 'inline_context_categories_migrated' );
+	delete_option( 'inline_context_enable_animations' );
+	delete_option( 'inline_context_link_style' );
+	delete_option( 'inline_context_icon_placement' );
+	delete_option( 'inline_context_allow_images' );
 
 	// Delete all post meta related to inline context notes.
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time cleanup on uninstall.
