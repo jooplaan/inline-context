@@ -3,6 +3,38 @@
 This file contains the complete changelog for all versions of the Inline Context plugin.
 For major version highlights, see README.md and readme.txt.
 
+## Version 2.8.2 - August 27, 2026
+
+* FIX: The "Notes" fallback section could stay visible at the bottom of posts, and clicking a
+  note jumped down to it instead of expanding the note in place. Root cause: `src/frontend.js`
+  bound its initialisation to `DOMContentLoaded`. Caching and optimization plugins routinely
+  defer, delay or combine the bundle so that it executes after that event has already fired,
+  at which point the listener never runs, no triggers are bound, and every click falls through
+  to its raw `href`. Startup now checks `document.readyState` and initialises immediately when
+  the document is already parsed.
+* FIX: Accessibility regression on themes that manage their own `js` class. The fallback was
+  hidden by `.js .wp-inline-context-noscript-notes`, but Twenty Twenty, Twenty Seventeen,
+  Twenty Sixteen and Twenty Fifteen all set `js` on the html element from an inline head
+  script. `.js` means "JavaScript exists", not "Inline Context is working", so on those themes
+  the fallback was hidden whenever this plugin's script failed to run - leaving screen reader
+  and keyboard users with a link pointing at a `display:none` target and no route to the note
+  text at all. Hiding is now keyed to `.inline-context-ready`, a plugin-owned class set on the
+  html element only after the frontend script has finished binding its handlers. The
+  accessible fallback survives whenever the enhancement does not.
+* IMPROVED: Confirmed WordPress 7.1 compatibility - "Tested up to" header bumped to 7.1.
+  Verified on WordPress 7.1 with PHP 8.2: 52 single-site, 12 ajax and 52 multisite PHPUnit
+  tests pass, admin and frontend render without PHP notices, and the Abilities API registers
+  all five abilities.
+* DEV: Added `.wp-env.json` plus `npm run env:*` scripts, giving a one-command local
+  WordPress environment with the plugin mounted and activated, WP_DEBUG/SCRIPT_DEBUG on, and
+  PHPUnit runnable inside the container without `bin/install-wp-tests.sh`.
+* DEV: Added `tests/test-frontend.php` - regression coverage for the endnotes fallback: that
+  it is always generated, that each trigger's href resolves to a real target, that back-links
+  are labelled, and that the server-rendered trigger is a plain link rather than a stale ARIA
+  widget.
+* DEV: `uninstall.php` now deletes every plugin option. Nine of the twelve were previously
+  left behind in wp_options after uninstalling.
+
 ## Version 2.8.1 - May 2, 2026
 * FIX: Inline context popover no longer closes when inserting an image from the WordPress
   Media Library. Root cause: the Media Library frame is a body-level modal, so its clicks

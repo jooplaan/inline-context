@@ -2,9 +2,9 @@
 Contributors: joop
 Tags: inline, footnote, tooltip, context, annotations
 Requires at least: 6.0
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.8.1
+Stable tag: 2.8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -130,6 +130,14 @@ Yes. You can type any Dashicon class name to use all 300+ icons.
 9. Notes Library in the admin area showing usage count and linked posts
 
 == Changelog ==
+
+= 2.8.2 - August 27, 2026 =
+* FIX: The "Notes" fallback section could stay visible at the bottom of posts, with clicks on a note jumping down to it instead of expanding in place. The frontend script tied its startup to DOMContentLoaded, so it never ran when a caching or optimization plugin deferred, delayed or combined the bundle until after that event had already fired
+* FIX: Accessibility — the fallback section was hidden by the generic `js` class, which Twenty Twenty, Seventeen, Sixteen and Fifteen add to the page themselves. On those themes the fallback was hidden even when this plugin's script had not run, leaving screen reader and keyboard users pointed at a hidden anchor with no way to reach the note text. Hiding is now tied to the plugin's own initialisation, so the fallback stays in place until the notes genuinely work
+* IMPROVED: Confirmed WordPress 7.1 compatibility — "Tested up to" header bumped to 7.1
+* DEV: Added a `@wordpress/env` configuration and `npm run env:*` scripts for a one-command local WordPress environment
+* DEV: Added `tests/test-frontend.php` covering the endnotes fallback and its accessibility guarantees
+* DEV: `uninstall.php` now removes every plugin option, not just three of them
 
 = 2.8.1 - May 2, 2026 =
 * FIX: Inline context popover no longer closes when inserting an image from the WordPress Media Library
