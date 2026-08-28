@@ -84,6 +84,13 @@ zip -rq "$ZIP_PATH" . \
   -x "test-abilities.sh" \
   -x ".php-cs-fixer.php" \
   -x "CLAUDE.md" \
+  -x "AGENTS.md" \
+  -x "CONTRIBUTING.md" \
+  -x "babel.config.json" \
+  -x ".wp-env.json" \
+  -x ".wp-env.override.json" \
+  -x ".wp-env.override.json.example" \
+  -x "support-reply.txt" \
 
 # Validate main plugin file exists in the archive context
 if [[ ! -f "inline-context.php" ]]; then

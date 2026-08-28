@@ -49,3 +49,9 @@ dist/
 *.swp
 *.swo
 .claude/
+
+# wp-env local overrides
+.wp-env.override.json
+
+# Draft support-forum reply (working file, not part of the plugin)
+support-reply.txt

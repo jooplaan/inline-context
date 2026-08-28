@@ -310,6 +310,25 @@ npm run package            # Create zip (runs lint:fix + build automatically)
 npm run release            # One-step release (runs lint:fix + build + package)
 ```
 
+Local WordPress environment (`@wordpress/env`, Docker required, config in `.wp-env.json`):
+
+```bash
+npm run env:start          # Latest stable WordPress at localhost:8888 (admin / password)
+npm run env:start:update   # Start and re-pull images after changing wp-env config
+npm run env:stop           # Stop the environment
+npm run env:reset          # Reset the databases, keep containers
+npm run env:clean          # Remove containers/volumes/files, keep images
+npm run env:destroy        # Remove everything, images included
+npm run env:logs           # Tail PHP and Docker logs
+npm run env:cli            # WP-CLI in the container, e.g. `npm run env:cli -- plugin list`
+npm run env:test:php       # PHPUnit inside the environment (no install-wp-tests.sh needed)
+npm run env:pot            # Regenerate languages/inline-context.pot via WP-CLI
+```
+
+The plugin directory is mounted into the container, `WP_DEBUG`/`SCRIPT_DEBUG` are on, and PHP
+notices land in `wp-content/debug.log` inside the container. To test a specific WordPress or
+PHP version, copy `.wp-env.override.json.example` to `.wp-env.override.json` (git-ignored).
+
 Uses `@wordpress/scripts` which provides:
 
 - Webpack configuration with React/JSX support

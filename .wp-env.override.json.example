@@ -1,0 +1,7 @@
+{
+	"comment": "Copy to .wp-env.override.json (git-ignored) to test against a specific WordPress or PHP version without touching .wp-env.json. Run `npm run env:start:update` after changing it.",
+	"core": "WordPress/WordPress#tags/7.1",
+	"phpVersion": "8.2",
+	"port": 8888,
+	"testsPort": 8889
+}

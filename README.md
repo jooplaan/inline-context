@@ -294,10 +294,48 @@ This will install the plugin to `wp-content/plugins/inline-context/` automatical
    npm run build
    ```
 
+### Local WordPress environment (wp-env)
+
+The repository ships a [`@wordpress/env`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/)
+configuration, so a full WordPress install with the plugin already activated is one command
+away. Docker must be running.
+
+```bash
+npm run env:start
+```
+
+- Site: <http://localhost:8888> (admin / password)
+- Test site: <http://localhost:8889>
+
+The plugin directory is mounted into the container, so `npm run start` in a second terminal
+gives you live rebuilds against a real WordPress install. `WP_DEBUG` and `SCRIPT_DEBUG` are
+on, and PHP notices land in `wp-content/debug.log` inside the container.
+
+By default the environment tracks the **latest stable WordPress release**. To test a specific
+WordPress or PHP version, copy `.wp-env.override.json.example` to `.wp-env.override.json`
+(git-ignored), edit it, and run `npm run env:start:update`.
+
+Run the PHPUnit suite against the containerised WordPress — no `install-wp-tests.sh` needed:
+
+```bash
+npm run env:test:php
+```
+
 ### Available scripts
 
 - `npm run start` — Start development mode with hot reload
 - `npm run build` — Build production assets
+- `npm run env:start` — Start the local WordPress environment (Docker required)
+- `npm run env:start:update` — Start and re-pull WordPress/PHP images (use after editing wp-env config)
+- `npm run env:stop` — Stop the environment
+- `npm run env:restart` — Stop and start again
+- `npm run env:reset` — Reset the WordPress databases, keeping containers
+- `npm run env:clean` — Remove containers, volumes and local files (keeps images)
+- `npm run env:destroy` — Remove everything, images included
+- `npm run env:logs` — Tail PHP and Docker logs
+- `npm run env:cli` — Run WP-CLI inside the container, e.g. `npm run env:cli -- plugin list`
+- `npm run env:test:php` — Run the PHPUnit suite inside the environment
+- `npm run env:pot` — Regenerate `languages/inline-context.pot` with WP-CLI
 - `npm run lint:js` — Lint JavaScript files
 - `npm run lint:php` — Check PHP coding standards (uses local PHPCS via Composer)
 - `npm run lint:php:fix` — Auto-fix PHP coding standard violations (uses local PHPCBF via Composer)
@@ -312,6 +350,7 @@ This will install the plugin to `wp-content/plugins/inline-context/` automatical
 - `src/` — Source files (JavaScript, SCSS)
 - `build/` — Compiled assets (committed to repo for WordPress.org)
 - `languages/` — Translation files
+- `.wp-env.json` — Local WordPress environment configuration
 - `inline-context.php` — Main plugin bootstrap file
 - `admin-settings.php` — Admin settings interface
 - `includes/` — Modular class-based architecture (v2.0)

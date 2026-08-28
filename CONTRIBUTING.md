@@ -13,7 +13,20 @@ composer install   # PHPCS + PHPUnit
 npm run start      # webpack dev mode with hot reload
 ```
 
-To work against a local WordPress install, symlink the plugin folder into `wp-content/plugins/`:
+To work against a local WordPress install, start the bundled `@wordpress/env` environment
+(Docker required). It boots the latest stable WordPress with the plugin already activated and
+the working tree mounted, so `npm run start` rebuilds straight into it:
+
+```bash
+npm run env:start          # http://localhost:8888 - admin / password
+npm run env:cli -- plugin list
+npm run env:stop
+```
+
+To pin a specific WordPress or PHP version, copy `.wp-env.override.json.example` to
+`.wp-env.override.json` (git-ignored) and run `npm run env:start:update`.
+
+Prefer an existing WordPress install? Symlink the plugin folder into `wp-content/plugins/`:
 
 ```bash
 ln -s "$(pwd)" /path/to/wp-content/plugins/inline-context
@@ -35,7 +48,15 @@ npm run test:unit          # Jest unit tests (110 tests)
 npm run test               # full quality gate: lint + unit tests
 ```
 
-PHP integration tests run separately:
+PHP integration tests run separately. The simplest route is the wp-env environment, which
+already provides the WordPress test library:
+
+```bash
+npm run env:test:php                                    # single site
+npm run env:test:php -- --group ajax                    # ajax group
+```
+
+Without Docker, install the test library locally instead:
 
 ```bash
 bin/install-wp-tests.sh wordpress_test root '' localhost latest   # one-time
@@ -54,7 +75,7 @@ vendor/bin/phpunit
 Run the relevant suite for what you touched, and the full gate before opening a PR:
 
 - Editing JS in `src/` → `npm run test:unit` (or `:watch` while iterating)
-- Editing PHP under `includes/` or `inline-context.php` → `vendor/bin/phpunit`
+- Editing PHP under `includes/` or `inline-context.php` → `npm run env:test:php` (or `vendor/bin/phpunit`)
 - Editing rich-text format / popover behavior → also smoke-test in a real block editor; `demo.html` covers the frontend rendering only.
 - Editing the Abilities API (`includes/class-inline-context-abilities.php`) → run `tests/test-abilities.php`.
 

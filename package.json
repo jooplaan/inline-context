@@ -5,6 +5,16 @@
 	"scripts": {
 		"start": "wp-scripts start",
 		"build": "wp-scripts build",
+		"env:start": "wp-env start",
+		"env:start:update": "wp-env start --update",
+		"env:stop": "wp-env stop",
+		"env:restart": "wp-env stop && wp-env start",
+		"env:destroy": "wp-env destroy",
+		"env:clean": "wp-env cleanup",
+		"env:logs": "wp-env logs",
+		"env:cli": "wp-env run cli wp",
+		"env:test:php": "wp-env run tests-cli --env-cwd=wp-content/plugins/inline-context vendor/bin/phpunit",
+		"env:pot": "wp-env run cli --env-cwd=wp-content/plugins/inline-context wp i18n make-pot . languages/inline-context.pot --domain=inline-context",
 		"lint:js": "wp-scripts lint-js src/ --no-error-on-unmatched-pattern",
 		"lint:js:fix": "wp-scripts lint-js src/ --fix --no-error-on-unmatched-pattern",
 		"lint:php": "vendor/bin/phpcs --standard=WordPress inline-context.php admin-settings.php uninstall.php includes/",
@@ -23,7 +33,8 @@
 		"prepackage": "npm run lint:fix && npm run build",
 		"package": "bash bin/package.sh",
 		"prerelease": "npm run lint:fix && npm run build",
-		"release": "bash bin/package.sh"
+		"release": "bash bin/package.sh",
+		"env:reset": "wp-env reset"
 	},
 	"dependencies": {
 		"dompurify": "^3.0.0",
@@ -38,6 +49,7 @@
 		"@wordpress/components": "^30.8.0",
 		"@wordpress/data": "^10.35.0",
 		"@wordpress/element": "^6.35.0",
+		"@wordpress/env": "^11.14.0",
 		"@wordpress/i18n": "^6.8.0",
 		"@wordpress/scripts": "^25.0.0"
 	}
