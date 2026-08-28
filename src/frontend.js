@@ -1,7 +1,8 @@
 import DOMPurify from 'dompurify';
 
-document.addEventListener( 'DOMContentLoaded', () => {
-	// Add 'js' class to body to enable JS-specific styles
+const initInlineContext = () => {
+	// Retained for backwards compatibility with custom theme CSS. The endnotes
+	// fallback no longer keys off this class - see the end of this function.
 	document.body.classList.add( 'js' );
 
 	// Add 'no-animations' class if animations are disabled
@@ -732,4 +733,23 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 	// Also check when hash changes (e.g., user clicks a link with hash)
 	window.addEventListener( 'hashchange', autoOpenFromHash );
-} );
+
+	// Signal that this plugin has taken over the notes. The stylesheet hides the
+	// endnotes fallback only once this class is present, so the fallback - the
+	// anchor target each trigger links to, and the only route to the note text
+	// without JavaScript - survives whenever this script does not. Set last, so a
+	// failure anywhere above leaves the accessible fallback in place.
+	document.documentElement.classList.add( 'inline-context-ready' );
+};
+
+// Run as soon as the DOM is parsed. Optimisation plugins routinely inject this
+// bundle with defer/async, or delay it until first interaction, in which case
+// DOMContentLoaded has already fired by the time this file executes and a
+// listener would never run at all - leaving every trigger unbound, so clicking
+// one falls through to its raw href and jumps down to the endnotes section
+// instead of revealing the note.
+if ( document.readyState === 'loading' ) {
+	document.addEventListener( 'DOMContentLoaded', initInlineContext );
+} else {
+	initInlineContext();
+}

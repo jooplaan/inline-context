@@ -196,7 +196,7 @@
 	}
 }
 
-/* Noscript / Print styles */
+/* Endnotes fallback / Print styles */
 .wp-inline-context-noscript-notes {
 	margin-top: 2em;
 	padding-top: 1.5em;
@@ -225,8 +225,15 @@
 	}
 }
 
-/* Hide endnotes section when JavaScript is available */
-.js .wp-inline-context-noscript-notes {
+/* Hide the fallback only once Inline Context has actually taken over the notes.
+   This class is set by the plugin's own frontend script after it finishes
+   binding handlers - deliberately not the generic `.js` class, which several
+   themes (Twenty Twenty, Seventeen, Sixteen, Fifteen) set on <html> themselves.
+   Keying off `.js` meant "JavaScript exists", so on those themes the fallback
+   was hidden even when this plugin's script never ran, leaving screen reader
+   and keyboard users pointed at a display:none anchor with no way to reach the
+   note text. The fallback now stays in place until the enhancement is proven. */
+.inline-context-ready .wp-inline-context-noscript-notes {
 	display: none;
 }
 
