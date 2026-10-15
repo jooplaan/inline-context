@@ -258,7 +258,7 @@ This plugin does not collect data, set cookies, or connect to external services.
 ### Via Composer (For Developers)
 
 ```bash
-composer config repositories.inline-context vcs https://github.com/jooplaan/inline-context
+composer config repositories.inline-context vcs https://codeberg.org/joop/inline-context
 composer require jooplaan/inline-context
 ```
 
@@ -266,7 +266,7 @@ This will install the plugin to `wp-content/plugins/inline-context/` automatical
 
 ### Manual Installation
 
-1. Download the latest release from GitHub
+1. Download the latest release from Codeberg
 2. Extract to `wp-content/plugins/inline-context/`
 3. Activate via WordPress admin
 

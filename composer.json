@@ -14,7 +14,7 @@
 		"tooltip",
 		"anchor-links"
 	],
-	"homepage": "https://github.com/jooplaan/inline-context",
+	"homepage": "https://codeberg.org/joop/inline-context",
 	"license": "GPL-2.0-or-later",
 	"authors": [
 		{
@@ -24,8 +24,8 @@
 		}
 	],
 	"support": {
-		"issues": "https://github.com/jooplaan/inline-context/issues",
-		"source": "https://github.com/jooplaan/inline-context"
+		"issues": "https://codeberg.org/joop/inline-context/issues",
+		"source": "https://codeberg.org/joop/inline-context"
 	},
 	"require": {
 		"php": ">=7.4",

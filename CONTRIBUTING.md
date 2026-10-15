@@ -5,7 +5,7 @@ Thanks for taking the time to contribute. This document covers the practical wor
 ## Getting started
 
 ```bash
-git clone https://github.com/jooplaan/inline-context.git
+git clone https://codeberg.org/joop/inline-context.git
 cd inline-context
 nvm use            # honors .nvmrc
 npm install
@@ -97,7 +97,7 @@ PRs should target `develop` for normal work and `main` only for hotfixes.
 - Document new public WordPress filters in `FILTERS.md`; new abilities in `ABILITIES-API.md`.
 - For UI changes, include a screenshot or short clip in the PR body.
 
-New to GitHub pull requests? See GitHub's guide: [Creating a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request).
+New to Codeberg pull requests? See Codeberg's guide: [Pull requests and Git flow](https://docs.codeberg.org/collaborating/pull-requests-and-git-flow/).
 
 ## Releasing
 
@@ -105,7 +105,7 @@ Maintainers only. The full process — version bumping (across `inline-context.p
 
 ## Reporting bugs / requesting features
 
-Open an issue at <https://github.com/jooplaan/inline-context/issues>. For bugs, include:
+Open an issue at <https://codeberg.org/joop/inline-context/issues>. For bugs, include:
 
 - WordPress version, PHP version, browser
 - Steps to reproduce

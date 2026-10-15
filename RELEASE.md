@@ -164,9 +164,9 @@ git branch -d feature/version-X.X.X
 git push origin --delete feature/version-X.X.X
 ```
 
-## GitHub Release
+## Codeberg Release
 
-1. Go to GitHub repository → Releases → Draft a new release
+1. Go to the Codeberg repository → Releases → New release
 2. Choose tag: `X.X.X`
 3. Release title: `Version X.X.X`
 4. Description: Copy changelog from `readme.txt`
@@ -270,7 +270,7 @@ After committing, verify the release:
 
 - [ ] Verify version numbers display correctly in WordPress admin
 - [ ] Test installation from WordPress.org (if applicable)
-- [ ] Test installation from GitHub release zip
+- [ ] Test installation from Codeberg release zip
 - [ ] Verify changelog displays correctly
 - [ ] Check that update notifications work (if updating from previous version)
 

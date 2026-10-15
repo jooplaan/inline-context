@@ -544,6 +544,6 @@ These are suggestions based on user needs and WordPress ecosystem trends. Actual
 - Performance considerations
 - Community contributions
 
-**Have suggestions?** [Open an issue on GitHub](https://github.com/jooplaan/inline-context/issues)!
+**Have suggestions?** [Open an issue on Codeberg](https://codeberg.org/joop/inline-context/issues)!
 
-**Want to contribute?** The v2.0 modular architecture makes it easier than ever to add features. Check the [contributing guidelines](https://github.com/jooplaan/inline-context/blob/main/CONTRIBUTING.md) to get started.
+**Want to contribute?** The v2.0 modular architecture makes it easier than ever to add features. Check the [contributing guidelines](https://codeberg.org/joop/inline-context/src/branch/main/CONTRIBUTING.md) to get started.

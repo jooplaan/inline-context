@@ -94,7 +94,7 @@ The idea for this plugin originated from a project with Renée Kool — a visual
 Inline Context uses `@wordpress/scripts` with webpack and npm to build assets.
 
 Full source (including uncompiled JS and CSS) is available at:
-[https://github.com/jooplaan/inline-context](https://github.com/jooplaan/inline-context)
+[https://codeberg.org/joop/inline-context](https://codeberg.org/joop/inline-context)
 
 == Installation ==
 
@@ -194,4 +194,4 @@ Yes. You can type any Dashicon class name to use all 300+ icons.
 * NEW: Context Library Panel in editor sidebar
 * IMPROVED: Updated "Tested up to" WordPress 6.9
 
-For complete version history, see [changelog.txt](https://github.com/jooplaan/inline-context/blob/main/changelog.txt)
+For complete version history, see [changelog.txt](https://codeberg.org/joop/inline-context/src/branch/main/changelog.txt)

@@ -401,4 +401,4 @@ When extending allowed tags or attributes:
 
 ## Need Help?
 
-If you're building something complex with these filters or need additional hooks, please open an issue on GitHub or contact the plugin author.
+If you're building something complex with these filters or need additional hooks, please open an issue on Codeberg or contact the plugin author.

@@ -504,7 +504,7 @@ For issues or questions about the Abilities API integration:
 2. Verify authentication is working
 3. Check WordPress debug log for errors
 4. Test with WP-CLI first
-5. Open an issue on GitHub
+5. Open an issue on Codeberg
 
 ## Future Enhancements
 
